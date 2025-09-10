@@ -1,6 +1,15 @@
-import journalService, { MoodType } from "@/services/journalService";
-import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import { db } from "@/firebase";
+import { MoodType } from "@/services/journalService";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  serverTimestamp,
+  updateDoc,
+} from "firebase/firestore";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -12,13 +21,26 @@ import {
   View,
 } from "react-native";
 
-const AddJournalEntry = () => {
+interface JournalEntry {
+  id: string;
+  title: string;
+  content: string;
+  mood: MoodType;
+  createdAt: any;
+}
+
+const JournalEntryScreen = () => {
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  const isNew = !id || id === "new";
   const router = useRouter();
+
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [selectedMood, setSelectedMood] = useState<MoodType | null>(null);
   const [showMoodSelector, setShowMoodSelector] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [titleError, setTitleError] = useState("");
 
   // Mood options with emojis
   const moodOptions = [
@@ -29,6 +51,39 @@ const AddJournalEntry = () => {
     { mood: "excited" as MoodType, emoji: "🤩", color: "#06B6D4" },
   ];
 
+  // Load existing journal entry if editing
+  useEffect(() => {
+    const loadJournalEntry = async () => {
+      if (!isNew && id) {
+        try {
+          setLoading(true);
+          const docRef = doc(db, "journalEntry", id);
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            const data = docSnap.data() as Omit<JournalEntry, "id">;
+            setTitle(data.title || "");
+            setContent(data.content || "");
+            setSelectedMood(data.mood || null);
+          } else {
+            Alert.alert("Error", "Journal entry not found", [
+              { text: "OK", onPress: () => router.back() },
+            ]);
+          }
+        } catch (error) {
+          console.error("Error loading journal entry:", error);
+          Alert.alert("Error", "Failed to load journal entry", [
+            { text: "OK", onPress: () => router.back() },
+          ]);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadJournalEntry();
+  }, [id, isNew]);
+
   const handleMoodIconPress = () => {
     setShowMoodSelector(!showMoodSelector);
   };
@@ -38,37 +93,69 @@ const AddJournalEntry = () => {
     setShowMoodSelector(false);
   };
 
-  const handleSave = async () => {
-    // Early return if no mood selected
+  const validateForm = () => {
+    let isValid = true;
+    setTitleError("");
+
+    if (!title.trim()) {
+      setTitleError("Title is required");
+      isValid = false;
+    } else if (title.trim().length < 3) {
+      setTitleError("Title must be at least 3 characters");
+      isValid = false;
+    }
+
+    if (!content.trim()) {
+      Alert.alert("Error", "Please write something in your journal entry");
+      isValid = false;
+    }
+
     if (!selectedMood) {
       Alert.alert("Error", "Please select your mood");
+      isValid = false;
+    }
+
+    return isValid;
+  };
+
+  const handleSave = async () => {
+    if (!validateForm()) {
       return;
     }
 
     try {
       setSaving(true);
 
-      // Use journalService to create the entry
-      await journalService.createJournalEntry({
-        title,
-        content,
+      const journalData = {
+        title: title.trim(),
+        content: content.trim(),
         mood: selectedMood,
-      });
+        updatedAt: serverTimestamp(),
+      };
 
-      // Show success message and navigate back
-      Alert.alert("Success", "Your journal entry has been saved!", [
-        {
-          text: "OK",
-          onPress: () => router.back(),
-        },
-      ]);
+      if (isNew) {
+        // Create new journal entry
+        const docRef = await addDoc(collection(db, "journalEntry"), {
+          ...journalData,
+          createdAt: serverTimestamp(),
+        });
+        console.log("Document written with ID: ", docRef.id);
+        Alert.alert("Success", "Your journal entry has been saved!");
+      } else {
+        // Update existing journal entry
+        const docRef = doc(db, "journalEntry", id);
+        await updateDoc(docRef, journalData);
+        console.log("Document updated with ID: ", id);
+        Alert.alert("Success", "Your journal entry has been updated!");
+      }
+
+      router.back();
     } catch (error) {
-      // Handle validation errors and other errors
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Failed to save your journal entry. Please try again.";
-      Alert.alert("Error", errorMessage);
+      console.error("Error saving document: ", error);
+      Alert.alert(
+        "Error",
+        `Failed to ${isNew ? "save" : "update"} your journal entry. Please try again.`
+      );
     } finally {
       setSaving(false);
     }
@@ -78,7 +165,7 @@ const AddJournalEntry = () => {
     if (title.trim() || content.trim()) {
       Alert.alert(
         "Discard Changes",
-        "Are you sure you want to discard your journal entry?",
+        `Are you sure you want to discard your ${isNew ? "journal entry" : "changes"}?`,
         [
           { text: "Keep Writing", style: "cancel" },
           {
@@ -114,6 +201,16 @@ const AddJournalEntry = () => {
     return moodOption?.emoji || "😐";
   };
 
+  // Show loading spinner while loading existing entry
+  if (loading) {
+    return (
+      <View className="flex-1 bg-gray-50 justify-center items-center">
+        <ActivityIndicator size="large" color="#EC4899" />
+        <Text className="text-gray-600 mt-4">Loading journal entry...</Text>
+      </View>
+    );
+  }
+
   return (
     <View className="flex-1 bg-gray-50">
       <StatusBar
@@ -128,6 +225,10 @@ const AddJournalEntry = () => {
           <Text className="text-2xl text-gray-700">‹</Text>
         </TouchableOpacity>
 
+        <Text className="text-lg font-semibold text-gray-800">
+          {isNew ? "Add Journal Entry" : "Edit Journal Entry"}
+        </Text>
+
         <TouchableOpacity
           onPress={handleSave}
           disabled={saving}
@@ -136,7 +237,9 @@ const AddJournalEntry = () => {
           {saving ? (
             <ActivityIndicator size="small" color="white" />
           ) : (
-            <Text className="text-white font-semibold">Done</Text>
+            <Text className="text-white font-semibold">
+              {isNew ? "Save" : "Update"}
+            </Text>
           )}
         </TouchableOpacity>
       </View>
@@ -149,6 +252,9 @@ const AddJournalEntry = () => {
 
         {/* Mood Selector */}
         <View className="px-6 py-6 bg-white border-b border-gray-100">
+          <Text className="text-gray-700 font-medium mb-3">
+            How are you feeling?
+          </Text>
           <TouchableOpacity
             onPress={handleMoodIconPress}
             className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center"
@@ -159,14 +265,24 @@ const AddJournalEntry = () => {
 
         {/* Title Input */}
         <View className="px-6 py-4 bg-white border-b border-gray-100">
+          <Text className="text-gray-700 font-medium mb-2">Title *</Text>
           <TextInput
             value={title}
-            onChangeText={setTitle}
-            placeholder="Title"
-            className="text-xl text-gray-800 font-medium"
+            onChangeText={(text) => {
+              setTitle(text);
+              if (titleError) setTitleError("");
+            }}
+            placeholder="Enter your journal title"
+            className={`text-xl font-medium ${
+              titleError ? "text-red-600" : "text-gray-800"
+            }`}
             placeholderTextColor="#9CA3AF"
             multiline={false}
+            maxLength={100}
           />
+          {titleError ? (
+            <Text className="text-red-500 text-sm mt-1">{titleError}</Text>
+          ) : null}
         </View>
 
         {/* Space between title and content */}
@@ -174,6 +290,7 @@ const AddJournalEntry = () => {
 
         {/* Content Input - Now with proper text box styling */}
         <View className="px-6 py-4 bg-white flex-1">
+          <Text className="text-gray-700 font-medium mb-3">Your thoughts</Text>
           <View className="bg-gray-50 rounded-xl border border-gray-200 p-4 min-h-[250px]">
             <TextInput
               value={content}
@@ -184,8 +301,12 @@ const AddJournalEntry = () => {
               multiline={true}
               textAlignVertical="top"
               style={{ minHeight: 200 }}
+              maxLength={1000}
             />
           </View>
+          <Text className="text-gray-400 text-sm mt-2 text-right">
+            {content.length}/1000
+          </Text>
         </View>
       </ScrollView>
 
@@ -194,7 +315,7 @@ const AddJournalEntry = () => {
         <View className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <View className="bg-white rounded-3xl p-6 mx-6 w-80">
             <Text className="text-xl font-semibold text-gray-800 text-center mb-6">
-              How are you?
+              How are you feeling?
             </Text>
 
             <View className="flex-row justify-between items-center mb-6">
@@ -226,8 +347,32 @@ const AddJournalEntry = () => {
           </View>
         </View>
       )}
+
+      {/* Bottom Toolbar */}
+      <View className="bg-white border-t border-gray-200 px-6 py-4">
+        <View className="flex-row justify-around items-center">
+          <TouchableOpacity className="p-2">
+            <Text className="text-2xl text-gray-400">🎨</Text>
+          </TouchableOpacity>
+          <TouchableOpacity className="p-2">
+            <Text className="text-2xl text-gray-400">🖼️</Text>
+          </TouchableOpacity>
+          <TouchableOpacity className="p-2">
+            <Text className="text-2xl text-gray-400">Tt</Text>
+          </TouchableOpacity>
+          <TouchableOpacity className="p-2">
+            <Text className="text-2xl text-gray-400">☰</Text>
+          </TouchableOpacity>
+          <TouchableOpacity className="p-2">
+            <Text className="text-2xl text-gray-400">✏️</Text>
+          </TouchableOpacity>
+          <TouchableOpacity className="p-2">
+            <Text className="text-2xl text-gray-400">⏰</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </View>
   );
 };
 
-export default AddJournalEntry;
+export default JournalEntryScreen;
