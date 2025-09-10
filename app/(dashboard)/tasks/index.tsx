@@ -1,38 +1,38 @@
+import { useLoader } from "@/context/LoaderContext";
+import { getAllTaskData, taskColRef } from "@/services/taskService";
+import { Task } from "@/types/task";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useRouter, useSegments } from "expo-router";
+import { onSnapshot } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
 import {
-  View,
-  Text,
+  Alert,
   Pressable,
   ScrollView,
+  Text,
   TouchableOpacity,
-  Alert
-} from "react-native"
-import React, { useEffect, useState } from "react"
-import { getAllTask, getAllTaskData, taskColRef } from "@/services/taskService"
-import { MaterialIcons } from "@expo/vector-icons"
-import { useRouter, useSegments } from "expo-router"
-import { Task } from "@/types/task"
-import { useLoader } from "@/context/LoaderContext"
-import { onSnapshot } from "firebase/firestore"
+  View,
+} from "react-native";
 
 const TasksScreen = () => {
-  const [tasks, setTasks] = useState<Task[]>([])
-  const segment = useSegments()
-  const router = useRouter()
-  const { hideLoader, showLoader } = useLoader()
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const segment = useSegments();
+  const router = useRouter();
+  const { hideLoader, showLoader } = useLoader();
 
   const handleFetchData = async () => {
-    showLoader()
+    showLoader();
     await getAllTaskData()
       .then((data) => {
-        setTasks(data)
-        console.log(data)
+        setTasks(data);
+        console.log(data);
       })
       .catch((err) => {
-        console.error(err)
+        console.error(err);
       })
       .finally(() => {
-        hideLoader()
-      })
+        hideLoader();
+      });
     //  await getAllTask()
     // .then((data) => {
     //   console.log(data)
@@ -40,7 +40,7 @@ const TasksScreen = () => {
     // .catch((err) => {
     //   console.error(err)
     // })
-  }
+  };
 
   // useEffect(() => {
   //   handleFetchData()
@@ -52,16 +52,16 @@ const TasksScreen = () => {
       (snapshot) => {
         const taskList = snapshot.docs.map((taskRef) => ({
           id: taskRef.id,
-          ...taskRef.data()
-        })) as Task[]
-        setTasks(taskList)
+          ...taskRef.data(),
+        })) as Task[];
+        setTasks(taskList);
       },
       (err) => {
-        console.error(err)
+        console.error(err);
       }
-    )
-    return () => unsubcribe()
-  }, [])
+    );
+    return () => unsubcribe();
+  }, []);
 
   const hadnleDelete = () => {
     Alert.alert("Alert Title", "Alert Desc", [
@@ -72,10 +72,10 @@ const TasksScreen = () => {
           // user is confirmed
           // so delete task
           //
-        }
-      }
-    ])
-  }
+        },
+      },
+    ]);
+  };
 
   return (
     <View className="flex-1 w-full justify-center align-items-center">
@@ -84,7 +84,7 @@ const TasksScreen = () => {
         <Pressable
           className="bg-blue-500 rounded-full p-5 shadow-lg"
           onPress={() => {
-            router.push("/(dashboard)/tasks/new")
+            router.push("/(dashboard)/tasks/new");
           }}
         >
           <MaterialIcons name="add" size={28} color={"#fff"} />
@@ -114,11 +114,11 @@ const TasksScreen = () => {
                 </TouchableOpacity>
               </View>
             </View>
-          )
+          );
         })}
       </ScrollView>
     </View>
-  )
-}
+  );
+};
 
-export default TasksScreen
+export default TasksScreen;

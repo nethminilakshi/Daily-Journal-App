@@ -1,12 +1,14 @@
-import { View, Text } from "react-native"
-import React from "react"
+import React from "react";
+import { Text, View } from "react-native";
 
-const SettingScreen = () => {
+const AddScreen = () => {
   return (
-    <View className="flex-1 w-full justify-center align-items-center">
-      <Text className="text-center text-4xl">Setting screen</Text>
+    <View className="flex-1 justify-center items-center bg-gray-50">
+      <Text className="text-gray-500 text-lg">
+        This tab redirects to Add Entry
+      </Text>
     </View>
-  )
-}
+  );
+};
 
-export default SettingScreen
+export default AddScreen;

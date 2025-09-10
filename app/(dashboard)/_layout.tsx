@@ -1,26 +1,31 @@
-import { View, Text, SafeAreaView, ActivityIndicator } from "react-native"
-import React, { useEffect } from "react"
-import { Slot, Tabs, useRouter } from "expo-router"
-import { MaterialIcons } from "@expo/vector-icons"
-import { useAuth } from "@/context/AuthContext"
+import { useAuth } from "@/context/AuthContext";
+import { MaterialIcons } from "@expo/vector-icons";
+import { Tabs, useRouter } from "expo-router";
+import React, { useEffect } from "react";
+import {
+  ActivityIndicator,
+  SafeAreaView,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 const DashboardLayout = () => {
-  const { user, loading } = useAuth()
-  const router = useRouter()
-  console.log("User Data :", user)
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  console.log("User Data :", user);
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/login")
+      router.push("/login");
     }
-  }, [user, loading])
+  }, [user, loading]);
 
   if (loading) {
     return (
       <View className="flex-1 w-full justify-center align-items-center">
         <ActivityIndicator size="large" />
       </View>
-    )
+    );
   }
 
   return (
@@ -28,69 +33,115 @@ const DashboardLayout = () => {
       <Tabs
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: "#2ecc71",
-          tabBarInactiveTintColor: "#2c3e50",
+          tabBarActiveTintColor: "#EC4899", // Pink-500
+          tabBarInactiveTintColor: "#6B7280", // Gray-500
           tabBarStyle: {
-            backgroundColor: "#bdc3c7"
-          }
+            backgroundColor: "#FFFFFF",
+            borderTopWidth: 1,
+            borderTopColor: "#E5E7EB",
+            height: 80,
+            paddingBottom: 20,
+            paddingTop: 10,
+          },
+          tabBarLabelStyle: {
+            fontSize: 12,
+            fontWeight: "500",
+            marginTop: 4,
+          },
         }}
       >
         <Tabs.Screen
-          name="home"
+          name="JournalEntries"
           options={{
-            title: "Home",
-            tabBarIcon: (data) => (
-              <MaterialIcons
-                name="home-filled"
-                size={data.size}
-                color={data.color}
-              />
-            )
+            title: "Diary",
+            tabBarIcon: ({ color, focused }) => (
+              <View className="items-center">
+                <View
+                  className={`w-8 h-8 items-center justify-center ${focused ? "bg-pink-100" : ""} rounded-lg`}
+                >
+                  <MaterialIcons name="book" size={24} color={color} />
+                </View>
+              </View>
+            ),
           }}
         />
+
         <Tabs.Screen
-          name="tasks"
-          // name="tasks/index"
+          name="calendar"
           options={{
-            title: "Task",
-            tabBarIcon: (data) => (
-              <MaterialIcons
-                name="check-circle"
-                size={data.size}
-                color={data.color}
-              />
-            )
+            title: "Calendar",
+            tabBarIcon: ({ color, focused }) => (
+              <View className="items-center">
+                <View
+                  className={`w-8 h-8 items-center justify-center ${focused ? "bg-pink-100" : ""} rounded-lg`}
+                >
+                  <MaterialIcons
+                    name="calendar-today"
+                    size={24}
+                    color={color}
+                  />
+                </View>
+              </View>
+            ),
           }}
         />
+
         <Tabs.Screen
-          name="profile"
+          name="add"
           options={{
-            title: "Profile",
-            tabBarIcon: (data) => (
-              <MaterialIcons
-                name="person"
-                size={data.size}
-                color={data.color}
-              />
-            )
+            title: "",
+            tabBarIcon: ({ focused }) => (
+              <TouchableOpacity className="items-center -mt-2">
+                <View className="w-14 h-14 bg-pink-400 rounded-full flex justify-center items-center shadow-lg">
+                  <MaterialIcons name="add" size={28} color="white" />
+                </View>
+              </TouchableOpacity>
+            ),
+          }}
+          listeners={{
+            tabPress: (e) => {
+              // Prevent default navigation
+              e.preventDefault();
+              // Navigate to add entry screen or show modal
+              router.push("/add");
+            },
           }}
         />
+
+        <Tabs.Screen
+          name="insights"
+          options={{
+            title: "Insights",
+            tabBarIcon: ({ color, focused }) => (
+              <View className="items-center">
+                <View
+                  className={`w-8 h-8 items-center justify-center ${focused ? "bg-pink-100" : ""} rounded-lg`}
+                >
+                  <MaterialIcons name="insights" size={24} color={color} />
+                </View>
+              </View>
+            ),
+          }}
+        />
+
         <Tabs.Screen
           name="setting"
           options={{
-            title: "Setting",
-            tabBarIcon: (data) => (
-              <MaterialIcons
-                name="settings"
-                size={data.size}
-                color={data.color}
-              />
-            )
+            title: "Settings",
+            tabBarIcon: ({ color, focused }) => (
+              <View className="items-center">
+                <View
+                  className={`w-8 h-8 items-center justify-center ${focused ? "bg-pink-100" : ""} rounded-lg`}
+                >
+                  <MaterialIcons name="settings" size={24} color={color} />
+                </View>
+              </View>
+            ),
           }}
         />
       </Tabs>
     </SafeAreaView>
-  )
-}
+  );
+};
 
-export default DashboardLayout
+export default DashboardLayout;
