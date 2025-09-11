@@ -1,56 +1,56 @@
-import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native"
-import React, { useEffect, useState } from "react"
-import { useLocalSearchParams, useRouter } from "expo-router"
-import { createTask, getTaskById, updateTask } from "@/services/taskService"
-import { useLoader } from "@/context/LoaderContext"
+import { useLoader } from "@/context/LoaderContext";
+import { createTask, getTaskById, updateTask } from "@/services/taskService";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 const TaskFormScreen = () => {
-  const { id } = useLocalSearchParams<{ id?: string }>()
+  const { id } = useLocalSearchParams<{ id?: string }>();
   // params.id = {id}
-  const isNew = !id || id === "new" // null or id is new -> save
-  const [title, setTitle] = useState<string>("")
-  const [description, setDescription] = useState<string>("")
-  const router = useRouter()
-  const { hideLoader, showLoader } = useLoader()
+  const isNew = !id || id === "new"; // null or id is new -> save
+  const [title, setTitle] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const router = useRouter();
+  const { hideLoader, showLoader } = useLoader();
   useEffect(() => {
     const load = async () => {
       if (!isNew && id) {
         try {
-          showLoader()
-          const task = await getTaskById(id)
+          showLoader();
+          const task = await getTaskById(id);
           if (task) {
-            setTitle(task.title)
-            setDescription(task.description)
+            setTitle(task.title);
+            setDescription(task.description);
           }
         } finally {
-          hideLoader()
+          hideLoader();
         }
       }
-    }
-    load()
-  }, [id])
+    };
+    load();
+  }, [id]);
 
   const handleSubmit = async () => {
     // validations
     if (!title.trim) {
-      Alert.alert("Validation", "Title is required")
-      return
+      Alert.alert("Validation", "Title is required");
+      return;
     }
     try {
-      showLoader()
+      showLoader();
       if (isNew) {
-        await createTask({ title, description })
+        await createTask({ title, description });
       } else {
-        await updateTask(id, { title, description })
+        await updateTask(id, { title, description });
       }
-      router.back()
+      router.back();
     } catch (err) {
-      console.error("Error saving task : ", err)
-      Alert.alert("Error", "Fail to save task")
+      console.error("Error saving task : ", err);
+      Alert.alert("Error", "Fail to save task");
     } finally {
-      hideLoader()
+      hideLoader();
     }
-  }
+  };
 
   return (
     <View className="flex-1 w-full p-5">
@@ -78,7 +78,7 @@ const TaskFormScreen = () => {
         </Text>
       </TouchableOpacity>
     </View>
-  )
-}
+  );
+};
 
-export default TaskFormScreen
+export default TaskFormScreen;

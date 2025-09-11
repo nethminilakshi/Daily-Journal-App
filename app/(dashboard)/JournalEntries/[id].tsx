@@ -347,30 +347,6 @@ const JournalEntryScreen = () => {
           </View>
         </View>
       )}
-
-      {/* Bottom Toolbar */}
-      <View className="bg-white border-t border-gray-200 px-6 py-4">
-        <View className="flex-row justify-around items-center">
-          <TouchableOpacity className="p-2">
-            <Text className="text-2xl text-gray-400">🎨</Text>
-          </TouchableOpacity>
-          <TouchableOpacity className="p-2">
-            <Text className="text-2xl text-gray-400">🖼️</Text>
-          </TouchableOpacity>
-          <TouchableOpacity className="p-2">
-            <Text className="text-2xl text-gray-400">Tt</Text>
-          </TouchableOpacity>
-          <TouchableOpacity className="p-2">
-            <Text className="text-2xl text-gray-400">☰</Text>
-          </TouchableOpacity>
-          <TouchableOpacity className="p-2">
-            <Text className="text-2xl text-gray-400">✏️</Text>
-          </TouchableOpacity>
-          <TouchableOpacity className="p-2">
-            <Text className="text-2xl text-gray-400">⏰</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
     </View>
   );
 };
