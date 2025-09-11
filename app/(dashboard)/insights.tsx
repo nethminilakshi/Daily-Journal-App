@@ -108,11 +108,17 @@ const InsightsScreen = () => {
 
     setUniqueMoods(uniqueMoodsSet.size);
 
+    // Calculate percentages with better precision
     const stats: MoodStats[] = moodConfig
       .map((config) => {
         const count = moodCounts[config.mood] || 0;
-        const percentage =
-          entries.length > 0 ? Math.round((count / entries.length) * 100) : 0;
+        let percentage = 0;
+
+        if (entries.length > 0) {
+          // Calculate exact percentage with 1 decimal place
+          const exactPercentage = (count / entries.length) * 100;
+          percentage = Math.round(exactPercentage * 10) / 10;
+        }
 
         return {
           mood: config.mood,
@@ -124,6 +130,33 @@ const InsightsScreen = () => {
       })
       .filter((stat) => stat.count > 0)
       .sort((a, b) => b.count - a.count);
+
+    // Ensure percentages add up to 100% (fix rounding errors)
+    const totalPercentage = stats.reduce(
+      (sum, stat) => sum + stat.percentage,
+      0
+    );
+
+    if (totalPercentage !== 100 && stats.length > 0) {
+      // Distribute the difference among all entries
+      const difference = 100 - totalPercentage;
+      const adjustment = difference / stats.length;
+
+      stats.forEach((stat, index) => {
+        if (index === stats.length - 1) {
+          // Give any remaining difference to the last item
+          stat.percentage =
+            Math.round(
+              (100 -
+                stats.slice(0, -1).reduce((sum, s) => sum + s.percentage, 0)) *
+                10
+            ) / 10;
+        } else {
+          stat.percentage =
+            Math.round((stat.percentage + adjustment) * 10) / 10;
+        }
+      });
+    }
 
     setMoodStats(stats);
   };
@@ -381,9 +414,9 @@ const InsightsScreen = () => {
 
             {moodStats.length > 0 ? (
               <View>
-                {/* Mood percentages */}
+                {/* Mood percentages - Show ALL moods */}
                 <View className="mb-4">
-                  {moodStats.slice(0, 3).map((stat, index) => (
+                  {moodStats.map((stat, index) => (
                     <View
                       key={stat.mood}
                       className="flex-row items-center justify-between mb-3"
