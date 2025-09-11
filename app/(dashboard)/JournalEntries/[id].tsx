@@ -7,6 +7,7 @@ import {
   doc,
   getDoc,
   serverTimestamp,
+  Timestamp,
   updateDoc,
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
@@ -27,6 +28,7 @@ interface JournalEntry {
   content: string;
   mood: MoodType;
   createdAt: any;
+  updatedAt?: any;
 }
 
 const JournalEntryScreen = () => {
@@ -41,6 +43,7 @@ const JournalEntryScreen = () => {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(false);
   const [titleError, setTitleError] = useState("");
+  const [initialData, setInitialData] = useState<JournalEntry | null>(null);
 
   // Mood options with emojis
   const moodOptions = [
@@ -57,32 +60,98 @@ const JournalEntryScreen = () => {
       if (!isNew && id) {
         try {
           setLoading(true);
+
+          // Enhanced debugging
+          console.log("=== LOADING JOURNAL ENTRY DEBUG ===");
+          console.log("isNew:", isNew);
+          console.log("id:", id);
+          console.log("id type:", typeof id);
+          console.log("id length:", id?.length);
+
+          // Check if ID is valid
+          if (!id || typeof id !== "string" || id.trim() === "") {
+            console.error("Invalid ID provided:", id);
+            Alert.alert("Error", "Invalid journal entry ID", [
+              { text: "OK", onPress: () => router.back() },
+            ]);
+            return;
+          }
+
           const docRef = doc(db, "journalEntry", id);
+          console.log("Document reference path:", docRef.path);
+          console.log("Document reference id:", docRef.id);
+
           const docSnap = await getDoc(docRef);
+          console.log("Document exists:", docSnap.exists());
+          console.log("Document metadata:", docSnap.metadata);
 
           if (docSnap.exists()) {
-            const data = docSnap.data() as Omit<JournalEntry, "id">;
-            setTitle(data.title || "");
-            setContent(data.content || "");
-            setSelectedMood(data.mood || null);
+            const data = docSnap.data();
+            console.log("Document data:", data);
+
+            const journalEntry: JournalEntry = {
+              id: docSnap.id,
+              title: data.title || "",
+              content: data.content || "",
+              mood: data.mood || null,
+              createdAt: data.createdAt,
+              updatedAt: data.updatedAt,
+            };
+
+            // Set form data
+            setTitle(journalEntry.title);
+            setContent(journalEntry.content);
+            setSelectedMood(journalEntry.mood);
+            setInitialData(journalEntry);
+
+            console.log("Form data set successfully:", {
+              title: journalEntry.title,
+              content: journalEntry.content,
+              mood: journalEntry.mood,
+            });
           } else {
+            console.error("=== DOCUMENT NOT FOUND DEBUG ===");
+            console.error("Document ID:", id);
+            console.error("Collection: journalEntry");
+            console.error("Full path:", `journalEntry/${id}`);
+            console.error("Document reference:", docRef);
+
+            // Check if it might be a collection name issue
+            console.error("Possible issues:");
+            console.error("1. Document doesn't exist in Firestore");
+            console.error(
+              "2. Collection name might be 'journalEntries' instead of 'journalEntry'"
+            );
+            console.error("3. Security rules blocking access");
+            console.error("4. Document ID is incorrect");
+
             Alert.alert("Error", "Journal entry not found", [
               { text: "OK", onPress: () => router.back() },
             ]);
           }
         } catch (error) {
-          console.error("Error loading journal entry:", error);
+          console.error("=== ERROR LOADING JOURNAL ENTRY ===");
+          console.error("Error:", error);
+
           Alert.alert("Error", "Failed to load journal entry", [
             { text: "OK", onPress: () => router.back() },
           ]);
         } finally {
           setLoading(false);
         }
+      } else {
+        console.log(
+          "Creating new journal entry (isNew:",
+          isNew,
+          ", id:",
+          id,
+          ")"
+        );
       }
     };
 
     loadJournalEntry();
-  }, [id, isNew]);
+  }, [id, isNew, router]);
 
   const handleMoodIconPress = () => {
     setShowMoodSelector(!showMoodSelector);
@@ -125,33 +194,50 @@ const JournalEntryScreen = () => {
 
     try {
       setSaving(true);
-
-      const journalData = {
-        title: title.trim(),
-        content: content.trim(),
-        mood: selectedMood,
-        updatedAt: serverTimestamp(),
-      };
+      console.log("=== SAVING JOURNAL ENTRY ===");
+      console.log("isNew:", isNew, ", id:", id);
 
       if (isNew) {
         // Create new journal entry
-        const docRef = await addDoc(collection(db, "journalEntry"), {
-          ...journalData,
+        const journalData = {
+          title: title.trim(),
+          content: content.trim(),
+          mood: selectedMood,
           createdAt: serverTimestamp(),
-        });
-        console.log("Document written with ID: ", docRef.id);
+          updatedAt: serverTimestamp(),
+        };
+
+        console.log("Creating new document with data:", journalData);
+        const docRef = await addDoc(
+          collection(db, "journalEntry"),
+          journalData
+        );
+        console.log("✅ NEW DOCUMENT CREATED WITH ID:", docRef.id);
+        console.log("🔗 Use this ID to test editing:", docRef.id);
         Alert.alert("Success", "Your journal entry has been saved!");
       } else {
         // Update existing journal entry
+        const journalData = {
+          title: title.trim(),
+          content: content.trim(),
+          mood: selectedMood,
+          updatedAt: serverTimestamp(),
+        };
+
+        console.log("Updating document with ID:", id);
+        console.log("Update data:", journalData);
         const docRef = doc(db, "journalEntry", id);
         await updateDoc(docRef, journalData);
-        console.log("Document updated with ID: ", id);
+        console.log("✅ DOCUMENT UPDATED WITH ID:", id);
         Alert.alert("Success", "Your journal entry has been updated!");
       }
 
       router.back();
     } catch (error) {
-      console.error("Error saving document: ", error);
+      console.error("=== ERROR SAVING DOCUMENT ===");
+      console.error("Error:", error);
+      console.error("isNew:", isNew, ", id:", id);
+
       Alert.alert(
         "Error",
         `Failed to ${isNew ? "save" : "update"} your journal entry. Please try again.`
@@ -161,8 +247,22 @@ const JournalEntryScreen = () => {
     }
   };
 
+  const hasChanges = () => {
+    if (isNew) {
+      return title.trim() || content.trim();
+    }
+
+    if (!initialData) return false;
+
+    return (
+      title.trim() !== initialData.title ||
+      content.trim() !== initialData.content ||
+      selectedMood !== initialData.mood
+    );
+  };
+
   const handleCancel = () => {
-    if (title.trim() || content.trim()) {
+    if (hasChanges()) {
       Alert.alert(
         "Discard Changes",
         `Are you sure you want to discard your ${isNew ? "journal entry" : "changes"}?`,
@@ -191,6 +291,32 @@ const JournalEntryScreen = () => {
       hour12: true,
     };
     return now.toLocaleDateString("en-US", options);
+  };
+
+  const getDisplayDate = () => {
+    if (isNew || !initialData?.createdAt) {
+      return getCurrentDate();
+    }
+
+    // Handle Firestore Timestamp
+    let date: Date;
+    if (initialData.createdAt instanceof Timestamp) {
+      date = initialData.createdAt.toDate();
+    } else if (initialData.createdAt?.toDate) {
+      date = initialData.createdAt.toDate();
+    } else {
+      date = new Date(initialData.createdAt);
+    }
+
+    const options: Intl.DateTimeFormatOptions = {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    };
+    return date.toLocaleDateString("en-US", options);
   };
 
   const getSelectedMoodEmoji = () => {
@@ -247,7 +373,7 @@ const JournalEntryScreen = () => {
       <ScrollView className="flex-1">
         {/* Date */}
         <View className="px-6 py-4 bg-white border-b border-gray-100">
-          <Text className="text-gray-600 text-lg">{getCurrentDate()}</Text>
+          <Text className="text-gray-600 text-lg">{getDisplayDate()}</Text>
         </View>
 
         {/* Mood Selector */}
@@ -288,7 +414,7 @@ const JournalEntryScreen = () => {
         {/* Space between title and content */}
         <View className="h-4 bg-gray-50" />
 
-        {/* Content Input - Now with proper text box styling */}
+        {/* Content Input */}
         <View className="px-6 py-4 bg-white flex-1">
           <Text className="text-gray-700 font-medium mb-3">Your thoughts</Text>
           <View className="bg-gray-50 rounded-xl border border-gray-200 p-4 min-h-[250px]">

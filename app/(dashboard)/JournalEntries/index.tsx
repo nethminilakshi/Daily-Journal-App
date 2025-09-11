@@ -28,6 +28,10 @@ const HomeScreen = () => {
     try {
       setError(null);
       const journalEntries = await journalService.getAllJournalEntries();
+      console.log(
+        "Fetched journal entries:",
+        journalEntries.map((e) => ({ id: e.id, title: e.title }))
+      );
       setEntries(journalEntries);
     } catch (err) {
       console.error("Error fetching journal entries:", err);
@@ -69,7 +73,7 @@ const HomeScreen = () => {
       anxious: "😰",
       neutral: "😐",
     };
-    return moodEmojis[mood] || "";
+    return moodEmojis[mood] || "😐";
   };
 
   // Format date
@@ -87,6 +91,21 @@ const HomeScreen = () => {
     } else {
       return date.toLocaleDateString();
     }
+  };
+
+  // Handle navigation to journal entry
+  const handleNavigateToEntry = (entry: JournalEntry) => {
+    console.log("=== NAVIGATION DEBUG ===");
+    console.log("Navigating to entry with ID:", entry.id);
+    console.log("Entry details:", {
+      id: entry.id,
+      title: entry.title,
+      mood: entry.mood,
+      createdAt: entry.createdAt,
+    });
+
+    // Navigate to the journal entry screen with the actual ID
+    router.push(`/JournalEntries/${entry.id}`);
   };
 
   return (
@@ -204,7 +223,7 @@ const HomeScreen = () => {
                 <TouchableOpacity
                   key={entry.id}
                   className="bg-white rounded-2xl p-4 mb-4 shadow-sm border border-gray-100"
-                  onPress={() => router.push(`/JournalEntries/[id]`)}
+                  onPress={() => handleNavigateToEntry(entry)}
                 >
                   <View className="flex-row justify-between items-start mb-2">
                     <View className="flex-1 mr-3">
