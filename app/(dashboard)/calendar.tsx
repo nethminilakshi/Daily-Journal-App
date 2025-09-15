@@ -1,8 +1,7 @@
 import journalService, { JournalEntry } from "@/services/journalService";
 import { useFocusEffect } from "@react-navigation/native";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { BookOpen, Calendar as CalendarIcon } from "lucide-react-native";
+import { BookOpen } from "lucide-react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -203,8 +202,7 @@ const HomeScreen: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
-  // Calendar state
-  const [showCalendar, setShowCalendar] = useState<boolean>(false);
+  // Calendar state - Calendar is now shown by default
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [filteredEntries, setFilteredEntries] = useState<JournalEntry[]>([]);
 
@@ -219,11 +217,9 @@ const HomeScreen: React.FC = () => {
       );
       setEntries(journalEntries);
 
-      // If calendar is showing, update filtered entries
-      if (showCalendar) {
-        const entriesForDate = getEntriesForDate(selectedDate, journalEntries);
-        setFilteredEntries(entriesForDate);
-      }
+      // Update filtered entries for selected date
+      const entriesForDate = getEntriesForDate(selectedDate, journalEntries);
+      setFilteredEntries(entriesForDate);
     } catch (err) {
       console.error("Error fetching journal entries:", err);
       setError("Failed to load journal entries");
@@ -275,18 +271,6 @@ const HomeScreen: React.FC = () => {
     setFilteredEntries(entriesForDate);
   };
 
-  // Toggle calendar view
-  const toggleCalendar = (): void => {
-    if (!showCalendar) {
-      // When opening calendar, show entries for today
-      const today = new Date();
-      const todayEntries = getEntriesForDate(today);
-      setSelectedDate(today);
-      setFilteredEntries(todayEntries);
-    }
-    setShowCalendar(!showCalendar);
-  };
-
   // Get mood emoji
   const getMoodEmoji = (mood: string): string => {
     const moodEmojis: Record<string, string> = {
@@ -333,11 +317,6 @@ const HomeScreen: React.FC = () => {
     router.push(`/JournalEntries/${entry.id}`);
   };
 
-  // Get entries to display (filtered by date if calendar is shown, otherwise all entries)
-  const displayEntries: JournalEntry[] = showCalendar
-    ? filteredEntries
-    : entries || [];
-
   return (
     <View className="flex-1 bg-gray-50">
       <StatusBar
@@ -355,120 +334,37 @@ const HomeScreen: React.FC = () => {
       >
         {/* Header */}
         <View className="flex-row justify-between items-center pt-12 px-6 pb-4">
-          <Text className="text-3xl font-bold text-gray-800">Diary</Text>
-          <View className="flex-row items-center gap-3">
-            <TouchableOpacity
-              onPress={toggleCalendar}
-              className={`p-2 rounded-full ${showCalendar ? "bg-pink-100" : "bg-gray-100"}`}
-            >
-              <CalendarIcon
-                size={20}
-                color={showCalendar ? "#EC4899" : "#6B7280"}
-              />
-            </TouchableOpacity>
-            <View className="bg-pink-400 px-4 py-2 rounded-full">
-              <Text className="text-white font-semibold text-sm">PREMIUM</Text>
-            </View>
+          <Text className="text-3xl font-bold text-gray-800">Calendar</Text>
+          <View className="bg-pink-400 px-4 py-2 rounded-full">
+            <Text className="text-white font-semibold text-sm">PREMIUM</Text>
           </View>
         </View>
 
-        {/* Calendar Component */}
-        {showCalendar && (
-          <>
-            <Calendar
-              entries={entries}
-              onDateSelect={handleDateSelect}
-              selectedDate={selectedDate}
-            />
+        {/* Calendar Component - Always displayed */}
+        <Calendar
+          entries={entries}
+          onDateSelect={handleDateSelect}
+          selectedDate={selectedDate}
+        />
 
-            {/* Selected Date Header */}
-            <View className="px-6 mb-4">
-              <Text className="text-xl font-bold text-gray-800">
-                Entries for{" "}
-                {selectedDate.toLocaleDateString("en-US", {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </Text>
-              <Text className="text-gray-600">
-                {filteredEntries.length}{" "}
-                {filteredEntries.length === 1 ? "entry" : "entries"} found
-              </Text>
-            </View>
-          </>
-        )}
-
-        {/* Hero Image Card - Only show when calendar is hidden */}
-        {!showCalendar && (
-          <View className="mx-6 mb-8">
-            <View className="h-64 bg-gradient-to-br from-purple-200 to-pink-200 rounded-3xl overflow-hidden relative">
-              {/* Gradient Background */}
-              <LinearGradient
-                colors={["#DDD6FE", "#F3E8FF", "#FDE68A", "#FED7AA"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                className="absolute inset-0"
-              />
-
-              {/* Sun */}
-              <View
-                className="absolute bottom-16 left-1/2 w-16 h-16 bg-yellow-200 rounded-full opacity-80"
-                style={{ transform: [{ translateX: -32 }] }}
-              />
-
-              {/* Water Reflection */}
-              <LinearGradient
-                colors={["rgba(147, 197, 253, 0.6)", "transparent"]}
-                start={{ x: 0, y: 1 }}
-                end={{ x: 0, y: 0 }}
-                className="absolute bottom-0 left-0 right-0 h-20"
-              />
-
-              {/* Boat */}
-              <View className="absolute bottom-8 right-16">
-                <View className="w-12 h-6 bg-amber-800 rounded-full" />
-                <View
-                  className="w-2 h-8 bg-amber-900 absolute left-1/2 -top-8"
-                  style={{ transform: [{ translateX: -4 }] }}
-                />
-              </View>
-
-              {/* Birds */}
-              <Text className="absolute top-8 left-12 text-gray-700 text-lg">
-                ᵛ
-              </Text>
-              <Text className="absolute top-12 left-20 text-gray-700 text-sm">
-                ᵛ
-              </Text>
-              <Text className="absolute top-6 left-8 text-gray-700 text-sm">
-                ᵛ
-              </Text>
-
-              {/* Profile Icon */}
-              <View className="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex justify-center items-center">
-                <View className="w-6 h-6 bg-pink-400 rounded-full" />
-              </View>
-            </View>
-          </View>
-        )}
+        {/* Selected Date Header */}
+        <View className="px-6 mb-4">
+          <Text className="text-xl font-bold text-gray-800">
+            {selectedDate.toLocaleDateString("en-US", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </Text>
+          <Text className="text-gray-600">
+            {filteredEntries.length}{" "}
+            {filteredEntries.length === 1 ? "entry" : "entries"} found
+          </Text>
+        </View>
 
         {/* Main Content */}
         <View className="px-6">
-          {/* Motivational Text - Only show when calendar is hidden */}
-          {!showCalendar && (
-            <>
-              <Text className="text-3xl font-bold text-gray-800 text-center mb-4">
-                Every moment matters
-              </Text>
-              <Text className="text-lg text-gray-600 text-center leading-relaxed px-4 mb-8">
-                Start journaling your thoughts and feelings{"\n"}
-                in your private, secure diary
-              </Text>
-            </>
-          )}
-
           {/* Loading State */}
           {loading && (
             <View className="flex-row justify-center py-8">
@@ -490,12 +386,12 @@ const HomeScreen: React.FC = () => {
           )}
 
           {/* Journal Entries List */}
-          {!loading && displayEntries.length > 0 && (
+          {!loading && filteredEntries.length > 0 && (
             <View className="mb-6">
               <Text className="text-xl font-bold text-gray-800 mb-4">
-                {showCalendar ? "Entries" : "Recent Entries"}
+                Entries
               </Text>
-              {displayEntries.map((entry, index) => (
+              {filteredEntries.map((entry, index) => (
                 <TouchableOpacity
                   key={entry.id}
                   className="bg-white rounded-2xl p-4 mb-4 shadow-sm border border-gray-100"
@@ -540,18 +436,17 @@ const HomeScreen: React.FC = () => {
           )}
 
           {/* Empty State */}
-          {!loading && displayEntries.length === 0 && (
+          {!loading && filteredEntries.length === 0 && (
             <View className="items-center py-12">
               <View className="w-20 h-20 bg-gray-200 rounded-full items-center justify-center mb-4">
                 <BookOpen size={32} color="#9CA3AF" />
               </View>
               <Text className="text-xl font-semibold text-gray-800 mb-2">
-                {showCalendar ? "No entries for this date" : "No entries yet"}
+                No entries for this date
               </Text>
               <Text className="text-gray-600 text-center mb-6 px-8">
-                {showCalendar
-                  ? "Select another date to see entries or write a new one for this day"
-                  : "Start your journaling journey by writing your first entry"}
+                Select another date to see entries or write a new one for this
+                day
               </Text>
             </View>
           )}

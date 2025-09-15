@@ -12,9 +12,9 @@ import {
   Timestamp,
   updateDoc,
   where,
+  serverTimestamp,
 } from "firebase/firestore";
 
-// ================================================================
 // TYPES
 // ================================================================
 
@@ -33,6 +33,7 @@ export interface JournalEntry {
   content: string;
   mood: MoodType;
   createdAt: Date;
+  updatedAt?: Date;
   userId?: string;
 }
 
@@ -49,13 +50,11 @@ export interface UpdateJournalEntryData {
   mood?: MoodType;
 }
 
-// ================================================================
 // COLLECTION REFERENCE
 // ================================================================
 
 export const journalColRef = collection(db, "journalEntry");
 
-// ================================================================
 // FIREBASE FIRESTORE OPERATIONS
 // ================================================================
 
@@ -79,7 +78,8 @@ export const createJournalEntry = async (entry: CreateJournalEntryData) => {
       content: entry.content.trim(),
       mood: entry.mood,
       ...(entry.userId && { userId: entry.userId }),
-      createdAt: Timestamp.now(),
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
     });
     console.log("Document written with ID: ", docRef.id);
     return docRef.id;
@@ -95,7 +95,16 @@ export const updateJournalEntry = async (
 ) => {
   try {
     const docRef = doc(db, "journalEntry", id);
-    const updateData: any = {};
+    
+    // First check if document exists
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) {
+      throw new Error("Journal entry not found");
+    }
+
+    const updateData: any = {
+      updatedAt: serverTimestamp(),
+    };
 
     if (entry.title !== undefined) {
       if (!entry.title.trim()) {
@@ -115,7 +124,10 @@ export const updateJournalEntry = async (
       updateData.mood = entry.mood;
     }
 
+    console.log("Updating document with data:", updateData);
     await updateDoc(docRef, updateData);
+    console.log("Document successfully updated");
+    
     return id;
   } catch (error) {
     console.error("Error updating journal entry:", error);
@@ -129,10 +141,20 @@ export const updateJournalEntry = async (
 export const deleteJournalEntry = async (id: string) => {
   try {
     const docRef = doc(db, "journalEntry", id);
+    
+    // Check if document exists before deleting
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) {
+      throw new Error("Journal entry not found");
+    }
+    
     await deleteDoc(docRef);
     return true;
   } catch (error) {
     console.error("Error deleting journal entry:", error);
+    if (error instanceof Error) {
+      throw error;
+    }
     throw new Error("Failed to delete journal entry. Please try again.");
   }
 };
@@ -141,14 +163,24 @@ export const getAllJournalEntries = async () => {
   try {
     const q = query(journalColRef, orderBy("createdAt", "desc"));
     const snapshot = await getDocs(q);
-    const journalList = snapshot.docs.map((journalRef) => ({
-      id: journalRef.id,
-      ...journalRef.data(),
-      createdAt:
-        journalRef.data().createdAt instanceof Timestamp
-          ? journalRef.data().createdAt.toDate()
-          : new Date(journalRef.data().createdAt),
-    })) as JournalEntry[];
+    const journalList = snapshot.docs.map((journalRef) => {
+      const data = journalRef.data();
+      return {
+        id: journalRef.id,
+        title: data.title,
+        content: data.content,
+        mood: data.mood,
+        createdAt: data.createdAt instanceof Timestamp
+          ? data.createdAt.toDate()
+          : new Date(data.createdAt),
+        updatedAt: data.updatedAt 
+          ? (data.updatedAt instanceof Timestamp
+              ? data.updatedAt.toDate()
+              : new Date(data.updatedAt))
+          : undefined,
+        ...(data.userId && { userId: data.userId }),
+      };
+    }) as JournalEntry[];
     return journalList;
   } catch (error) {
     console.error("Error fetching journal entries:", error);
@@ -165,14 +197,22 @@ export const getJournalEntryById = async (id: string) => {
       return null;
     }
 
-    const entry = {
+    const data = snapshot.data();
+    const entry: JournalEntry = {
       id: snapshot.id,
-      ...snapshot.data(),
-      createdAt:
-        snapshot.data().createdAt instanceof Timestamp
-          ? snapshot.data().createdAt.toDate()
-          : new Date(snapshot.data().createdAt),
-    } as JournalEntry;
+      title: data.title,
+      content: data.content,
+      mood: data.mood,
+      createdAt: data.createdAt instanceof Timestamp
+        ? data.createdAt.toDate()
+        : new Date(data.createdAt),
+      updatedAt: data.updatedAt 
+        ? (data.updatedAt instanceof Timestamp
+            ? data.updatedAt.toDate()
+            : new Date(data.updatedAt))
+        : undefined,
+      ...(data.userId && { userId: data.userId }),
+    };
 
     return entry;
   } catch (error) {
@@ -189,14 +229,24 @@ export const getAllJournalEntriesByUserId = async (userId: string) => {
       orderBy("createdAt", "desc")
     );
     const querySnapshot = await getDocs(q);
-    const journalList = querySnapshot.docs.map((journalRef) => ({
-      id: journalRef.id,
-      ...journalRef.data(),
-      createdAt:
-        journalRef.data().createdAt instanceof Timestamp
-          ? journalRef.data().createdAt.toDate()
-          : new Date(journalRef.data().createdAt),
-    })) as JournalEntry[];
+    const journalList = querySnapshot.docs.map((journalRef) => {
+      const data = journalRef.data();
+      return {
+        id: journalRef.id,
+        title: data.title,
+        content: data.content,
+        mood: data.mood,
+        createdAt: data.createdAt instanceof Timestamp
+          ? data.createdAt.toDate()
+          : new Date(data.createdAt),
+        updatedAt: data.updatedAt 
+          ? (data.updatedAt instanceof Timestamp
+              ? data.updatedAt.toDate()
+              : new Date(data.updatedAt))
+          : undefined,
+        userId: data.userId,
+      };
+    }) as JournalEntry[];
     return journalList;
   } catch (error) {
     console.error("Error fetching user journal entries:", error);
@@ -213,14 +263,24 @@ export const getJournalEntriesByMood = async (mood: MoodType) => {
       orderBy("createdAt", "desc")
     );
     const querySnapshot = await getDocs(q);
-    const journalList = querySnapshot.docs.map((journalRef) => ({
-      id: journalRef.id,
-      ...journalRef.data(),
-      createdAt:
-        journalRef.data().createdAt instanceof Timestamp
-          ? journalRef.data().createdAt.toDate()
-          : new Date(journalRef.data().createdAt),
-    })) as JournalEntry[];
+    const journalList = querySnapshot.docs.map((journalRef) => {
+      const data = journalRef.data();
+      return {
+        id: journalRef.id,
+        title: data.title,
+        content: data.content,
+        mood: data.mood,
+        createdAt: data.createdAt instanceof Timestamp
+          ? data.createdAt.toDate()
+          : new Date(data.createdAt),
+        updatedAt: data.updatedAt 
+          ? (data.updatedAt instanceof Timestamp
+              ? data.updatedAt.toDate()
+              : new Date(data.updatedAt))
+          : undefined,
+        ...(data.userId && { userId: data.userId }),
+      };
+    }) as JournalEntry[];
     return journalList;
   } catch (error) {
     console.error("Error fetching journal entries by mood:", error);
@@ -236,14 +296,24 @@ export const getRecentJournalEntries = async (limitCount: number = 10) => {
       limit(limitCount)
     );
     const querySnapshot = await getDocs(q);
-    const journalList = querySnapshot.docs.map((journalRef) => ({
-      id: journalRef.id,
-      ...journalRef.data(),
-      createdAt:
-        journalRef.data().createdAt instanceof Timestamp
-          ? journalRef.data().createdAt.toDate()
-          : new Date(journalRef.data().createdAt),
-    })) as JournalEntry[];
+    const journalList = querySnapshot.docs.map((journalRef) => {
+      const data = journalRef.data();
+      return {
+        id: journalRef.id,
+        title: data.title,
+        content: data.content,
+        mood: data.mood,
+        createdAt: data.createdAt instanceof Timestamp
+          ? data.createdAt.toDate()
+          : new Date(data.createdAt),
+        updatedAt: data.updatedAt 
+          ? (data.updatedAt instanceof Timestamp
+              ? data.updatedAt.toDate()
+              : new Date(data.updatedAt))
+          : undefined,
+        ...(data.userId && { userId: data.userId }),
+      };
+    }) as JournalEntry[];
     return journalList;
   } catch (error) {
     console.error("Error fetching recent journal entries:", error);
@@ -273,14 +343,24 @@ export const getTodayJournalEntries = async () => {
     );
 
     const querySnapshot = await getDocs(q);
-    const journalList = querySnapshot.docs.map((journalRef) => ({
-      id: journalRef.id,
-      ...journalRef.data(),
-      createdAt:
-        journalRef.data().createdAt instanceof Timestamp
-          ? journalRef.data().createdAt.toDate()
-          : new Date(journalRef.data().createdAt),
-    })) as JournalEntry[];
+    const journalList = querySnapshot.docs.map((journalRef) => {
+      const data = journalRef.data();
+      return {
+        id: journalRef.id,
+        title: data.title,
+        content: data.content,
+        mood: data.mood,
+        createdAt: data.createdAt instanceof Timestamp
+          ? data.createdAt.toDate()
+          : new Date(data.createdAt),
+        updatedAt: data.updatedAt 
+          ? (data.updatedAt instanceof Timestamp
+              ? data.updatedAt.toDate()
+              : new Date(data.updatedAt))
+          : undefined,
+        ...(data.userId && { userId: data.userId }),
+      };
+    }) as JournalEntry[];
     return journalList;
   } catch (error) {
     console.error("Error fetching today's journal entries:", error);
@@ -301,14 +381,24 @@ export const getJournalEntriesByDateRange = async (
     );
 
     const querySnapshot = await getDocs(q);
-    const journalList = querySnapshot.docs.map((journalRef) => ({
-      id: journalRef.id,
-      ...journalRef.data(),
-      createdAt:
-        journalRef.data().createdAt instanceof Timestamp
-          ? journalRef.data().createdAt.toDate()
-          : new Date(journalRef.data().createdAt),
-    })) as JournalEntry[];
+    const journalList = querySnapshot.docs.map((journalRef) => {
+      const data = journalRef.data();
+      return {
+        id: journalRef.id,
+        title: data.title,
+        content: data.content,
+        mood: data.mood,
+        createdAt: data.createdAt instanceof Timestamp
+          ? data.createdAt.toDate()
+          : new Date(data.createdAt),
+        updatedAt: data.updatedAt 
+          ? (data.updatedAt instanceof Timestamp
+              ? data.updatedAt.toDate()
+              : new Date(data.updatedAt))
+          : undefined,
+        ...(data.userId && { userId: data.userId }),
+      };
+    }) as JournalEntry[];
     return journalList;
   } catch (error) {
     console.error("Error fetching journal entries by date range:", error);
