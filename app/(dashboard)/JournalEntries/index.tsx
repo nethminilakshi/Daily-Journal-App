@@ -1,11 +1,11 @@
 import journalService, { JournalEntry } from "@/services/journalService";
 import { useFocusEffect } from "@react-navigation/native";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { BookOpen } from "lucide-react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Image,
   RefreshControl,
   ScrollView,
   StatusBar,
@@ -131,55 +131,15 @@ const HomeScreen = () => {
           </View>
         </View>
 
-        {/* Hero Image Card */}
-        <View className="mx-6 mb-8">
-          <View className="h-64 bg-gradient-to-br from-purple-200 to-pink-200 rounded-3xl overflow-hidden relative">
-            {/* Gradient Background */}
-            <LinearGradient
-              colors={["#DDD6FE", "#F3E8FF", "#FDE68A", "#FED7AA"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              className="absolute inset-0"
+        {/* Hero Image Card - Wider and Centered */}
+        <View className="mb-8 flex items-center justify-center">
+          <View className="w-auto h-100 rounded-3xl overflow-hidden">
+            {/* Background Image */}
+            <Image
+              source={require("@/assets/images/hq720.jpg")}
+              className="w-full h-full"
+              style={{ resizeMode: "cover" }}
             />
-
-            {/* Sun */}
-            <View
-              className="absolute bottom-16 left-1/2 w-16 h-16 bg-yellow-200 rounded-full opacity-80"
-              style={{ transform: [{ translateX: -32 }] }}
-            />
-
-            {/* Water Reflection */}
-            <LinearGradient
-              colors={["rgba(147, 197, 253, 0.6)", "transparent"]}
-              start={{ x: 0, y: 1 }}
-              end={{ x: 0, y: 0 }}
-              className="absolute bottom-0 left-0 right-0 h-20"
-            />
-
-            {/* Boat */}
-            <View className="absolute bottom-8 right-16">
-              <View className="w-12 h-6 bg-amber-800 rounded-full" />
-              <View
-                className="w-2 h-8 bg-amber-900 absolute left-1/2 -top-8"
-                style={{ transform: [{ translateX: -4 }] }}
-              />
-            </View>
-
-            {/* Birds */}
-            <Text className="absolute top-8 left-12 text-gray-700 text-lg">
-              ᵛ
-            </Text>
-            <Text className="absolute top-12 left-20 text-gray-700 text-sm">
-              ᵛ
-            </Text>
-            <Text className="absolute top-6 left-8 text-gray-700 text-sm">
-              ᵛ
-            </Text>
-
-            {/* Profile Icon */}
-            <View className="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex justify-center items-center">
-              <View className="w-6 h-6 bg-pink-400 rounded-full" />
-            </View>
           </View>
         </View>
 
@@ -244,13 +204,8 @@ const HomeScreen = () => {
                     </View>
                   </View>
 
-                  {/* Entry Stats */}
+                  {/* Entry Stats - Removed mood type display, only showing time */}
                   <View className="flex-row items-center pt-2 border-t border-gray-100">
-                    <View className="bg-gray-100 px-2 py-1 rounded-full mr-2">
-                      <Text className="text-xs text-gray-600 capitalize">
-                        {entry.mood}
-                      </Text>
-                    </View>
                     <Text className="text-xs text-gray-400">
                       {new Date(entry.createdAt).toLocaleTimeString([], {
                         hour: "2-digit",
