@@ -1,40 +1,40 @@
+import { login } from "@/services/authService";
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
 import {
-  View,
-  Text,
+  ActivityIndicator,
+  Alert,
   Pressable,
+  Text,
   TextInput,
   TouchableOpacity,
-  Alert,
-  ActivityIndicator
-} from "react-native"
-import React, { useState } from "react"
-import { useRouter } from "expo-router"
-import { login, register } from "@/services/authService"
+  View,
+} from "react-native";
 
 const Login = () => {
-  const router = useRouter()
-  const [email, setEmail] = useState<string>("")
-  const [password, setPassword] = useState<string>("")
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const router = useRouter();
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleLogin = async () => {
     // if(email)
     // password
-    if (isLoading) return
+    if (isLoading) return;
 
-    setIsLoading(true)
+    setIsLoading(true);
     await login(email, password)
       .then((res) => {
-        router.push("/home")
+        router.push("/JournalEntries");
       })
       .catch((err) => {
-        Alert.alert("Login failed", "Somthing went wrong")
-        console.error(err)
+        Alert.alert("Login failed", "Somthing went wrong");
+        console.error(err);
       })
       .finally(() => {
-        setIsLoading(false)
-      })
-  }
+        setIsLoading(false);
+      });
+  };
 
   return (
     <View className="flex-1 w-full justify-center align-items-center p-4">
@@ -68,7 +68,7 @@ const Login = () => {
         </Text>
       </Pressable>
     </View>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

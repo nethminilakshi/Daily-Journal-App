@@ -76,20 +76,51 @@ const HomeScreen = () => {
     return moodEmojis[mood] || "😐";
   };
 
-  // Format date
-  const formatDate = (date: Date) => {
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  // Group entries by date
+  const groupEntriesByDate = (entries: JournalEntry[]) => {
+    const grouped: { [key: string]: JournalEntry[] } = {};
 
-    if (diffDays === 0) {
+    entries.forEach((entry) => {
+      const dateKey = new Date(entry.createdAt).toDateString();
+      if (!grouped[dateKey]) {
+        grouped[dateKey] = [];
+      }
+      grouped[dateKey].push(entry);
+    });
+
+    // Sort dates in descending order (newest first)
+    const sortedDates = Object.keys(grouped).sort(
+      (a, b) => new Date(b).getTime() - new Date(a).getTime()
+    );
+
+    return sortedDates.map((date) => ({
+      date,
+      entries: grouped[date].sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      ),
+    }));
+  };
+
+  // Format date for display
+  const formatDateHeader = (dateString: string) => {
+    const date = new Date(dateString);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (date.toDateString() === today.toDateString()) {
       return "Today";
-    } else if (diffDays === 1) {
+    } else if (date.toDateString() === yesterday.toDateString()) {
       return "Yesterday";
-    } else if (diffDays < 7) {
-      return `${diffDays} days ago`;
     } else {
-      return date.toLocaleDateString();
+      return date.toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year:
+          date.getFullYear() !== today.getFullYear() ? "numeric" : undefined,
+      });
     }
   };
 
@@ -173,47 +204,72 @@ const HomeScreen = () => {
             </View>
           )}
 
-          {/* Journal Entries List */}
+          {/* Journal Entries List - Grouped by Date */}
           {!loading && entries.length > 0 && (
             <View className="mb-6">
               <Text className="text-xl font-bold text-gray-800 mb-4">
                 Recent Entries
               </Text>
-              {entries.map((entry, index) => (
-                <TouchableOpacity
-                  key={entry.id}
-                  className="bg-white rounded-2xl p-4 mb-4 shadow-sm border border-gray-100"
-                  onPress={() => handleNavigateToEntry(entry)}
-                >
-                  <View className="flex-row justify-between items-start mb-2">
-                    <View className="flex-1 mr-3">
-                      <Text className="text-lg font-semibold text-gray-800 mb-1">
-                        {entry.title}
-                      </Text>
-                      <Text className="text-gray-600 text-sm" numberOfLines={3}>
-                        {entry.content}
+
+              {groupEntriesByDate(entries).map((group, groupIndex) => (
+                <View key={group.date} className="mb-6">
+                  {/* Date Header */}
+                  <View className="flex-row items-center mb-3">
+                    <View className="w-12 h-12 bg-pink-400 rounded-2xl items-center justify-center mr-3">
+                      <Text className="text-white font-bold text-lg">
+                        {new Date(group.date).getDate()}
                       </Text>
                     </View>
-                    <View className="items-center">
-                      <Text className="text-2xl mb-1">
-                        {getMoodEmoji(entry.mood)}
+                    <View className="flex-1">
+                      <Text className="text-lg font-semibold text-gray-800">
+                        {formatDateHeader(group.date)}
                       </Text>
-                      <Text className="text-xs text-gray-400 text-center">
-                        {formatDate(new Date(entry.createdAt))}
+                      <Text className="text-sm text-gray-500">
+                        {new Date(group.date).toLocaleDateString("en-US", {
+                          month: "short",
+                          year: "numeric",
+                        })}
                       </Text>
                     </View>
                   </View>
 
-                  {/* Entry Stats - Removed mood type display, only showing time */}
-                  <View className="flex-row items-center pt-2 border-t border-gray-100">
-                    <Text className="text-xs text-gray-400">
-                      {new Date(entry.createdAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
+                  {/* Entries for this date */}
+                  {group.entries.map((entry, entryIndex) => (
+                    <TouchableOpacity
+                      key={entry.id}
+                      className="bg-white rounded-2xl p-4 mb-3 ml-4 shadow-sm border border-gray-100"
+                      onPress={() => handleNavigateToEntry(entry)}
+                    >
+                      <View className="flex-row items-start">
+                        {/* Mood emoji */}
+                        <Text className="text-2xl mr-3 mt-1">
+                          {getMoodEmoji(entry.mood)}
+                        </Text>
+
+                        {/* Entry content */}
+                        <View className="flex-1">
+                          <Text className="text-lg font-semibold text-gray-800 mb-1">
+                            {entry.title}
+                          </Text>
+                          <Text
+                            className="text-gray-600 text-sm mb-2"
+                            numberOfLines={2}
+                          >
+                            {entry.content}
+                          </Text>
+
+                          {/* Time */}
+                          <Text className="text-xs text-gray-400">
+                            {new Date(entry.createdAt).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </Text>
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               ))}
             </View>
           )}

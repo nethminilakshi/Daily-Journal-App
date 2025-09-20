@@ -127,7 +127,7 @@ const DashboardLayout = () => {
         <Tabs.Screen
           name="setting"
           options={{
-            title: "Settings",
+            title: "Setting",
             tabBarIcon: ({ color, focused }) => (
               <View className="items-center">
                 <View
