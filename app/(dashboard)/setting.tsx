@@ -230,7 +230,7 @@ const UserSettingsScreen = () => {
   return (
     <ScrollView className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="flex-row items-center justify-between px-6 pt-12 pb-6 bg-white border-b border-gray-100">
+      <View className="flex-row items-center justify-between px-6 pt-12 pb-6 bg- border-b border-gray-100">
         <TouchableOpacity onPress={() => router.back()} className="p-2 -ml-2">
           <ArrowLeft size={24} color="#374151" />
         </TouchableOpacity>

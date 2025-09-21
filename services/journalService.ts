@@ -1,3 +1,4 @@
+// services/journalService.ts
 import {
   addDoc,
   collection,
@@ -5,7 +6,6 @@ import {
   doc,
   getDoc,
   getDocs,
-  limit,
   orderBy,
   query,
   serverTimestamp,
@@ -13,7 +13,7 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { db } from "../firebase";
+import { auth, db } from "../firebase";
 
 // TYPES
 // ================================================================
@@ -34,14 +34,14 @@ export interface JournalEntry {
   mood: MoodType;
   createdAt: Date;
   updatedAt?: Date;
-  userId?: string;
+  userId: string; // Make userId required
 }
 
 export interface CreateJournalEntryData {
   title: string;
   content: string;
   mood: MoodType;
-  userId?: string;
+  // userId will be automatically added from auth
 }
 
 export interface UpdateJournalEntryData {
@@ -55,10 +55,37 @@ export interface UpdateJournalEntryData {
 
 export const journalColRef = collection(db, "journalEntry");
 
+// AUTHENTICATION HELPER
+// ================================================================
+
+const getCurrentUserId = (): string => {
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error("User must be authenticated to perform this action");
+  }
+  return user.uid;
+};
+
+// Check if entry belongs to current user
+const verifyEntryOwnership = async (entryId: string): Promise<boolean> => {
+  const userId = getCurrentUserId();
+  const docRef = doc(db, "journalEntry", entryId);
+  const docSnap = await getDoc(docRef);
+
+  if (!docSnap.exists()) {
+    return false;
+  }
+
+  const data = docSnap.data();
+  return data.userId === userId;
+};
+
 // FIREBASE FIRESTORE OPERATIONS
 // ================================================================
 
 export const createJournalEntry = async (entry: CreateJournalEntryData) => {
+  const userId = getCurrentUserId();
+
   // Validate input data
   if (!entry.title.trim()) {
     throw new Error("Please enter a title for your journal entry");
@@ -77,7 +104,7 @@ export const createJournalEntry = async (entry: CreateJournalEntryData) => {
       title: entry.title.trim(),
       content: entry.content.trim(),
       mood: entry.mood,
-      ...(entry.userId && { userId: entry.userId }),
+      userId, // Add current user's ID
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
@@ -94,13 +121,13 @@ export const updateJournalEntry = async (
   entry: UpdateJournalEntryData
 ) => {
   try {
-    const docRef = doc(db, "journalEntry", id);
-
-    // First check if document exists
-    const docSnap = await getDoc(docRef);
-    if (!docSnap.exists()) {
-      throw new Error("Journal entry not found");
+    // Verify entry belongs to current user
+    const isOwner = await verifyEntryOwnership(id);
+    if (!isOwner) {
+      throw new Error("You don't have permission to update this entry");
     }
+
+    const docRef = doc(db, "journalEntry", id);
 
     const updateData: any = {
       updatedAt: serverTimestamp(),
@@ -140,14 +167,13 @@ export const updateJournalEntry = async (
 
 export const deleteJournalEntry = async (id: string) => {
   try {
-    const docRef = doc(db, "journalEntry", id);
-
-    // Check if document exists before deleting
-    const docSnap = await getDoc(docRef);
-    if (!docSnap.exists()) {
-      throw new Error("Journal entry not found");
+    // Verify entry belongs to current user
+    const isOwner = await verifyEntryOwnership(id);
+    if (!isOwner) {
+      throw new Error("You don't have permission to delete this entry");
     }
 
+    const docRef = doc(db, "journalEntry", id);
     await deleteDoc(docRef);
     return true;
   } catch (error) {
@@ -161,7 +187,11 @@ export const deleteJournalEntry = async (id: string) => {
 
 export const getAllJournalEntries = async () => {
   try {
-    const q = query(journalColRef, orderBy("createdAt", "desc"));
+    const userId = getCurrentUserId();
+
+    // Use simpler query to avoid index requirement
+    const q = query(journalColRef, where("userId", "==", userId));
+
     const snapshot = await getDocs(q);
     const journalList = snapshot.docs.map((journalRef) => {
       const data = journalRef.data();
@@ -170,6 +200,7 @@ export const getAllJournalEntries = async () => {
         title: data.title,
         content: data.content,
         mood: data.mood,
+        userId: data.userId,
         createdAt:
           data.createdAt instanceof Timestamp
             ? data.createdAt.toDate()
@@ -179,10 +210,13 @@ export const getAllJournalEntries = async () => {
             ? data.updatedAt.toDate()
             : new Date(data.updatedAt)
           : undefined,
-        ...(data.userId && { userId: data.userId }),
       };
     }) as JournalEntry[];
-    return journalList;
+
+    // Sort in memory instead of using orderBy in query
+    return journalList.sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    );
   } catch (error) {
     console.error("Error fetching journal entries:", error);
     throw new Error("Failed to fetch journal entries");
@@ -191,6 +225,12 @@ export const getAllJournalEntries = async () => {
 
 export const getJournalEntryById = async (id: string) => {
   try {
+    // Verify entry belongs to current user
+    const isOwner = await verifyEntryOwnership(id);
+    if (!isOwner) {
+      throw new Error("You don't have permission to access this entry");
+    }
+
     const journalDocRef = doc(db, "journalEntry", id);
     const snapshot = await getDoc(journalDocRef);
 
@@ -204,6 +244,7 @@ export const getJournalEntryById = async (id: string) => {
       title: data.title,
       content: data.content,
       mood: data.mood,
+      userId: data.userId,
       createdAt:
         data.createdAt instanceof Timestamp
           ? data.createdAt.toDate()
@@ -213,7 +254,6 @@ export const getJournalEntryById = async (id: string) => {
           ? data.updatedAt.toDate()
           : new Date(data.updatedAt)
         : undefined,
-      ...(data.userId && { userId: data.userId }),
     };
 
     return entry;
@@ -225,6 +265,12 @@ export const getJournalEntryById = async (id: string) => {
 
 export const getAllJournalEntriesByUserId = async (userId: string) => {
   try {
+    // Only allow current user to access their own data
+    const currentUserId = getCurrentUserId();
+    if (userId !== currentUserId) {
+      throw new Error("You don't have permission to access this user's data");
+    }
+
     const q = query(
       journalColRef,
       where("userId", "==", userId),
@@ -238,6 +284,7 @@ export const getAllJournalEntriesByUserId = async (userId: string) => {
         title: data.title,
         content: data.content,
         mood: data.mood,
+        userId: data.userId,
         createdAt:
           data.createdAt instanceof Timestamp
             ? data.createdAt.toDate()
@@ -247,7 +294,6 @@ export const getAllJournalEntriesByUserId = async (userId: string) => {
             ? data.updatedAt.toDate()
             : new Date(data.updatedAt)
           : undefined,
-        userId: data.userId,
       };
     }) as JournalEntry[];
     return journalList;
@@ -257,13 +303,15 @@ export const getAllJournalEntriesByUserId = async (userId: string) => {
   }
 };
 
-// Additional journal-specific queries
+// Additional journal-specific queries (all user-filtered)
 export const getJournalEntriesByMood = async (mood: MoodType) => {
   try {
+    const userId = getCurrentUserId();
+
     const q = query(
       journalColRef,
-      where("mood", "==", mood),
-      orderBy("createdAt", "desc")
+      where("userId", "==", userId),
+      where("mood", "==", mood)
     );
     const querySnapshot = await getDocs(q);
     const journalList = querySnapshot.docs.map((journalRef) => {
@@ -273,6 +321,7 @@ export const getJournalEntriesByMood = async (mood: MoodType) => {
         title: data.title,
         content: data.content,
         mood: data.mood,
+        userId: data.userId,
         createdAt:
           data.createdAt instanceof Timestamp
             ? data.createdAt.toDate()
@@ -282,10 +331,13 @@ export const getJournalEntriesByMood = async (mood: MoodType) => {
             ? data.updatedAt.toDate()
             : new Date(data.updatedAt)
           : undefined,
-        ...(data.userId && { userId: data.userId }),
       };
     }) as JournalEntry[];
-    return journalList;
+
+    // Sort in memory
+    return journalList.sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    );
   } catch (error) {
     console.error("Error fetching journal entries by mood:", error);
     throw new Error("Failed to fetch journal entries by mood");
@@ -294,11 +346,9 @@ export const getJournalEntriesByMood = async (mood: MoodType) => {
 
 export const getRecentJournalEntries = async (limitCount: number = 10) => {
   try {
-    const q = query(
-      journalColRef,
-      orderBy("createdAt", "desc"),
-      limit(limitCount)
-    );
+    const userId = getCurrentUserId();
+
+    const q = query(journalColRef, where("userId", "==", userId));
     const querySnapshot = await getDocs(q);
     const journalList = querySnapshot.docs.map((journalRef) => {
       const data = journalRef.data();
@@ -307,6 +357,7 @@ export const getRecentJournalEntries = async (limitCount: number = 10) => {
         title: data.title,
         content: data.content,
         mood: data.mood,
+        userId: data.userId,
         createdAt:
           data.createdAt instanceof Timestamp
             ? data.createdAt.toDate()
@@ -316,10 +367,13 @@ export const getRecentJournalEntries = async (limitCount: number = 10) => {
             ? data.updatedAt.toDate()
             : new Date(data.updatedAt)
           : undefined,
-        ...(data.userId && { userId: data.userId }),
       };
     }) as JournalEntry[];
-    return journalList;
+
+    // Sort and limit in memory
+    return journalList
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, limitCount);
   } catch (error) {
     console.error("Error fetching recent journal entries:", error);
     throw new Error("Failed to fetch recent journal entries");
@@ -328,6 +382,8 @@ export const getRecentJournalEntries = async (limitCount: number = 10) => {
 
 export const getTodayJournalEntries = async () => {
   try {
+    const userId = getCurrentUserId();
+
     const today = new Date();
     const startOfDay = new Date(
       today.getFullYear(),
@@ -342,6 +398,7 @@ export const getTodayJournalEntries = async () => {
 
     const q = query(
       journalColRef,
+      where("userId", "==", userId), // Filter by current user
       where("createdAt", ">=", Timestamp.fromDate(startOfDay)),
       where("createdAt", "<", Timestamp.fromDate(endOfDay)),
       orderBy("createdAt", "desc")
@@ -355,6 +412,7 @@ export const getTodayJournalEntries = async () => {
         title: data.title,
         content: data.content,
         mood: data.mood,
+        userId: data.userId,
         createdAt:
           data.createdAt instanceof Timestamp
             ? data.createdAt.toDate()
@@ -364,7 +422,6 @@ export const getTodayJournalEntries = async () => {
             ? data.updatedAt.toDate()
             : new Date(data.updatedAt)
           : undefined,
-        ...(data.userId && { userId: data.userId }),
       };
     }) as JournalEntry[];
     return journalList;
@@ -379,8 +436,11 @@ export const getJournalEntriesByDateRange = async (
   endDate: Date
 ) => {
   try {
+    const userId = getCurrentUserId();
+
     const q = query(
       journalColRef,
+      where("userId", "==", userId), // Filter by current user
       where("createdAt", ">=", Timestamp.fromDate(startDate)),
       where("createdAt", "<=", Timestamp.fromDate(endDate)),
       orderBy("createdAt", "desc")
@@ -394,6 +454,7 @@ export const getJournalEntriesByDateRange = async (
         title: data.title,
         content: data.content,
         mood: data.mood,
+        userId: data.userId,
         createdAt:
           data.createdAt instanceof Timestamp
             ? data.createdAt.toDate()
@@ -403,13 +464,30 @@ export const getJournalEntriesByDateRange = async (
             ? data.updatedAt.toDate()
             : new Date(data.updatedAt)
           : undefined,
-        ...(data.userId && { userId: data.userId }),
       };
     }) as JournalEntry[];
     return journalList;
   } catch (error) {
     console.error("Error fetching journal entries by date range:", error);
     throw new Error("Failed to fetch journal entries by date range");
+  }
+};
+
+// Delete all entries for current user (used in account deletion)
+export const deleteAllUserJournalEntries = async () => {
+  try {
+    const userId = getCurrentUserId();
+
+    const q = query(journalColRef, where("userId", "==", userId));
+
+    const querySnapshot = await getDocs(q);
+    const deletePromises = querySnapshot.docs.map((doc) => deleteDoc(doc.ref));
+
+    await Promise.all(deletePromises);
+    return true;
+  } catch (error) {
+    console.error("Error deleting all user journal entries:", error);
+    throw new Error("Failed to delete all journal entries");
   }
 };
 
@@ -463,6 +541,11 @@ class JournalService {
     return await getJournalEntriesByDateRange(startDate, endDate);
   }
 
+  // Delete all user entries
+  async deleteAllUserJournalEntries(): Promise<boolean> {
+    return await deleteAllUserJournalEntries();
+  }
+
   // Legacy method names for backward compatibility
   async getAllJournalEntries(): Promise<JournalEntry[]> {
     return await this.getAll();
@@ -479,20 +562,3 @@ class JournalService {
 
 const journalService = new JournalService();
 export default journalService;
-
-// ================================================================
-// MOCK API INTEGRATION (if you need it later)
-// ================================================================
-/*
-import api from "./config/api";
-
-export const getAllJournalFromAPI = async () => {
-  const res = await api.get("/journal");
-  return res.data;
-};
-
-export const addJournalToAPI = async (entry: any) => {
-  const res = await api.post("/journal", entry);
-  return res.data;
-};
-*/

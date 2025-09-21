@@ -1,5 +1,5 @@
-import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -20,6 +20,18 @@ const AddJournalEntry = () => {
   const [showMoodSelector, setShowMoodSelector] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  // Clear form when screen comes into focus (when navigating to this screen)
+  useFocusEffect(
+    useCallback(() => {
+      // Reset all form fields when screen is focused
+      setTitle("");
+      setContent("");
+      setSelectedMood(null);
+      setShowMoodSelector(false);
+      setSaving(false);
+    }, [])
+  );
+
   // Mood options with emojis
   const moodOptions = [
     { mood: "sad" as MoodType, emoji: "😢", color: "#EC4899" },
@@ -38,6 +50,14 @@ const AddJournalEntry = () => {
     setShowMoodSelector(false);
   };
 
+  const resetForm = () => {
+    setTitle("");
+    setContent("");
+    setSelectedMood(null);
+    setShowMoodSelector(false);
+    setSaving(false);
+  };
+
   const handleSave = async () => {
     // Early return if no mood selected
     if (!selectedMood) {
@@ -50,10 +70,13 @@ const AddJournalEntry = () => {
 
       // Use journalService to create the entry
       await journalService.createJournalEntry({
-        title,
-        content,
+        title: title.trim() || "Untitled", // Provide default title if empty
+        content: content.trim(),
         mood: selectedMood,
       });
+
+      // Reset form first
+      resetForm();
 
       // Show success message and navigate back
       Alert.alert("Success", "Your journal entry has been saved!", [
@@ -84,11 +107,15 @@ const AddJournalEntry = () => {
           {
             text: "Discard",
             style: "destructive",
-            onPress: () => router.back(),
+            onPress: () => {
+              resetForm(); // Clear form before going back
+              router.back();
+            },
           },
         ]
       );
     } else {
+      resetForm(); // Clear form before going back
       router.back();
     }
   };

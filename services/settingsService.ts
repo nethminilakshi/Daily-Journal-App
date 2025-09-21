@@ -140,15 +140,8 @@ class SettingsService {
   // Delete all user data (journal entries, etc.)
   private async deleteAllUserData(): Promise<void> {
     try {
-      // Get all user's journal entries
-      const entries = await journalService.getAllJournalEntries();
-
-      // Delete each entry
-      const deletePromises = entries.map((entry) =>
-        journalService.delete(entry.id)
-      );
-
-      await Promise.all(deletePromises);
+      // Use the updated journal service method
+      await journalService.deleteAllUserJournalEntries();
     } catch (error) {
       console.warn("Error deleting user data:", error);
       // Don't throw here - we still want to delete the account even if data deletion fails
