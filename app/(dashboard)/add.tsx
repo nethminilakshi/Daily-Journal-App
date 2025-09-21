@@ -1,4 +1,3 @@
-import journalService, { MoodType } from "@/services/journalService";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -11,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import journalService, { MoodType } from "../../services/journalService";
 
 const AddJournalEntry = () => {
   const router = useRouter();

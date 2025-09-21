@@ -1,4 +1,3 @@
-import { db } from "@/firebase";
 import {
   addDoc,
   collection,
@@ -9,11 +8,12 @@ import {
   limit,
   orderBy,
   query,
+  serverTimestamp,
   Timestamp,
   updateDoc,
   where,
-  serverTimestamp,
 } from "firebase/firestore";
+import { db } from "../firebase";
 
 // TYPES
 // ================================================================
@@ -95,7 +95,7 @@ export const updateJournalEntry = async (
 ) => {
   try {
     const docRef = doc(db, "journalEntry", id);
-    
+
     // First check if document exists
     const docSnap = await getDoc(docRef);
     if (!docSnap.exists()) {
@@ -127,7 +127,7 @@ export const updateJournalEntry = async (
     console.log("Updating document with data:", updateData);
     await updateDoc(docRef, updateData);
     console.log("Document successfully updated");
-    
+
     return id;
   } catch (error) {
     console.error("Error updating journal entry:", error);
@@ -141,13 +141,13 @@ export const updateJournalEntry = async (
 export const deleteJournalEntry = async (id: string) => {
   try {
     const docRef = doc(db, "journalEntry", id);
-    
+
     // Check if document exists before deleting
     const docSnap = await getDoc(docRef);
     if (!docSnap.exists()) {
       throw new Error("Journal entry not found");
     }
-    
+
     await deleteDoc(docRef);
     return true;
   } catch (error) {
@@ -170,13 +170,14 @@ export const getAllJournalEntries = async () => {
         title: data.title,
         content: data.content,
         mood: data.mood,
-        createdAt: data.createdAt instanceof Timestamp
-          ? data.createdAt.toDate()
-          : new Date(data.createdAt),
-        updatedAt: data.updatedAt 
-          ? (data.updatedAt instanceof Timestamp
-              ? data.updatedAt.toDate()
-              : new Date(data.updatedAt))
+        createdAt:
+          data.createdAt instanceof Timestamp
+            ? data.createdAt.toDate()
+            : new Date(data.createdAt),
+        updatedAt: data.updatedAt
+          ? data.updatedAt instanceof Timestamp
+            ? data.updatedAt.toDate()
+            : new Date(data.updatedAt)
           : undefined,
         ...(data.userId && { userId: data.userId }),
       };
@@ -203,13 +204,14 @@ export const getJournalEntryById = async (id: string) => {
       title: data.title,
       content: data.content,
       mood: data.mood,
-      createdAt: data.createdAt instanceof Timestamp
-        ? data.createdAt.toDate()
-        : new Date(data.createdAt),
-      updatedAt: data.updatedAt 
-        ? (data.updatedAt instanceof Timestamp
-            ? data.updatedAt.toDate()
-            : new Date(data.updatedAt))
+      createdAt:
+        data.createdAt instanceof Timestamp
+          ? data.createdAt.toDate()
+          : new Date(data.createdAt),
+      updatedAt: data.updatedAt
+        ? data.updatedAt instanceof Timestamp
+          ? data.updatedAt.toDate()
+          : new Date(data.updatedAt)
         : undefined,
       ...(data.userId && { userId: data.userId }),
     };
@@ -236,13 +238,14 @@ export const getAllJournalEntriesByUserId = async (userId: string) => {
         title: data.title,
         content: data.content,
         mood: data.mood,
-        createdAt: data.createdAt instanceof Timestamp
-          ? data.createdAt.toDate()
-          : new Date(data.createdAt),
-        updatedAt: data.updatedAt 
-          ? (data.updatedAt instanceof Timestamp
-              ? data.updatedAt.toDate()
-              : new Date(data.updatedAt))
+        createdAt:
+          data.createdAt instanceof Timestamp
+            ? data.createdAt.toDate()
+            : new Date(data.createdAt),
+        updatedAt: data.updatedAt
+          ? data.updatedAt instanceof Timestamp
+            ? data.updatedAt.toDate()
+            : new Date(data.updatedAt)
           : undefined,
         userId: data.userId,
       };
@@ -270,13 +273,14 @@ export const getJournalEntriesByMood = async (mood: MoodType) => {
         title: data.title,
         content: data.content,
         mood: data.mood,
-        createdAt: data.createdAt instanceof Timestamp
-          ? data.createdAt.toDate()
-          : new Date(data.createdAt),
-        updatedAt: data.updatedAt 
-          ? (data.updatedAt instanceof Timestamp
-              ? data.updatedAt.toDate()
-              : new Date(data.updatedAt))
+        createdAt:
+          data.createdAt instanceof Timestamp
+            ? data.createdAt.toDate()
+            : new Date(data.createdAt),
+        updatedAt: data.updatedAt
+          ? data.updatedAt instanceof Timestamp
+            ? data.updatedAt.toDate()
+            : new Date(data.updatedAt)
           : undefined,
         ...(data.userId && { userId: data.userId }),
       };
@@ -303,13 +307,14 @@ export const getRecentJournalEntries = async (limitCount: number = 10) => {
         title: data.title,
         content: data.content,
         mood: data.mood,
-        createdAt: data.createdAt instanceof Timestamp
-          ? data.createdAt.toDate()
-          : new Date(data.createdAt),
-        updatedAt: data.updatedAt 
-          ? (data.updatedAt instanceof Timestamp
-              ? data.updatedAt.toDate()
-              : new Date(data.updatedAt))
+        createdAt:
+          data.createdAt instanceof Timestamp
+            ? data.createdAt.toDate()
+            : new Date(data.createdAt),
+        updatedAt: data.updatedAt
+          ? data.updatedAt instanceof Timestamp
+            ? data.updatedAt.toDate()
+            : new Date(data.updatedAt)
           : undefined,
         ...(data.userId && { userId: data.userId }),
       };
@@ -350,13 +355,14 @@ export const getTodayJournalEntries = async () => {
         title: data.title,
         content: data.content,
         mood: data.mood,
-        createdAt: data.createdAt instanceof Timestamp
-          ? data.createdAt.toDate()
-          : new Date(data.createdAt),
-        updatedAt: data.updatedAt 
-          ? (data.updatedAt instanceof Timestamp
-              ? data.updatedAt.toDate()
-              : new Date(data.updatedAt))
+        createdAt:
+          data.createdAt instanceof Timestamp
+            ? data.createdAt.toDate()
+            : new Date(data.createdAt),
+        updatedAt: data.updatedAt
+          ? data.updatedAt instanceof Timestamp
+            ? data.updatedAt.toDate()
+            : new Date(data.updatedAt)
           : undefined,
         ...(data.userId && { userId: data.userId }),
       };
@@ -388,13 +394,14 @@ export const getJournalEntriesByDateRange = async (
         title: data.title,
         content: data.content,
         mood: data.mood,
-        createdAt: data.createdAt instanceof Timestamp
-          ? data.createdAt.toDate()
-          : new Date(data.createdAt),
-        updatedAt: data.updatedAt 
-          ? (data.updatedAt instanceof Timestamp
-              ? data.updatedAt.toDate()
-              : new Date(data.updatedAt))
+        createdAt:
+          data.createdAt instanceof Timestamp
+            ? data.createdAt.toDate()
+            : new Date(data.createdAt),
+        updatedAt: data.updatedAt
+          ? data.updatedAt instanceof Timestamp
+            ? data.updatedAt.toDate()
+            : new Date(data.updatedAt)
           : undefined,
         ...(data.userId && { userId: data.userId }),
       };

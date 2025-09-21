@@ -3,6 +3,7 @@
     "name": "amd-day-01",
     "slug": "amd-day-01",
     "version": "1.0.0",
+    "sdkVersion": "54.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "amdday01",

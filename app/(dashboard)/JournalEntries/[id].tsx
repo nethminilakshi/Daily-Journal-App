@@ -1,5 +1,3 @@
-import { db } from "@/firebase";
-import { MoodType } from "@/services/journalService";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   addDoc,
@@ -21,6 +19,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { db } from "../../../firebase";
+import { MoodType } from "../../../services/journalService";
 
 interface JournalEntry {
   id: string;

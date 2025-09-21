@@ -1,9 +1,8 @@
-import { View, Text } from "react-native"
-import React from "react"
-import { Slot, Stack } from "expo-router"
-import "./../global.css"
-import { AuthProvider } from "@/context/AuthContext"
-import { LoaderProvider } from "@/context/LoaderContext"
+import { Slot } from "expo-router";
+import React from "react";
+import { AuthProvider } from "../context/AuthContext";
+import { LoaderProvider } from "../context/LoaderContext";
+import "./../global.css";
 
 const RootLayout = () => {
   return (
@@ -12,7 +11,7 @@ const RootLayout = () => {
         <Slot />
       </AuthProvider>
     </LoaderProvider>
-  )
-}
+  );
+};
 
-export default RootLayout
+export default RootLayout;

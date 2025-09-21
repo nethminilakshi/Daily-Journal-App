@@ -1,87 +1,197 @@
+import { useRouter } from "expo-router";
+import { useState } from "react";
 import {
-  View,
-  Text,
+  ActivityIndicator,
+  Alert,
   Pressable,
+  Text,
   TextInput,
   TouchableOpacity,
-  Alert,
-  ActivityIndicator
-} from "react-native"
-import React, { useState } from "react"
-import { useRouter } from "expo-router"
-import { register } from "@/services/authService"
+  View,
+} from "react-native";
+import { register } from "../../services/authService";
 
 const Register = () => {
-  const router = useRouter()
-  const [email, setEmail] = useState<string>("")
-  const [password, setPassword] = useState<string>("")
-  const [cPassword, setCPassword] = useState<string>("")
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const router = useRouter();
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [cPassword, setCPassword] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleRegister = async () => {
-    // if(email)
-    // password
-    if (isLoading) return
-    if (password !== cPassword) {
-      Alert.alert("Title", "description")
-      return
+    if (isLoading) return;
+
+    // Validation
+    if (!email.trim()) {
+      Alert.alert("Validation Error", "Email is required");
+      return;
     }
-    setIsLoading(true)
+
+    if (!password.trim()) {
+      Alert.alert("Validation Error", "Password is required");
+      return;
+    }
+
+    if (!cPassword.trim()) {
+      Alert.alert("Validation Error", "Please confirm your password");
+      return;
+    }
+
+    if (password !== cPassword) {
+      Alert.alert("Password Mismatch", "Passwords do not match");
+      return;
+    }
+
+    if (password.length < 6) {
+      Alert.alert(
+        "Weak Password",
+        "Password must be at least 6 characters long"
+      );
+      return;
+    }
+
+    setIsLoading(true);
     await register(email, password)
       .then((res) => {
-        // const res = await register(email, password)
-        // success
-        router.back()
+        Alert.alert("Success", "Account created successfully!", [
+          { text: "OK", onPress: () => router.back() },
+        ]);
       })
       .catch((err) => {
-        Alert.alert("Registration failed", "Somthing went wrong")
-        console.error(err)
+        Alert.alert(
+          "Registration failed",
+          "Something went wrong. Please try again."
+        );
+        console.error(err);
       })
       .finally(() => {
-        setIsLoading(false)
-      })
-  }
+        setIsLoading(false);
+      });
+  };
 
   return (
-    <View className="flex-1 w-full justify-center align-items-center p-4">
-      <Text className="text-4xl text-center mb-2">Register</Text>
+    <View
+      style={{
+        flex: 1,
+        width: "100%",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 16,
+      }}
+    >
+      <Text
+        style={{
+          fontSize: 32,
+          textAlign: "center",
+          marginBottom: 16,
+          fontWeight: "bold",
+        }}
+      >
+        Register
+      </Text>
+
       <TextInput
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
-        className="bg-surface border border-gray-300 rounded px-4 py-3 mb-4 text-gray-900"
+        keyboardType="email-address"
+        autoCapitalize="none"
+        style={{
+          backgroundColor: "#ffffff",
+          borderWidth: 1,
+          borderColor: "#d1d5db",
+          borderRadius: 8,
+          paddingHorizontal: 16,
+          paddingVertical: 12,
+          marginBottom: 16,
+          color: "#111827",
+          width: "100%",
+        }}
       />
+
       <TextInput
         placeholder="Password"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
-        className="bg-surface border border-gray-300 rounded px-4 py-3 mb-4 text-gray-900"
+        style={{
+          backgroundColor: "#ffffff",
+          borderWidth: 1,
+          borderColor: "#d1d5db",
+          borderRadius: 8,
+          paddingHorizontal: 16,
+          paddingVertical: 12,
+          marginBottom: 16,
+          color: "#111827",
+          width: "100%",
+        }}
       />
+
       <TextInput
         placeholder="Confirm password"
         value={cPassword}
         onChangeText={setCPassword}
         secureTextEntry
-        className="bg-surface border border-gray-300 rounded px-4 py-3 mb-4 text-gray-900"
+        style={{
+          backgroundColor: "#ffffff",
+          borderWidth: 1,
+          borderColor: "#d1d5db",
+          borderRadius: 8,
+          paddingHorizontal: 16,
+          paddingVertical: 12,
+          marginBottom: 16,
+          color: "#111827",
+          width: "100%",
+        }}
       />
+
       <TouchableOpacity
         onPress={handleRegister}
-        className="bg-green-600 p-4 rounded mt-2"
+        disabled={isLoading}
+        style={{
+          backgroundColor: isLoading ? "#9ca3af" : "#16a34a",
+          padding: 16,
+          borderRadius: 8,
+          marginTop: 8,
+          width: "100%",
+        }}
       >
         {isLoading ? (
           <ActivityIndicator color="#fff" size="large" />
         ) : (
-          <Text className="text-center text-2xl">Register</Text>
+          <Text
+            style={{
+              textAlign: "center",
+              fontSize: 18,
+              color: "white",
+              fontWeight: "600",
+            }}
+          >
+            Register
+          </Text>
         )}
       </TouchableOpacity>
-      <Pressable className="px-6 py-3" onPress={() => router.back()}>
-        <Text className="text-xl text-center text-blue-500">
-          Alrady have an account? Login
+
+      <Pressable
+        style={{
+          paddingHorizontal: 24,
+          paddingVertical: 12,
+          marginTop: 16,
+        }}
+        onPress={() => router.back()}
+      >
+        <Text
+          style={{
+            fontSize: 16,
+            textAlign: "center",
+            color: "#3b82f6",
+          }}
+        >
+          Already have an account? Login
         </Text>
       </Pressable>
     </View>
-  )
-}
+  );
+};
 
-export default Register
+export default Register;

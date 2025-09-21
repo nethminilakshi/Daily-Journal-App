@@ -1,4 +1,3 @@
-import settingsService from "@/services/settingsService";
 import { useRouter } from "expo-router";
 import {
   ArrowLeft,
@@ -22,6 +21,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import settingsService from "../../services/settingsService";
 
 const UserSettingsScreen = () => {
   const router = useRouter();
@@ -201,7 +201,7 @@ const UserSettingsScreen = () => {
         {
           text: "Delete Account",
           style: "destructive",
-          onPress: (password) => {
+          onPress: (password?: string) => {
             if (password) {
               performAccountDeletion(password);
             }

@@ -1,39 +1,41 @@
-import { auth } from "@/firebase"
-import { onAuthStateChanged, User } from "firebase/auth"
+import { onAuthStateChanged, User } from "firebase/auth";
 import {
   createContext,
   ReactNode,
-  use,
   useContext,
   useEffect,
-  useState
-} from "react"
+  useState,
+} from "react";
+import { auth } from "../firebase"; // Fixed import path
 
-type AuthContextType = { user: User | null; loading: boolean }
-const AUthContext = createContext<AuthContextType>({
+type AuthContextType = { user: User | null; loading: boolean };
+
+// Fixed typo: AuthContext not AUthContext
+const AuthContext = createContext<AuthContextType>({
   user: null,
-  loading: true
-})
+  loading: true,
+});
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState<boolean>(true)
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const unsubcribe = onAuthStateChanged(auth, (user) => {
-      setUser(user ?? null)
-      setLoading(false)
-    })
-    return unsubcribe
-  }, [])
+    // Fixed typo: unsubscribe not unsubcribe
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user ?? null);
+      setLoading(false);
+    });
+    return unsubscribe;
+  }, []);
 
   return (
-    <AUthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading }}>
       {children}
-    </AUthContext.Provider>
-  )
-}
+    </AuthContext.Provider>
+  );
+};
 
 export const useAuth = () => {
-  return useContext(AUthContext)
-}
+  return useContext(AuthContext);
+};

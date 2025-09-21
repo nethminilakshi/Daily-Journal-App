@@ -1,7 +1,3 @@
-import journalService, {
-  JournalEntry,
-  MoodType,
-} from "@/services/journalService";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -13,6 +9,10 @@ import {
   View,
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
+import journalService, {
+  JournalEntry,
+  MoodType,
+} from "../../services/journalService";
 
 const { width: screenWidth } = Dimensions.get("window");
 

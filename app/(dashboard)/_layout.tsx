@@ -1,13 +1,13 @@
-import { useAuth } from "@/context/AuthContext";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Tabs, useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import {
   ActivityIndicator,
   SafeAreaView,
   TouchableOpacity,
   View,
 } from "react-native";
+import { useAuth } from "../../context/AuthContext";
 
 const DashboardLayout = () => {
   const { user, loading } = useAuth();
@@ -22,14 +22,20 @@ const DashboardLayout = () => {
 
   if (loading) {
     return (
-      <View className="flex-1 w-full justify-center align-items-center">
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <ActivityIndicator size="large" />
       </View>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
       <Tabs
         screenOptions={{
           headerShown: false,
@@ -55,9 +61,16 @@ const DashboardLayout = () => {
           options={{
             title: "Diary",
             tabBarIcon: ({ color, focused }) => (
-              <View className="items-center">
+              <View style={{ alignItems: "center" }}>
                 <View
-                  className={`w-8 h-8 items-center justify-center ${focused ? "bg-pink-100" : ""} rounded-lg`}
+                  style={{
+                    width: 32,
+                    height: 32,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: focused ? "#fce7f3" : "transparent",
+                    borderRadius: 8,
+                  }}
                 >
                   <MaterialIcons name="book" size={24} color={color} />
                 </View>
@@ -71,9 +84,16 @@ const DashboardLayout = () => {
           options={{
             title: "Calendar",
             tabBarIcon: ({ color, focused }) => (
-              <View className="items-center">
+              <View style={{ alignItems: "center" }}>
                 <View
-                  className={`w-8 h-8 items-center justify-center ${focused ? "bg-pink-100" : ""} rounded-lg`}
+                  style={{
+                    width: 32,
+                    height: 32,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: focused ? "#fce7f3" : "transparent",
+                    borderRadius: 8,
+                  }}
                 >
                   <MaterialIcons
                     name="calendar-today"
@@ -90,21 +110,30 @@ const DashboardLayout = () => {
           name="add"
           options={{
             title: "",
-            tabBarIcon: ({ focused }) => (
-              <TouchableOpacity className="items-center -mt-2">
-                <View className="w-14 h-14 bg-pink-400 rounded-full flex justify-center items-center shadow-lg">
+            tabBarButton: ({ style }) => (
+              <TouchableOpacity
+                onPress={() => router.push("/add")}
+                style={[style, { alignItems: "center", marginTop: -8 }]}
+              >
+                <View
+                  style={{
+                    width: 56,
+                    height: 56,
+                    backgroundColor: "#f472b6",
+                    borderRadius: 28,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    shadowColor: "#000",
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 8,
+                    elevation: 8,
+                  }}
+                >
                   <MaterialIcons name="add" size={28} color="white" />
                 </View>
               </TouchableOpacity>
             ),
-          }}
-          listeners={{
-            tabPress: (e) => {
-              // Prevent default navigation
-              e.preventDefault();
-              // Navigate to add entry screen or show modal
-              router.push("/add");
-            },
           }}
         />
 
@@ -113,9 +142,16 @@ const DashboardLayout = () => {
           options={{
             title: "Insights",
             tabBarIcon: ({ color, focused }) => (
-              <View className="items-center">
+              <View style={{ alignItems: "center" }}>
                 <View
-                  className={`w-8 h-8 items-center justify-center ${focused ? "bg-pink-100" : ""} rounded-lg`}
+                  style={{
+                    width: 32,
+                    height: 32,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: focused ? "#fce7f3" : "transparent",
+                    borderRadius: 8,
+                  }}
                 >
                   <MaterialIcons name="insights" size={24} color={color} />
                 </View>
@@ -129,9 +165,16 @@ const DashboardLayout = () => {
           options={{
             title: "Setting",
             tabBarIcon: ({ color, focused }) => (
-              <View className="items-center">
+              <View style={{ alignItems: "center" }}>
                 <View
-                  className={`w-8 h-8 items-center justify-center ${focused ? "bg-pink-100" : ""} rounded-lg`}
+                  style={{
+                    width: 32,
+                    height: 32,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: focused ? "#fce7f3" : "transparent",
+                    borderRadius: 8,
+                  }}
                 >
                   <MaterialIcons name="settings" size={24} color={color} />
                 </View>

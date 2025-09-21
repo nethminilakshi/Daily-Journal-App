@@ -1,5 +1,4 @@
 // services/settingsService.ts
-import { auth } from "@/firebase";
 import {
   EmailAuthProvider,
   User as FirebaseUser,
@@ -11,6 +10,7 @@ import {
   updatePassword,
   updateProfile,
 } from "firebase/auth";
+import { auth } from "../firebase";
 import journalService from "./journalService";
 
 export interface UserUpdateData {

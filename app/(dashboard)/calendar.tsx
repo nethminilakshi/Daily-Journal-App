@@ -1,4 +1,3 @@
-import journalService, { JournalEntry } from "@/services/journalService";
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { BookOpen } from "lucide-react-native";
@@ -12,6 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import journalService, { JournalEntry } from "../../services/journalService";
 
 // Calendar Component
 interface CalendarProps {
