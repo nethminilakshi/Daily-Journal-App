@@ -305,40 +305,62 @@ const InsightsScreen = () => {
   }
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1" style={{ backgroundColor: "#1c1c2b" }}>
       <StatusBar
-        barStyle="dark-content"
-        backgroundColor="transparent"
+        barStyle="light-content"
+        backgroundColor="#1c1c2b"
         translucent
       />
 
       {/* Header */}
-      <View className="pt-12 px-6 pb-6 bg-white">
-        <Text className="text-2xl font-bold text-gray-800">Insights</Text>
+      <View className="pt-12 px-6 pb-6" style={{ backgroundColor: "#1a1a2e" }}>
+        <Text className="text-2xl font-bold text-white">Insights</Text>
       </View>
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Stats Cards */}
         <View className="px-6 py-4">
-          <View className="bg-white rounded-2xl p-6 shadow-sm">
+          <View
+            className="rounded-2xl p-6 shadow-lg"
+            style={{
+              backgroundColor: "rgba(139, 69, 19, 0.25)",
+              borderWidth: 1,
+              borderColor: "rgba(160, 82, 45, 0.3)",
+            }}
+          >
             <View className="flex-row justify-between">
               <View className="items-center flex-1">
-                <Text className="text-3xl font-bold text-gray-800">
+                <Text
+                  className="text-3xl font-bold"
+                  style={{ color: "#F4E4BC" }}
+                >
                   {totalEntries}
                 </Text>
-                <Text className="text-gray-600 mt-1">Entries</Text>
+                <Text className="mt-1" style={{ color: "#DEB887" }}>
+                  Entries
+                </Text>
               </View>
               <View className="items-center flex-1">
-                <Text className="text-3xl font-bold text-gray-800">
+                <Text
+                  className="text-3xl font-bold"
+                  style={{ color: "#F4E4BC" }}
+                >
                   {uniqueMoods}
                 </Text>
-                <Text className="text-gray-600 mt-1">Moods</Text>
+                <Text className="mt-1" style={{ color: "#DEB887" }}>
+                  Moods
+                </Text>
               </View>
               <View className="items-center flex-1">
-                <Text className="text-3xl font-bold text-gray-800">
+                <Text
+                  className="text-3xl font-bold"
+                  style={{ color: "#F4E4BC" }}
+                >
                   {currentStreak}
                 </Text>
-                <Text className="text-gray-600 mt-1">Streak</Text>
+                <Text className="mt-1" style={{ color: "#DEB887" }}>
+                  Streak
+                </Text>
               </View>
             </View>
           </View>
@@ -346,8 +368,18 @@ const InsightsScreen = () => {
 
         {/* Diary Streak */}
         <View className="px-6 py-4">
-          <View className="bg-white rounded-2xl p-6 shadow-sm">
-            <Text className="text-lg font-semibold text-gray-800 mb-4">
+          <View
+            className="rounded-2xl p-6 shadow-lg"
+            style={{
+              backgroundColor: "rgba(176, 196, 222, 0.2)",
+              borderWidth: 1,
+              borderColor: "rgba(176, 196, 222, 0.4)",
+            }}
+          >
+            <Text
+              className="text-lg font-semibold mb-4"
+              style={{ color: "#F8F8FF" }}
+            >
               Diary Streak
             </Text>
 
@@ -355,27 +387,40 @@ const InsightsScreen = () => {
               {last7DaysData.map((day, index) => (
                 <View key={index} className="items-center">
                   <View
-                    className={`w-8 h-8 rounded-lg mb-2 items-center justify-center ${
-                      day.hasEntry ? "bg-pink-400" : "bg-gray-200"
-                    }`}
+                    className="w-8 h-8 rounded-lg mb-2 items-center justify-center"
+                    style={{
+                      backgroundColor: day.hasEntry
+                        ? "rgba(135, 206, 235, 0.8)"
+                        : "rgba(176, 196, 222, 0.4)",
+                      borderWidth: 1,
+                      borderColor: day.hasEntry
+                        ? "#87CEEB"
+                        : "rgba(176, 196, 222, 0.6)",
+                    }}
                   >
                     {day.hasEntry && (
-                      <Text className="text-white text-xs">✓</Text>
+                      <Text className="text-white text-xs font-bold">✓</Text>
                     )}
                     {!day.hasEntry && (
-                      <Text className="text-gray-400 text-xs">+</Text>
+                      <Text style={{ color: "#B0C4DE" }} className="text-xs">
+                        +
+                      </Text>
                     )}
                   </View>
-                  <Text className="text-xs text-gray-600">{day.date}</Text>
+                  <Text className="text-xs" style={{ color: "#F0F8FF" }}>
+                    {day.date}
+                  </Text>
                 </View>
               ))}
             </View>
 
             <View className="flex-row items-center">
-              <Text className="text-pink-400 text-lg">🔥</Text>
-              <Text className="text-gray-700 ml-2">
+              <Text className="text-lg">🔥</Text>
+              <Text className="ml-2" style={{ color: "#F0F8FF" }}>
                 Longest chain:{" "}
-                <Text className="font-semibold">{longestStreak}</Text>
+                <Text className="font-semibold" style={{ color: "#ADD8E6" }}>
+                  {longestStreak}
+                </Text>
               </Text>
             </View>
           </View>
@@ -383,16 +428,29 @@ const InsightsScreen = () => {
 
         {/* Writing Templates Card */}
         <View className="px-6 py-4">
-          <View className="bg-blue-50 rounded-2xl p-6 relative overflow-hidden">
-            <Text className="text-lg font-semibold text-gray-800 mb-2">
+          <View
+            className="rounded-2xl p-6 relative overflow-hidden shadow-lg"
+            style={{
+              backgroundColor: "rgba(47, 79, 79, 0.4)",
+              borderWidth: 1,
+              borderColor: "rgba(95, 158, 160, 0.5)",
+            }}
+          >
+            <Text
+              className="text-lg font-semibold mb-2"
+              style={{ color: "#F0FFFF" }}
+            >
               No ideas to write about?
             </Text>
-            <Text className="text-gray-600 mb-4">
+            <Text className="mb-4" style={{ color: "#B0E0E6" }}>
               Try out the writing templates!
             </Text>
 
-            <TouchableOpacity className="bg-white px-4 py-2 rounded-xl self-start">
-              <Text className="font-medium text-gray-800">Try it</Text>
+            <TouchableOpacity
+              className="px-4 py-2 rounded-xl self-start"
+              style={{ backgroundColor: "rgba(70, 130, 180, 0.8)" }}
+            >
+              <Text className="font-medium text-white">Try it</Text>
             </TouchableOpacity>
 
             {/* Decorative elements */}
@@ -407,48 +465,71 @@ const InsightsScreen = () => {
 
         {/* Trends */}
         <View className="px-6 py-4">
-          <View className="bg-white rounded-2xl p-6 shadow-sm">
-            <Text className="text-lg font-semibold text-gray-800 mb-4">
+          <View
+            className="rounded-2xl p-6 shadow-lg"
+            style={{
+              backgroundColor: "rgba(255, 105, 180, 0.15)",
+              borderWidth: 1,
+              borderColor: "rgba(255, 20, 147, 0.3)",
+            }}
+          >
+            <Text
+              className="text-lg font-semibold mb-4"
+              style={{ color: "#FFE4E1" }}
+            >
               Trends
             </Text>
 
             {moodStats.length > 0 ? (
               <View>
-                {/* Mood percentages - Show ALL moods */}
+                {/* Mood percentages - Show emojis only */}
                 <View className="mb-4">
                   {moodStats.map((stat, index) => (
                     <View
                       key={stat.mood}
-                      className="flex-row items-center justify-between mb-3"
+                      className="flex-row items-center justify-between mb-3 px-2 py-2 rounded-lg"
+                      style={{
+                        backgroundColor: "rgba(255, 182, 193, 0.15)",
+                        borderWidth: 0.5,
+                        borderColor: "rgba(255, 105, 180, 0.3)",
+                      }}
                     >
                       <View className="flex-row items-center">
                         <Text className="text-2xl mr-3">{stat.emoji}</Text>
-                        <Text className="text-gray-700 font-medium">
-                          {getMoodLabel(stat.mood)}
-                        </Text>
                       </View>
-                      <Text className="text-gray-800 font-semibold">
+                      <Text
+                        className="font-semibold"
+                        style={{ color: "#FFB6C1" }}
+                      >
                         {stat.percentage}%
                       </Text>
                     </View>
                   ))}
                 </View>
 
-                {/* Simple mood distribution bar */}
-                <View className="flex-row h-2 rounded-full overflow-hidden bg-gray-100">
+                {/* Gradient mood distribution bar */}
+                <View
+                  className="flex-row h-4 rounded-full overflow-hidden shadow-sm"
+                  style={{
+                    backgroundColor: "rgba(186, 85, 211, 0.3)",
+                    borderWidth: 1,
+                    borderColor: "rgba(255, 20, 147, 0.4)",
+                  }}
+                >
                   {moodStats.map((stat, index) => (
                     <View
                       key={stat.mood}
                       style={{
                         backgroundColor: stat.color,
                         flex: stat.percentage,
+                        opacity: 0.9,
                       }}
                     />
                   ))}
                 </View>
               </View>
             ) : (
-              <Text className="text-gray-500 text-center py-4">
+              <Text className="text-center py-4" style={{ color: "#DDA0DD" }}>
                 No mood data available yet
               </Text>
             )}
@@ -459,12 +540,22 @@ const InsightsScreen = () => {
         {moodTrendData &&
           moodTrendData.datasets[0].data.some((val: number) => val > 0) && (
             <View className="px-6 py-4">
-              <View className="bg-white rounded-2xl p-6 shadow-sm">
-                <Text className="text-lg font-semibold text-gray-800 mb-4">
+              <View
+                className="rounded-2xl p-6 shadow-lg"
+                style={{
+                  backgroundColor: "rgba(105, 105, 105, 0.25)",
+                  borderWidth: 1,
+                  borderColor: "rgba(169, 169, 169, 0.4)",
+                }}
+              >
+                <Text
+                  className="text-lg font-semibold mb-4"
+                  style={{ color: "#F5F5F5" }}
+                >
                   Mood Graph
                 </Text>
 
-                {/* Mood legend */}
+                {/* Mood legend - emojis only */}
                 <View className="mb-4">
                   {moodConfig
                     .slice()
@@ -476,12 +567,9 @@ const InsightsScreen = () => {
                       >
                         <Text className="text-lg mr-2">{config.emoji}</Text>
                         <View
-                          className="w-2 h-2 rounded-full mr-2"
+                          className="w-3 h-3 rounded-full mr-2"
                           style={{ backgroundColor: config.color }}
                         />
-                        <Text className="text-gray-600 text-sm">
-                          {config.label}
-                        </Text>
                       </View>
                     ))}
                 </View>
@@ -491,20 +579,21 @@ const InsightsScreen = () => {
                   width={screenWidth - 80}
                   height={200}
                   chartConfig={{
-                    backgroundColor: "#ffffff",
-                    backgroundGradientFrom: "#ffffff",
-                    backgroundGradientTo: "#ffffff",
+                    backgroundColor: "rgba(105, 105, 105, 0.15)",
+                    backgroundGradientFrom: "rgba(105, 105, 105, 0.15)",
+                    backgroundGradientTo: "rgba(128, 128, 128, 0.2)",
                     decimalPlaces: 0,
                     color: (opacity = 1) => `rgba(59, 130, 246, ${opacity})`,
                     labelColor: (opacity = 1) =>
-                      `rgba(107, 114, 128, ${opacity})`,
+                      `rgba(245, 245, 245, ${opacity})`,
                     style: {
                       borderRadius: 16,
                     },
                     propsForDots: {
-                      r: "4",
-                      strokeWidth: "2",
+                      r: "5",
+                      strokeWidth: "3",
                       stroke: "#3B82F6",
+                      fill: "#60A5FA",
                     },
                   }}
                   bezier

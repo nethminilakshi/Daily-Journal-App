@@ -5,9 +5,11 @@ import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  ImageBackground,
   RefreshControl,
   ScrollView,
   StatusBar,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
@@ -24,35 +26,9 @@ const HomeScreen = () => {
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Debug current user
-  useEffect(() => {
-    console.log("=== HOME SCREEN DEBUG ===");
-    console.log("Current user:", auth.currentUser?.email);
-    console.log("User ID:", auth.currentUser?.uid);
-  }, []);
-
-  // Debug state changes
-  useEffect(() => {
-    console.log("=== STATE DEBUG ===");
-    console.log("Loading:", loading);
-    console.log("Entries count:", entries.length);
-    console.log("Error:", error);
-    console.log(
-      "Entries data:",
-      entries.map((e) => ({
-        id: e.id,
-        title: e.title,
-        createdAt: e.createdAt,
-      }))
-    );
-  }, [loading, entries, error]);
-
   // Load data from Firebase
   const fetchJournalData = async () => {
     try {
-      console.log("=== FETCH DEBUG ===");
-      console.log("Starting to fetch journal data...");
-
       // Check if user is authenticated
       if (!auth.currentUser) {
         throw new Error("User not authenticated");
@@ -60,25 +36,9 @@ const HomeScreen = () => {
 
       setError(null);
       const journalEntries = await journalService.getAllJournalEntries();
-
-      console.log("Raw journal entries received:", journalEntries.length);
-      console.log("First 3 entries:", journalEntries.slice(0, 3));
-
       setEntries(journalEntries);
-
-      if (journalEntries.length === 0) {
-        console.log("No entries found - showing empty state");
-      }
     } catch (err: any) {
-      console.error("=== ERROR FETCHING ===");
-      console.error("Error details:", err);
-      console.error("Error message:", err.message);
-      console.error("Error code:", err.code);
-
       setError(err.message || "Failed to load journal entries");
-
-      // Show alert for debugging
-      Alert.alert("Debug Error", `Failed to load entries: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -86,7 +46,6 @@ const HomeScreen = () => {
 
   // Initial load
   useEffect(() => {
-    console.log("=== INITIAL LOAD ===");
     setLoading(true);
     fetchJournalData();
   }, []);
@@ -94,9 +53,7 @@ const HomeScreen = () => {
   // Refresh when screen comes into focus
   useFocusEffect(
     useCallback(() => {
-      console.log("=== FOCUS EFFECT ===");
       if (!loading) {
-        console.log("Screen focused, refreshing data...");
         fetchJournalData();
       }
     }, [loading])
@@ -104,7 +61,6 @@ const HomeScreen = () => {
 
   // Pull to refresh
   const onRefresh = async () => {
-    console.log("=== PULL TO REFRESH ===");
     setRefreshing(true);
     await fetchJournalData();
     setRefreshing(false);
@@ -126,9 +82,6 @@ const HomeScreen = () => {
 
   // Group entries by date
   const groupEntriesByDate = (entries: JournalEntry[]) => {
-    console.log("=== GROUPING ENTRIES ===");
-    console.log("Entries to group:", entries.length);
-
     const grouped: { [key: string]: JournalEntry[] } = {};
 
     entries.forEach((entry) => {
@@ -152,7 +105,6 @@ const HomeScreen = () => {
       ),
     }));
 
-    console.log("Grouped result:", result.length, "date groups");
     return result;
   };
 
@@ -180,31 +132,18 @@ const HomeScreen = () => {
 
   // Handle navigation to journal entry
   const handleNavigateToEntry = (entry: JournalEntry) => {
-    console.log("=== NAVIGATION DEBUG ===");
-    console.log("Navigating to entry with ID:", entry.id);
-    console.log("Entry details:", {
-      id: entry.id,
-      title: entry.title,
-      mood: entry.mood,
-      createdAt: entry.createdAt,
-    });
-
     try {
-      // Navigate to the journal entry screen with the actual ID
       router.push(`/JournalEntries/${entry.id}`);
     } catch (err) {
-      console.error("Navigation error:", err);
       Alert.alert("Navigation Error", "Failed to open journal entry");
     }
   };
 
   // Handle add new entry
   const handleAddEntry = () => {
-    console.log("=== ADD ENTRY ===");
     try {
       router.push("/add");
     } catch (err) {
-      console.error("Add navigation error:", err);
       Alert.alert("Navigation Error", "Failed to open add journal screen");
     }
   };
@@ -229,10 +168,22 @@ const HomeScreen = () => {
     },
   ];
 
+  // Get gradient colors for date circles (cycling through beautiful gradients)
+  const getDateCircleGradient = (index: number) => {
+    const gradients = [
+      { bg: "rgba(255, 105, 180, 0.8)", border: "rgba(255, 20, 147, 0.9)" }, // Hot Pink
+      { bg: "rgba(138, 43, 226, 0.8)", border: "rgba(75, 0, 130, 0.9)" }, // Purple
+      { bg: "rgba(70, 130, 180, 0.8)", border: "rgba(30, 144, 255, 0.9)" }, // Steel Blue
+      { bg: "rgba(255, 165, 0, 0.8)", border: "rgba(255, 140, 0, 0.9)" }, // Orange
+      { bg: "rgba(50, 205, 50, 0.8)", border: "rgba(34, 139, 34, 0.9)" }, // Lime Green
+    ];
+    return gradients[index % gradients.length];
+  };
+
   return (
-    <View style={{ flex: 1, backgroundColor: "#f9fafb" }}>
+    <View style={{ flex: 1, backgroundColor: "#1c1c2b" }}>
       <StatusBar
-        barStyle="dark-content"
+        barStyle="light-content"
         backgroundColor="transparent"
         translucent
       />
@@ -255,15 +206,22 @@ const HomeScreen = () => {
             paddingBottom: 16,
           }}
         >
-          <Text style={{ fontSize: 30, fontWeight: "bold", color: "#1f2937" }}>
-            Diary
+          <Text style={{ fontSize: 32, fontWeight: "700", color: "#F5F5F5" }}>
+            📖 Diary
           </Text>
           <View
             style={{
-              backgroundColor: "#f472b6",
+              backgroundColor: "rgba(255, 105, 180, 0.9)",
               paddingHorizontal: 16,
               paddingVertical: 8,
               borderRadius: 20,
+              shadowColor: "#FF1493",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 4,
+              elevation: 3,
+              borderWidth: 1,
+              borderColor: "rgba(255, 20, 147, 0.3)",
             }}
           >
             <Text style={{ color: "white", fontWeight: "600", fontSize: 14 }}>
@@ -275,67 +233,89 @@ const HomeScreen = () => {
         {/* Hero Image Card */}
         <View
           style={{
+            marginHorizontal: 20,
             marginBottom: 32,
-            alignItems: "center",
-            justifyContent: "center",
+            borderRadius: 24,
+            overflow: "hidden",
+            shadowColor: "#FF69B4",
+            shadowOffset: { width: 0, height: 8 },
+            shadowOpacity: 0.25,
+            shadowRadius: 16,
+            elevation: 8,
           }}
         >
-          <View
-            style={{
-              width: "auto",
-              height: 160,
-              borderRadius: 24,
-              overflow: "hidden",
+          <ImageBackground
+            source={{
+              uri: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80",
             }}
+            style={{
+              height: 200,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            imageStyle={{ borderRadius: 24 }}
           >
-            {/* <Image
-              source={require("@/assets/images/hq720.jpg")}
-              style={{ width: "100%", height: "100%", resizeMode: "cover" }}
-            /> */}
-          </View>
+            {/* Gradient overlay for hero */}
+            <View
+              style={{
+                ...StyleSheet.absoluteFillObject,
+                backgroundColor: "rgba(255, 105, 180, 0.2)",
+                borderRadius: 24,
+              }}
+            />
+
+            {/* Hero Content */}
+            <View
+              style={{
+                alignItems: "center",
+                paddingHorizontal: 24,
+                zIndex: 1,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 26,
+                  fontWeight: "800",
+                  color: "white",
+                  textAlign: "center",
+                  marginBottom: 8,
+                  textShadowColor: "rgba(255, 20, 147, 0.4)",
+                  textShadowOffset: { width: 0, height: 2 },
+                  textShadowRadius: 4,
+                }}
+              >
+                Capture Your Journey
+              </Text>
+              <Text
+                style={{
+                  fontSize: 16,
+                  color: "white",
+                  textAlign: "center",
+                  opacity: 0.95,
+                  textShadowColor: "rgba(138, 43, 226, 0.3)",
+                  textShadowOffset: { width: 0, height: 1 },
+                  textShadowRadius: 3,
+                }}
+              >
+                Every moment is worth remembering
+              </Text>
+            </View>
+          </ImageBackground>
         </View>
 
         {/* Main Content */}
         <View style={{ paddingHorizontal: 24 }}>
           <Text
             style={{
-              fontSize: 30,
-              fontWeight: "bold",
-              color: "#1f2937",
+              fontSize: 28,
+              fontWeight: "700",
+              color: "#E6E6FA",
               textAlign: "center",
-              marginBottom: 16,
+              marginBottom: 24,
             }}
           >
             Every moment matters
           </Text>
-          <Text
-            style={{
-              fontSize: 18,
-              color: "#6b7280",
-              textAlign: "center",
-              lineHeight: 28,
-              paddingHorizontal: 16,
-              marginBottom: 32,
-            }}
-          >
-            Start journaling your thoughts and feelings{"\n"}
-            in your private, secure diary
-          </Text>
-
-          {/* Debug Info */}
-          <View
-            style={{
-              backgroundColor: "#e5e7eb",
-              padding: 12,
-              borderRadius: 8,
-              marginBottom: 16,
-            }}
-          >
-            <Text style={{ fontSize: 12, color: "#374151" }}>
-              Debug: Loading={loading ? "true" : "false"}, Entries=
-              {entries.length}, User={auth.currentUser?.email || "none"}
-            </Text>
-          </View>
 
           {/* Loading State */}
           {loading && (
@@ -346,8 +326,8 @@ const HomeScreen = () => {
                 paddingVertical: 32,
               }}
             >
-              <ActivityIndicator size="large" color="#F472B6" />
-              <Text style={{ marginLeft: 12, color: "#6b7280" }}>
+              <ActivityIndicator size="large" color="#FF69B4" />
+              <Text style={{ marginLeft: 12, color: "#B0C4DE" }}>
                 Loading entries...
               </Text>
             </View>
@@ -357,19 +337,25 @@ const HomeScreen = () => {
           {error && (
             <View
               style={{
-                backgroundColor: "#fef2f2",
+                backgroundColor: "rgba(255, 165, 0, 0.15)",
                 borderWidth: 1,
-                borderColor: "#fecaca",
-                borderRadius: 12,
-                padding: 16,
+                borderColor: "rgba(255, 140, 0, 0.3)",
+                borderRadius: 16,
+                padding: 18,
                 marginBottom: 24,
+                shadowColor: "#FFA500",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.15,
+                shadowRadius: 4,
+                elevation: 2,
               }}
             >
               <Text
                 style={{
-                  color: "#dc2626",
+                  color: "#FFE4B5",
                   textAlign: "center",
-                  marginBottom: 8,
+                  marginBottom: 12,
+                  fontWeight: "600",
                 }}
               >
                 {error}
@@ -377,35 +363,32 @@ const HomeScreen = () => {
               <TouchableOpacity
                 onPress={fetchJournalData}
                 style={{
-                  backgroundColor: "#fee2e2",
-                  borderRadius: 8,
-                  paddingVertical: 8,
-                  paddingHorizontal: 16,
+                  backgroundColor: "rgba(255, 140, 0, 0.8)",
+                  borderRadius: 12,
+                  paddingVertical: 10,
+                  paddingHorizontal: 18,
                   alignSelf: "center",
                 }}
               >
-                <Text style={{ color: "#dc2626", fontWeight: "500" }}>
-                  Retry
-                </Text>
+                <Text style={{ color: "white", fontWeight: "600" }}>Retry</Text>
               </TouchableOpacity>
 
               {/* Debug button to test with dummy data */}
               <TouchableOpacity
                 onPress={() => {
-                  console.log("Using test data");
                   setEntries(testEntries);
                   setError(null);
                 }}
                 style={{
-                  backgroundColor: "#ddd6fe",
-                  borderRadius: 8,
-                  paddingVertical: 8,
-                  paddingHorizontal: 16,
+                  backgroundColor: "rgba(138, 43, 226, 0.8)",
+                  borderRadius: 12,
+                  paddingVertical: 10,
+                  paddingHorizontal: 18,
                   alignSelf: "center",
                   marginTop: 8,
                 }}
               >
-                <Text style={{ color: "#7c3aed", fontWeight: "500" }}>
+                <Text style={{ color: "white", fontWeight: "600" }}>
                   Test with dummy data
                 </Text>
               </TouchableOpacity>
@@ -415,197 +398,250 @@ const HomeScreen = () => {
           {/* Journal Entries List - Grouped by Date */}
           {!loading && entries.length > 0 && (
             <View style={{ marginBottom: 24 }}>
-              <Text
+              {/* Recent Entries Title - Calm & Simple */}
+              <View
                 style={{
-                  fontSize: 20,
-                  fontWeight: "bold",
-                  color: "#1f2937",
-                  marginBottom: 16,
+                  backgroundColor: "rgba(255, 255, 255, 0.08)",
+                  borderRadius: 16,
+                  padding: 16,
+                  marginBottom: 24,
+                  borderWidth: 1,
+                  borderColor: "rgba(255, 255, 255, 0.1)",
                 }}
               >
-                Recent Entries ({entries.length})
-              </Text>
+                <Text
+                  style={{
+                    fontSize: 22,
+                    fontWeight: "700",
+                    color: "#F5F5F5",
+                    textAlign: "center",
+                  }}
+                >
+                  Recent Entries
+                </Text>
+              </View>
 
-              {groupEntriesByDate(entries).map((group, groupIndex) => (
-                <View key={group.date} style={{ marginBottom: 24 }}>
-                  {/* Date Header */}
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      marginBottom: 12,
-                    }}
-                  >
+              {groupEntriesByDate(entries).map((group, groupIndex) => {
+                return (
+                  <View key={group.date} style={{ marginBottom: 28 }}>
+                    {/* Date Header - Soft & Minimal */}
                     <View
                       style={{
-                        width: 48,
-                        height: 48,
-                        backgroundColor: "#f472b6",
-                        borderRadius: 16,
+                        flexDirection: "row",
                         alignItems: "center",
-                        justifyContent: "center",
-                        marginRight: 12,
+                        marginBottom: 16,
+                        paddingHorizontal: 4,
                       }}
-                    >
-                      <Text
-                        style={{
-                          color: "white",
-                          fontWeight: "bold",
-                          fontSize: 18,
-                        }}
-                      >
-                        {new Date(group.date).getDate()}
-                      </Text>
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <Text
-                        style={{
-                          fontSize: 18,
-                          fontWeight: "600",
-                          color: "#1f2937",
-                        }}
-                      >
-                        {formatDateHeader(group.date)}
-                      </Text>
-                      <Text style={{ fontSize: 14, color: "#6b7280" }}>
-                        {new Date(group.date).toLocaleDateString("en-US", {
-                          month: "short",
-                          year: "numeric",
-                        })}{" "}
-                        • {group.entries.length} entries
-                      </Text>
-                    </View>
-                  </View>
-
-                  {/* Entries for this date */}
-                  {group.entries.map((entry, entryIndex) => (
-                    <TouchableOpacity
-                      key={entry.id}
-                      style={{
-                        backgroundColor: "white",
-                        borderRadius: 16,
-                        padding: 16,
-                        marginBottom: 12,
-                        marginLeft: 16,
-                        shadowColor: "#000",
-                        shadowOffset: { width: 0, height: 1 },
-                        shadowOpacity: 0.05,
-                        shadowRadius: 2,
-                        elevation: 1,
-                        borderWidth: 1,
-                        borderColor: "#f3f4f6",
-                      }}
-                      onPress={() => handleNavigateToEntry(entry)}
                     >
                       <View
                         style={{
-                          flexDirection: "row",
-                          alignItems: "flex-start",
+                          width: 52,
+                          height: 52,
+                          backgroundColor: "rgba(176, 196, 222, 0.15)",
+                          borderRadius: 16,
+                          alignItems: "center",
+                          justifyContent: "center",
+                          marginRight: 16,
+                          borderWidth: 1,
+                          borderColor: "rgba(176, 196, 222, 0.3)",
                         }}
                       >
-                        {/* Mood emoji */}
                         <Text
                           style={{
-                            fontSize: 24,
-                            marginRight: 12,
-                            marginTop: 4,
+                            color: "#F5F5F5",
+                            fontWeight: "700",
+                            fontSize: 18,
                           }}
                         >
-                          {getMoodEmoji(entry.mood)}
+                          {new Date(group.date).getDate()}
                         </Text>
-
-                        {/* Entry content */}
-                        <View style={{ flex: 1 }}>
-                          <Text
-                            style={{
-                              fontSize: 18,
-                              fontWeight: "600",
-                              color: "#1f2937",
-                              marginBottom: 4,
-                            }}
-                          >
-                            {entry.title}
-                          </Text>
-                          <Text
-                            style={{
-                              color: "#6b7280",
-                              fontSize: 14,
-                              marginBottom: 8,
-                              lineHeight: 20,
-                            }}
-                            numberOfLines={2}
-                          >
-                            {entry.content}
-                          </Text>
-
-                          {/* Time */}
-                          <Text style={{ fontSize: 12, color: "#9ca3af" }}>
-                            {new Date(entry.createdAt).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </Text>
-                        </View>
                       </View>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              ))}
+                      <View style={{ flex: 1 }}>
+                        <Text
+                          style={{
+                            fontSize: 17,
+                            fontWeight: "600",
+                            color: "#E0E0E0",
+                          }}
+                        >
+                          {formatDateHeader(group.date)}
+                        </Text>
+                        <Text style={{ fontSize: 14, color: "#B0B0B0" }}>
+                          {new Date(group.date).toLocaleDateString("en-US", {
+                            month: "short",
+                            year: "numeric",
+                          })}{" "}
+                        </Text>
+                      </View>
+                    </View>
+
+                    {/* Entries - Clean & Peaceful */}
+                    {group.entries.map((entry, entryIndex) => {
+                      return (
+                        <TouchableOpacity
+                          key={entry.id}
+                          style={{
+                            backgroundColor: "rgba(255, 255, 255, 0.06)",
+                            borderRadius: 16,
+                            padding: 20,
+                            marginBottom: 12,
+                            marginLeft: 16,
+                            borderWidth: 1,
+                            borderColor: "rgba(255, 255, 255, 0.1)",
+                          }}
+                          onPress={() => handleNavigateToEntry(entry)}
+                        >
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              alignItems: "flex-start",
+                            }}
+                          >
+                            {/* Mood emoji - Soft Blue Tint */}
+                            <View
+                              style={{
+                                width: 40,
+                                height: 40,
+                                backgroundColor: "rgba(173, 216, 230, 0.2)",
+                                borderRadius: 12,
+                                alignItems: "center",
+                                justifyContent: "center",
+                                marginRight: 16,
+                                marginTop: 2,
+                                borderWidth: 1,
+                                borderColor: "rgba(173, 216, 230, 0.4)",
+                              }}
+                            >
+                              <Text
+                                style={{
+                                  fontSize: 20,
+                                }}
+                              >
+                                {getMoodEmoji(entry.mood)}
+                              </Text>
+                            </View>
+
+                            {/* Entry content - Soft Typography */}
+                            <View style={{ flex: 1 }}>
+                              <Text
+                                style={{
+                                  fontSize: 17,
+                                  fontWeight: "600",
+                                  color: "#F0F0F0",
+                                  marginBottom: 6,
+                                }}
+                              >
+                                {entry.title}
+                              </Text>
+                              <Text
+                                style={{
+                                  color: "#D0D0D0",
+                                  fontSize: 14,
+                                  marginBottom: 8,
+                                  lineHeight: 20,
+                                  opacity: 0.9,
+                                }}
+                                numberOfLines={2}
+                              >
+                                {entry.content}
+                              </Text>
+
+                              {/* Time - Subtle */}
+                              <Text
+                                style={{
+                                  fontSize: 12,
+                                  color: "#A0A0A0",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                {new Date(entry.createdAt).toLocaleTimeString(
+                                  [],
+                                  {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  }
+                                )}
+                              </Text>
+                            </View>
+                          </View>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                );
+              })}
             </View>
           )}
 
-          {/* Empty State */}
+          {/* Empty State with Gradient Design */}
           {!loading && entries.length === 0 && !error && (
             <View style={{ alignItems: "center", paddingVertical: 48 }}>
               <View
                 style={{
-                  width: 80,
-                  height: 80,
-                  backgroundColor: "#e5e7eb",
-                  borderRadius: 40,
+                  width: 100,
+                  height: 100,
+                  backgroundColor: "rgba(176, 196, 222, 0.2)",
+                  borderRadius: 50,
                   alignItems: "center",
                   justifyContent: "center",
-                  marginBottom: 16,
+                  marginBottom: 20,
+                  shadowColor: "#87CEEB",
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.15,
+                  shadowRadius: 8,
+                  elevation: 3,
+                  borderWidth: 2,
+                  borderColor: "rgba(135, 206, 235, 0.4)",
                 }}
               >
-                <BookOpen size={32} color="#9CA3AF" />
+                <BookOpen size={40} color="#B0C4DE" />
               </View>
               <Text
                 style={{
-                  fontSize: 20,
-                  fontWeight: "600",
-                  color: "#1f2937",
-                  marginBottom: 8,
+                  fontSize: 24,
+                  fontWeight: "700",
+                  color: "#E6E6FA",
+                  marginBottom: 12,
                 }}
               >
                 No entries yet
               </Text>
               <Text
                 style={{
-                  color: "#6b7280",
+                  color: "#B0C4DE",
                   textAlign: "center",
-                  marginBottom: 24,
+                  marginBottom: 28,
                   paddingHorizontal: 32,
-                  lineHeight: 20,
+                  lineHeight: 24,
+                  fontSize: 16,
                 }}
               >
                 Start your journaling journey by writing your first entry
               </Text>
 
-              {/* Add Entry Button in Empty State */}
+              {/* Add Entry Button with Gradient */}
               <TouchableOpacity
                 onPress={handleAddEntry}
                 style={{
-                  backgroundColor: "#f472b6",
-                  paddingHorizontal: 24,
-                  paddingVertical: 12,
-                  borderRadius: 24,
+                  backgroundColor: "rgba(255, 105, 180, 0.9)",
+                  paddingHorizontal: 28,
+                  paddingVertical: 16,
+                  borderRadius: 28,
                   flexDirection: "row",
                   alignItems: "center",
+                  shadowColor: "#FF69B4",
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 8,
+                  elevation: 4,
+                  borderWidth: 1,
+                  borderColor: "rgba(255, 20, 147, 0.3)",
                 }}
               >
-                <Plus size={20} color="white" style={{ marginRight: 8 }} />
-                <Text style={{ color: "white", fontWeight: "600" }}>
+                <Plus size={22} color="white" style={{ marginRight: 8 }} />
+                <Text
+                  style={{ color: "white", fontWeight: "700", fontSize: 16 }}
+                >
                   Write First Entry
                 </Text>
               </TouchableOpacity>
@@ -613,29 +649,6 @@ const HomeScreen = () => {
           )}
         </View>
       </ScrollView>
-
-      {/* Floating Add Button */}
-      <TouchableOpacity
-        onPress={handleAddEntry}
-        style={{
-          position: "absolute",
-          bottom: 20,
-          right: 20,
-          width: 56,
-          height: 56,
-          backgroundColor: "#f472b6",
-          borderRadius: 28,
-          alignItems: "center",
-          justifyContent: "center",
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.3,
-          shadowRadius: 8,
-          elevation: 8,
-        }}
-      >
-        <Plus size={24} color="white" />
-      </TouchableOpacity>
     </View>
   );
 };

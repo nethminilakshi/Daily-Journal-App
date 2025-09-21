@@ -111,31 +111,69 @@ const Calendar: React.FC<CalendarProps> = ({
     currentMonth.getFullYear() === today.getFullYear();
 
   return (
-    <View className="bg-white rounded-2xl mx-4 mb-6 p-4 shadow-sm">
+    <View
+      style={{
+        backgroundColor: "#ffffff",
+        borderRadius: 20,
+        marginHorizontal: 20,
+        marginBottom: 24,
+        padding: 20,
+        shadowColor: "#e2e8f0",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        elevation: 2,
+      }}
+    >
       {/* Month Header */}
-      <View className="flex-row justify-between items-center mb-4">
-        <TouchableOpacity onPress={goToPreviousMonth} className="p-2">
-          <Text className="text-lg text-gray-600">←</Text>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 20,
+        }}
+      >
+        <TouchableOpacity onPress={goToPreviousMonth} style={{ padding: 8 }}>
+          <Text style={{ fontSize: 18, color: "#9ca3af" }}>←</Text>
         </TouchableOpacity>
 
-        <Text className="text-lg font-bold text-gray-800">
+        <Text
+          style={{
+            fontSize: 18,
+            fontWeight: "700",
+            color: "#4a5568",
+          }}
+        >
           {currentMonth.toLocaleDateString("en-US", {
             month: "long",
             year: "numeric",
           })}
         </Text>
 
-        <TouchableOpacity onPress={goToNextMonth} className="p-2">
-          <Text className="text-lg text-gray-600">→</Text>
+        <TouchableOpacity onPress={goToNextMonth} style={{ padding: 8 }}>
+          <Text style={{ fontSize: 18, color: "#9ca3af" }}>→</Text>
         </TouchableOpacity>
       </View>
 
       {/* Days of Week Header */}
-      <View className="flex-row justify-around mb-2">
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-around",
+          marginBottom: 12,
+        }}
+      >
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
           <Text
             key={day}
-            className="text-sm text-gray-400 font-medium w-10 text-center"
+            style={{
+              fontSize: 12,
+              color: "#9ca3af",
+              fontWeight: "500",
+              width: 40,
+              textAlign: "center",
+            }}
           >
             {day}
           </Text>
@@ -143,10 +181,12 @@ const Calendar: React.FC<CalendarProps> = ({
       </View>
 
       {/* Calendar Grid */}
-      <View className="flex-row flex-wrap">
+      <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
         {calendarDays.map((day, index) => {
           if (day === null) {
-            return <View key={index} className="w-10 h-10 m-1" />;
+            return (
+              <View key={index} style={{ width: 40, height: 40, margin: 4 }} />
+            );
           }
 
           const isToday = isCurrentMonth && day === today.getDate();
@@ -157,22 +197,33 @@ const Calendar: React.FC<CalendarProps> = ({
             <TouchableOpacity
               key={day}
               onPress={() => handleDateSelect(day)}
-              className={`w-10 h-10 m-1 rounded-lg justify-center items-center relative ${
-                isSelected
-                  ? "bg-pink-500"
+              style={{
+                width: 40,
+                height: 40,
+                margin: 4,
+                borderRadius: 12,
+                justifyContent: "center",
+                alignItems: "center",
+                position: "relative",
+                backgroundColor: isSelected
+                  ? "#f8bbd9"
                   : isToday
-                    ? "bg-pink-100 border-2 border-pink-300"
-                    : "bg-transparent"
-              }`}
+                    ? "#fef3ff"
+                    : "transparent",
+                borderWidth: isToday ? 2 : 0,
+                borderColor: "#d8b4fe",
+              }}
             >
               <Text
-                className={`text-sm font-medium ${
-                  isSelected
-                    ? "text-white"
+                style={{
+                  fontSize: 14,
+                  fontWeight: "600",
+                  color: isSelected
+                    ? "#ffffff"
                     : isToday
-                      ? "text-pink-600"
-                      : "text-gray-800"
-                }`}
+                      ? "#6b46c1"
+                      : "#4a5568",
+                }}
               >
                 {day}
               </Text>
@@ -180,9 +231,14 @@ const Calendar: React.FC<CalendarProps> = ({
               {/* Entry indicator dot */}
               {hasEntriesForDay && (
                 <View
-                  className={`absolute bottom-1 w-1 h-1 rounded-full ${
-                    isSelected ? "bg-white" : "bg-pink-400"
-                  }`}
+                  style={{
+                    position: "absolute",
+                    bottom: 4,
+                    width: 4,
+                    height: 4,
+                    borderRadius: 2,
+                    backgroundColor: isSelected ? "#ffffff" : "#f8bbd9",
+                  }}
                 />
               )}
             </TouchableOpacity>
@@ -211,17 +267,12 @@ const HomeScreen: React.FC = () => {
     try {
       setError(null);
       const journalEntries = await journalService.getAllJournalEntries();
-      console.log(
-        "Fetched journal entries:",
-        journalEntries.map((e) => ({ id: e.id, title: e.title }))
-      );
       setEntries(journalEntries);
 
       // Update filtered entries for selected date
       const entriesForDate = getEntriesForDate(selectedDate, journalEntries);
       setFilteredEntries(entriesForDate);
     } catch (err) {
-      console.error("Error fetching journal entries:", err);
       setError("Failed to load journal entries");
     } finally {
       setLoading(false);
@@ -304,21 +355,13 @@ const HomeScreen: React.FC = () => {
 
   // Handle navigation to journal entry
   const handleNavigateToEntry = (entry: JournalEntry): void => {
-    console.log("=== NAVIGATION DEBUG ===");
-    console.log("Navigating to entry with ID:", entry.id);
-    console.log("Entry details:", {
-      id: entry.id,
-      title: entry.title,
-      mood: entry.mood,
-      createdAt: entry.createdAt,
-    });
-
-    // Navigate to the journal entry screen with the actual ID
     router.push(`/JournalEntries/${entry.id}`);
   };
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View
+      style={{ flex: 1, backgroundColor: ["#0f0f1a", "#1a1a2e", "#2d1e40"][1] }}
+    >
       <StatusBar
         barStyle="dark-content"
         backgroundColor="transparent"
@@ -326,17 +369,54 @@ const HomeScreen: React.FC = () => {
       />
 
       <ScrollView
-        className="flex-1"
+        style={{ flex: 1 }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <View className="flex-row justify-between items-center pt-12 px-6 pb-4">
-          <Text className="text-3xl font-bold text-gray-800">Calendar</Text>
-          <View className="bg-pink-400 px-4 py-2 rounded-full">
-            <Text className="text-white font-semibold text-sm">PREMIUM</Text>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            paddingTop: 48,
+            paddingHorizontal: 24,
+            paddingBottom: 16,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 32,
+              fontWeight: "700",
+              color: "#4a5568",
+            }}
+          >
+            Calendar
+          </Text>
+          <View
+            style={{
+              backgroundColor: "#f8bbd9",
+              paddingHorizontal: 16,
+              paddingVertical: 8,
+              borderRadius: 20,
+              shadowColor: "#f8bbd9",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.15,
+              shadowRadius: 4,
+              elevation: 2,
+            }}
+          >
+            <Text
+              style={{
+                color: "white",
+                fontWeight: "600",
+                fontSize: 14,
+              }}
+            >
+              PREMIUM
+            </Text>
           </View>
         </View>
 
@@ -348,8 +428,14 @@ const HomeScreen: React.FC = () => {
         />
 
         {/* Selected Date Header */}
-        <View className="px-6 mb-4">
-          <Text className="text-xl font-bold text-gray-800">
+        <View style={{ paddingHorizontal: 24, marginBottom: 16 }}>
+          <Text
+            style={{
+              fontSize: 20,
+              fontWeight: "700",
+              color: "#4a5568",
+            }}
+          >
             {selectedDate.toLocaleDateString("en-US", {
               weekday: "long",
               year: "numeric",
@@ -357,73 +443,170 @@ const HomeScreen: React.FC = () => {
               day: "numeric",
             })}
           </Text>
-          <Text className="text-gray-600">
-            {filteredEntries.length}{" "}
-            {filteredEntries.length === 1 ? "entry" : "entries"} found
-          </Text>
         </View>
 
         {/* Main Content */}
-        <View className="px-6">
+        <View style={{ paddingHorizontal: 24 }}>
           {/* Loading State */}
           {loading && (
-            <View className="flex-row justify-center py-8">
-              <ActivityIndicator size="large" color="#F472B6" />
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "center",
+                paddingVertical: 32,
+              }}
+            >
+              <ActivityIndicator size="large" color="#f8bbd9" />
             </View>
           )}
 
           {/* Error State */}
           {error && (
-            <View className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
-              <Text className="text-red-600 text-center mb-2">{error}</Text>
+            <View
+              style={{
+                backgroundColor: "#fef3c7",
+                borderWidth: 1,
+                borderColor: "#fcd34d",
+                borderRadius: 16,
+                padding: 16,
+                marginBottom: 24,
+              }}
+            >
+              <Text
+                style={{
+                  color: "#f59e0b",
+                  textAlign: "center",
+                  marginBottom: 8,
+                }}
+              >
+                {error}
+              </Text>
               <TouchableOpacity
                 onPress={fetchJournalData}
-                className="bg-red-100 rounded-lg py-2 px-4 self-center"
+                style={{
+                  backgroundColor: "#fcd34d",
+                  borderRadius: 8,
+                  paddingVertical: 8,
+                  paddingHorizontal: 16,
+                  alignSelf: "center",
+                }}
               >
-                <Text className="text-red-600 font-medium">Retry</Text>
+                <Text style={{ color: "#f59e0b", fontWeight: "500" }}>
+                  Retry
+                </Text>
               </TouchableOpacity>
             </View>
           )}
 
           {/* Journal Entries List */}
           {!loading && filteredEntries.length > 0 && (
-            <View className="mb-6">
-              <Text className="text-xl font-bold text-gray-800 mb-4">
-                Entries
-              </Text>
+            <View style={{ marginBottom: 24 }}>
               {filteredEntries.map((entry, index) => (
                 <TouchableOpacity
                   key={entry.id}
-                  className="bg-white rounded-2xl p-4 mb-4 shadow-sm border border-gray-100"
+                  style={{
+                    backgroundColor: "#ffffff",
+                    borderRadius: 20,
+                    padding: 20,
+                    marginBottom: 16,
+                    shadowColor: "#e2e8f0",
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.08,
+                    shadowRadius: 8,
+                    elevation: 2,
+                    borderWidth: 1,
+                    borderColor: "#f1f5f9",
+                  }}
                   onPress={() => handleNavigateToEntry(entry)}
                 >
-                  <View className="flex-row justify-between items-start mb-2">
-                    <View className="flex-1 mr-3">
-                      <Text className="text-lg font-semibold text-gray-800 mb-1">
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      marginBottom: 8,
+                    }}
+                  >
+                    <View style={{ flex: 1, marginRight: 12 }}>
+                      <Text
+                        style={{
+                          fontSize: 18,
+                          fontWeight: "600",
+                          color: "#4a5568",
+                          marginBottom: 4,
+                        }}
+                      >
                         {entry.title}
                       </Text>
-                      <Text className="text-gray-600 text-sm" numberOfLines={3}>
+                      <Text
+                        style={{
+                          color: "#718096",
+                          fontSize: 14,
+                          lineHeight: 20,
+                        }}
+                        numberOfLines={3}
+                      >
                         {entry.content}
                       </Text>
                     </View>
-                    <View className="items-center">
-                      <Text className="text-2xl mb-1">
-                        {getMoodEmoji(entry.mood)}
-                      </Text>
-                      <Text className="text-xs text-gray-400 text-center">
+                    <View style={{ alignItems: "center" }}>
+                      <View
+                        style={{
+                          width: 40,
+                          height: 40,
+                          backgroundColor: "#fef3ff",
+                          borderRadius: 12,
+                          alignItems: "center",
+                          justifyContent: "center",
+                          marginBottom: 4,
+                        }}
+                      >
+                        <Text style={{ fontSize: 20 }}>
+                          {getMoodEmoji(entry.mood)}
+                        </Text>
+                      </View>
+                      <Text
+                        style={{
+                          fontSize: 10,
+                          color: "#9ca3af",
+                          textAlign: "center",
+                        }}
+                      >
                         {formatDate(new Date(entry.createdAt))}
                       </Text>
                     </View>
                   </View>
 
                   {/* Entry Stats */}
-                  <View className="flex-row items-center pt-2 border-t border-gray-100">
-                    <View className="bg-gray-100 px-2 py-1 rounded-full mr-2">
-                      <Text className="text-xs text-gray-600 capitalize">
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      paddingTop: 12,
+                      borderTopWidth: 1,
+                      borderTopColor: "#f1f5f9",
+                    }}
+                  >
+                    <View
+                      style={{
+                        backgroundColor: "#f8f9fa",
+                        paddingHorizontal: 8,
+                        paddingVertical: 4,
+                        borderRadius: 12,
+                        marginRight: 8,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 10,
+                          color: "#6b7280",
+                          textTransform: "capitalize",
+                        }}
+                      >
                         {entry.mood}
                       </Text>
                     </View>
-                    <Text className="text-xs text-gray-400">
+                    <Text style={{ fontSize: 10, color: "#9ca3af" }}>
                       {new Date(entry.createdAt).toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
@@ -437,14 +620,44 @@ const HomeScreen: React.FC = () => {
 
           {/* Empty State */}
           {!loading && filteredEntries.length === 0 && (
-            <View className="items-center py-12">
-              <View className="w-20 h-20 bg-gray-200 rounded-full items-center justify-center mb-4">
-                <BookOpen size={32} color="#9CA3AF" />
+            <View style={{ alignItems: "center", paddingVertical: 48 }}>
+              <View
+                style={{
+                  width: 80,
+                  height: 80,
+                  backgroundColor: "#f8f9fa",
+                  borderRadius: 40,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: 16,
+                  shadowColor: "#e2e8f0",
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.05,
+                  shadowRadius: 8,
+                  elevation: 1,
+                }}
+              >
+                <BookOpen size={32} color="#9ca3af" />
               </View>
-              <Text className="text-xl font-semibold text-gray-800 mb-2">
+              <Text
+                style={{
+                  fontSize: 20,
+                  fontWeight: "600",
+                  color: "#6b7280",
+                  marginBottom: 8,
+                }}
+              >
                 No entries for this date
               </Text>
-              <Text className="text-gray-600 text-center mb-6 px-8">
+              <Text
+                style={{
+                  color: "#9ca3af",
+                  textAlign: "center",
+                  marginBottom: 24,
+                  paddingHorizontal: 32,
+                  lineHeight: 22,
+                }}
+              >
                 Select another date to see entries or write a new one for this
                 day
               </Text>

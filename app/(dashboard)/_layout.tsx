@@ -35,7 +35,9 @@ const DashboardLayout = () => {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: ["#1c1c2b", "#1a1a2e", "#2d1e40"][1] }}
+    >
       <Tabs
         screenOptions={{
           headerShown: false,

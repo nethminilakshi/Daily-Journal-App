@@ -115,15 +115,15 @@ const AddJournalEntry = () => {
   };
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-[#1a1a2e]">
       <StatusBar
         barStyle="dark-content"
-        backgroundColor="transparent"
+        backgroundColor={["#1c1c2b", "#1a1a2e", "#2d1e40"][1]}
         translucent
       />
 
       {/* Header */}
-      <View className="flex-row justify-between items-center pt-12 px-6 pb-4 bg-white">
+      <View className="flex-row justify-between items-center pt-12 px-6 pb-4 bg-[#1a1a2e]">
         <TouchableOpacity onPress={handleCancel}>
           <Text className="text-2xl text-gray-700">‹</Text>
         </TouchableOpacity>
