@@ -26,6 +26,7 @@ const HomeScreen = () => {
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [showMenuForEntry, setShowMenuForEntry] = useState<string | null>(null);
+  const [deletingEntry, setDeletingEntry] = useState<string | null>(null);
 
   // Load data from Firebase
   const fetchJournalData = async () => {
@@ -38,7 +39,9 @@ const HomeScreen = () => {
       setError(null);
       const journalEntries = await journalService.getAllJournalEntries();
       setEntries(journalEntries);
+      console.log("Loaded entries:", journalEntries.length);
     } catch (err: any) {
+      console.error("Error fetching journal data:", err);
       setError(err.message || "Failed to load journal entries");
     } finally {
       setLoading(false);
@@ -112,8 +115,11 @@ const HomeScreen = () => {
   // Handle navigation to journal entry
   const handleNavigateToEntry = (entry: JournalEntry) => {
     try {
+      // Close any open menu first
+      setShowMenuForEntry(null);
       router.push(`/JournalEntries/${entry.id}`);
     } catch (err) {
+      console.error("Navigation error:", err);
       Alert.alert("Navigation Error", "Failed to open journal entry");
     }
   };
@@ -128,39 +134,73 @@ const HomeScreen = () => {
   };
 
   // Handle delete entry
-  const handleDeleteEntry = (entry: JournalEntry) => {
-    setShowMenuForEntry(null); // Close menu first
-    Alert.alert("Delete Entry", "Are you want to remove?", [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await journalService.delete(entry.id);
-            // Refresh the entries list
-            await fetchJournalData();
-            Alert.alert("Success", "Journal entry deleted successfully");
-          } catch (error) {
-            console.error("Error deleting entry:", error);
-            Alert.alert("Error", "Failed to delete journal entry");
-          }
+  const handleDeleteEntry = async (entry: JournalEntry) => {
+    console.log("Delete entry called for:", entry.id, entry.title);
+
+    // Close menu first
+    setShowMenuForEntry(null);
+
+    Alert.alert(
+      "Delete Entry",
+      `Are you sure you want to delete "${entry.title}"?`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+          onPress: () => console.log("Delete cancelled"),
         },
-      },
-    ]);
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            console.log("User confirmed delete for entry:", entry.id);
+            try {
+              setDeletingEntry(entry.id);
+
+              // Call the delete function from service - using correct method name
+              console.log("Calling journalService.deleteJournalEntry...");
+              const result = await journalService.delete(entry.id);
+              console.log("Delete result:", result);
+
+              // Refresh the entries list
+              console.log("Refreshing journal data...");
+              await fetchJournalData();
+
+              Alert.alert("Success", "Journal entry deleted successfully");
+              console.log("Entry deleted successfully");
+            } catch (error) {
+              console.error("Error deleting entry:", error);
+              Alert.alert(
+                "Error",
+                error instanceof Error
+                  ? error.message
+                  : "Failed to delete journal entry"
+              );
+            } finally {
+              setDeletingEntry(null);
+            }
+          },
+        },
+      ]
+    );
   };
 
   // Handle show menu
   const handleShowMenu = (entryId: string, event: any) => {
+    console.log("Show menu for entry:", entryId);
     event.stopPropagation(); // Prevent entry navigation
-    setShowMenuForEntry(entryId);
+
+    // Close any existing menu first, then open the new one
+    if (showMenuForEntry === entryId) {
+      setShowMenuForEntry(null);
+    } else {
+      setShowMenuForEntry(entryId);
+    }
   };
 
   // Handle close menu
   const handleCloseMenu = () => {
+    console.log("Closing menu");
     setShowMenuForEntry(null);
   };
 
@@ -215,17 +255,12 @@ const HomeScreen = () => {
           </Text>
           <View
             style={{
-              backgroundColor: "rgba(255, 105, 180, 0.9)",
+              backgroundColor: "rgba(176, 196, 222, 0.8)",
               paddingHorizontal: 16,
               paddingVertical: 8,
               borderRadius: 20,
-              shadowColor: "#FF1493",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.3,
-              shadowRadius: 4,
-              elevation: 3,
               borderWidth: 1,
-              borderColor: "rgba(255, 20, 147, 0.3)",
+              borderColor: "rgba(176, 196, 222, 0.4)",
             }}
           >
             <Text style={{ color: "white", fontWeight: "600", fontSize: 14 }}>
@@ -313,7 +348,7 @@ const HomeScreen = () => {
             style={{
               fontSize: 28,
               fontWeight: "700",
-              color: "#F5C9B0",
+              color: "#E6E6FA",
               textAlign: "center",
               marginBottom: 24,
             }}
@@ -330,7 +365,7 @@ const HomeScreen = () => {
                 paddingVertical: 32,
               }}
             >
-              <ActivityIndicator size="large" color="#FF69B4" />
+              <ActivityIndicator size="large" color="#B0C4DE" />
               <Text style={{ marginLeft: 12, color: "#B0C4DE" }}>
                 Loading entries...
               </Text>
@@ -429,7 +464,7 @@ const HomeScreen = () => {
                     {/* Date Circle - One per date */}
                     <View style={{ flexDirection: "row", marginBottom: 16 }}>
                       <View style={{ alignItems: "center", marginRight: 20 }}>
-                        {/* Date circle with pink-purple gradient */}
+                        {/* Date circle with steel blue gradient */}
                         <View
                           style={{
                             width: 56,
@@ -437,10 +472,10 @@ const HomeScreen = () => {
                             borderRadius: 25,
                             alignItems: "center",
                             justifyContent: "center",
-                            backgroundColor: "#E99B9B",
+                            backgroundColor: "rgba(70, 130, 180, 0.8)",
                             borderWidth: 2,
-                            borderColor: "#FFD8D8",
-                            shadowColor: "rgba(255, 20, 147, 0.6)",
+                            borderColor: "rgba(176, 196, 222, 0.4)",
+                            shadowColor: "rgba(176, 196, 222, 0.6)",
                             shadowOffset: { width: 0, height: 3 },
                             shadowOpacity: 0.4,
                             shadowRadius: 6,
@@ -511,17 +546,27 @@ const HomeScreen = () => {
                         const entryDate = new Date(entry.createdAt);
                         const isLastEntry =
                           entryIndex === group.entries.length - 1;
+                        const isDeleting = deletingEntry === entry.id;
 
                         return (
-                          <View key={entry.id} style={{ marginBottom: 16 }}>
+                          <View
+                            key={entry.id}
+                            style={{
+                              marginBottom: 16,
+                              opacity: isDeleting ? 0.5 : 1,
+                            }}
+                          >
                             {/* Full entry touchable area */}
                             <TouchableOpacity
-                              onPress={() => handleNavigateToEntry(entry)}
+                              onPress={() =>
+                                !isDeleting && handleNavigateToEntry(entry)
+                              }
                               style={{
                                 position: "relative",
                                 paddingVertical: 8,
                                 paddingHorizontal: 4,
                               }}
+                              disabled={isDeleting}
                             >
                               {/* Time */}
                               <Text
@@ -540,7 +585,9 @@ const HomeScreen = () => {
 
                               {/* Three dots menu - positioned at top right */}
                               <TouchableOpacity
-                                onPress={(e) => handleShowMenu(entry.id, e)}
+                                onPress={(e) =>
+                                  !isDeleting && handleShowMenu(entry.id, e)
+                                }
                                 style={{
                                   position: "absolute",
                                   top: 5,
@@ -553,46 +600,66 @@ const HomeScreen = () => {
                                   justifyContent: "center",
                                   zIndex: 10,
                                 }}
+                                disabled={isDeleting}
                               >
-                                <MoreVertical size={16} color="#A0A0A0" />
+                                {isDeleting ? (
+                                  <ActivityIndicator
+                                    size="small"
+                                    color="#A0A0A0"
+                                  />
+                                ) : (
+                                  <MoreVertical size={16} color="#A0A0A0" />
+                                )}
                               </TouchableOpacity>
 
                               {/* Dropdown Menu - positioned relative to dots */}
-                              {showMenuForEntry === entry.id && (
+                              {showMenuForEntry === entry.id && !isDeleting && (
                                 <View
                                   style={{
                                     position: "absolute",
                                     top: 40,
                                     right: 8,
-                                    width: 120,
-                                    backgroundColor: "white",
-                                    borderRadius: 8,
-                                    paddingVertical: 4,
+                                    width: 140,
+                                    backgroundColor: "#2d1e40",
+                                    borderRadius: 12,
+                                    paddingVertical: 8,
                                     paddingHorizontal: 4,
                                     shadowColor: "#000",
-                                    shadowOffset: { width: 0, height: 2 },
-                                    shadowOpacity: 0.25,
-                                    shadowRadius: 4,
-                                    elevation: 6,
+                                    shadowOffset: { width: 0, height: 4 },
+                                    shadowOpacity: 0.3,
+                                    shadowRadius: 8,
+                                    elevation: 8,
                                     zIndex: 20,
+                                    borderWidth: 1,
+                                    borderColor: "rgba(255, 255, 255, 0.1)",
                                   }}
                                 >
                                   <TouchableOpacity
-                                    onPress={() => handleDeleteEntry(entry)}
+                                    onPress={() => {
+                                      console.log(
+                                        "Delete button pressed for entry:",
+                                        entry.id
+                                      );
+                                      setShowMenuForEntry(null);
+                                      setTimeout(() => {
+                                        handleDeleteEntry(entry);
+                                      }, 100);
+                                    }}
                                     style={{
                                       flexDirection: "row",
                                       alignItems: "center",
-                                      paddingVertical: 8,
-                                      paddingHorizontal: 8,
+                                      paddingVertical: 12,
+                                      paddingHorizontal: 12,
+                                      borderRadius: 8,
                                     }}
                                   >
-                                    <Trash2 size={16} color="#EF4444" />
+                                    <Trash2 size={18} color="#FF6B6B" />
                                     <Text
                                       style={{
-                                        marginLeft: 8,
-                                        fontSize: 14,
-                                        color: "#EF4444",
-                                        fontWeight: "500",
+                                        marginLeft: 10,
+                                        fontSize: 15,
+                                        color: "#FF6B6B",
+                                        fontWeight: "600",
                                       }}
                                     >
                                       Delete
@@ -601,33 +668,38 @@ const HomeScreen = () => {
                                 </View>
                               )}
 
-                              {/* Title */}
-                              <Text
+                              {/* Title with "feeling [emoji] with [title]" format */}
+                              <View
                                 style={{
-                                  fontSize: 17,
-                                  fontWeight: "600",
-                                  color: "#F0F0F0",
-                                  marginBottom: 8,
-                                  paddingRight: 40,
+                                  flexDirection: "row",
+                                  alignItems: "center",
+                                  marginBottom: 6,
                                 }}
                               >
-                                {entry.title}
-                              </Text>
-
-                              {/* Mood emoji */}
-                              <Text
-                                style={{
-                                  fontSize: 22,
-                                  marginBottom: 8,
-                                }}
-                              >
-                                {getMoodEmoji(entry.mood)}
-                              </Text>
+                                <Text
+                                  style={{
+                                    fontSize: 17,
+                                    fontWeight: "600",
+                                    color: "#F0F0F0",
+                                    flex: 1,
+                                    paddingRight: 40,
+                                  }}
+                                >
+                                  <Text style={{ color: "#DDDAD0" }}>
+                                    feeling
+                                  </Text>{" "}
+                                  <Text style={{ fontSize: 20 }}>
+                                    {getMoodEmoji(entry.mood)}
+                                  </Text>{" "}
+                                  <Text style={{ color: "#DDDAD0" }}>with</Text>{" "}
+                                  {entry.title}
+                                </Text>
+                              </View>
 
                               {/* Content */}
                               <Text
                                 style={{
-                                  color: "#D0D0D0",
+                                  color: "#E6E6FA",
                                   fontSize: 14,
                                   lineHeight: 20,
                                   opacity: 0.9,
@@ -709,19 +781,14 @@ const HomeScreen = () => {
               <TouchableOpacity
                 onPress={handleAddEntry}
                 style={{
-                  backgroundColor: "rgba(255, 105, 180, 0.9)",
+                  backgroundColor: "rgba(176, 196, 222, 0.8)",
                   paddingHorizontal: 28,
                   paddingVertical: 16,
                   borderRadius: 28,
                   flexDirection: "row",
                   alignItems: "center",
-                  shadowColor: "#FF69B4",
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 8,
-                  elevation: 4,
                   borderWidth: 1,
-                  borderColor: "rgba(255, 20, 147, 0.3)",
+                  borderColor: "rgba(176, 196, 222, 0.4)",
                 }}
               >
                 <Plus size={22} color="white" style={{ marginRight: 8 }} />

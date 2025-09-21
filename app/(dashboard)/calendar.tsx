@@ -497,12 +497,12 @@ const HomeScreen: React.FC = () => {
                 <TouchableOpacity
                   key={entry.id}
                   style={{
-                    backgroundColor: "rgba(255, 255, 255, 0.06)",
+                    backgroundColor: "rgba(30, 144, 255, 0.1)",
                     borderRadius: 16,
                     padding: 20,
                     marginBottom: 16,
                     borderWidth: 1,
-                    borderColor: "rgba(255, 255, 255, 0.1)",
+                    borderColor: "rgba(30, 144, 255, 0.2)",
                   }}
                   onPress={() => handleNavigateToEntry(entry)}
                 >
