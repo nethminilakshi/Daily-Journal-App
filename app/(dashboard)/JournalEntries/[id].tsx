@@ -330,68 +330,140 @@ const JournalEntryScreen = () => {
   // Show loading spinner while loading existing entry
   if (loading) {
     return (
-      <View className="flex-1 bg-gray-50 justify-center items-center">
-        <ActivityIndicator size="large" color="#EC4899" />
-        <Text className="text-gray-600 mt-4">Loading journal entry...</Text>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: "#1c1c2b",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <ActivityIndicator size="large" color="#B0C4DE" />
+        <Text style={{ color: "#B0C4DE", marginTop: 16 }}>
+          Loading journal entry...
+        </Text>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View style={{ flex: 1, backgroundColor: "#0f0f1a" }}>
       <StatusBar
-        barStyle="dark-content"
+        barStyle="light-content"
         backgroundColor="transparent"
         translucent
       />
 
       {/* Header */}
-      <View className="flex-row justify-between items-center pt-12 px-6 pb-4 bg-white">
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          paddingTop: 48,
+          paddingHorizontal: 24,
+          paddingBottom: 16,
+          backgroundColor: "#1a1a2e",
+        }}
+      >
         <TouchableOpacity onPress={handleCancel}>
-          <Text className="text-2xl text-gray-700">‹</Text>
+          <Text style={{ fontSize: 28, color: "#E0E0E0" }}>‹</Text>
         </TouchableOpacity>
 
-        <Text className="text-lg font-semibold text-gray-800">
+        <Text style={{ fontSize: 18, fontWeight: "600", color: "#F5F5F5" }}>
           {isNew ? "Add Journal Entry" : "Edit Journal Entry"}
         </Text>
 
         <TouchableOpacity
           onPress={handleSave}
           disabled={saving}
-          className="bg-pink-400 px-6 py-2 rounded-full"
+          style={{
+            backgroundColor: "rgba(176, 196, 222, 0.8)",
+            paddingHorizontal: 20,
+            paddingVertical: 10,
+            borderRadius: 20,
+            borderWidth: 1,
+            borderColor: "rgba(176, 196, 222, 0.4)",
+          }}
         >
           {saving ? (
             <ActivityIndicator size="small" color="white" />
           ) : (
-            <Text className="text-white font-semibold">
-              {isNew ? "Save" : "Update"}
+            <Text style={{ color: "white", fontWeight: "600", fontSize: 16 }}>
+              {isNew ? "✓" : "📝"}
             </Text>
           )}
         </TouchableOpacity>
       </View>
 
-      <ScrollView className="flex-1">
+      <ScrollView style={{ flex: 1 }}>
         {/* Date */}
-        <View className="px-6 py-4 bg-white border-b border-gray-100">
-          <Text className="text-gray-600 text-lg">{getDisplayDate()}</Text>
+        <View
+          style={{
+            paddingHorizontal: 24,
+            paddingVertical: 20,
+            backgroundColor: "rgba(255, 255, 255, 0.06)",
+            borderBottomWidth: 1,
+            borderBottomColor: "rgba(255, 255, 255, 0.1)",
+          }}
+        >
+          <Text style={{ color: "#B0B0B0", fontSize: 18 }}>
+            {getDisplayDate()}
+          </Text>
         </View>
 
         {/* Mood Selector */}
-        <View className="px-6 py-6 bg-white border-b border-gray-100">
-          <Text className="text-gray-700 font-medium mb-3">
+        <View
+          style={{
+            paddingHorizontal: 24,
+            paddingVertical: 24,
+            backgroundColor: "rgba(176, 196, 222, 0.08)",
+            borderBottomWidth: 1,
+            borderBottomColor: "rgba(255, 255, 255, 0.1)",
+          }}
+        >
+          <Text
+            style={{
+              color: "#E0E0E0",
+              fontSize: 16,
+              marginBottom: 12,
+              fontWeight: "600",
+            }}
+          >
             How are you feeling?
           </Text>
           <TouchableOpacity
             onPress={handleMoodIconPress}
-            className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center"
+            style={{
+              width: 64,
+              height: 64,
+              backgroundColor: "rgba(173, 216, 230, 0.15)",
+              borderRadius: 20,
+              alignItems: "center",
+              justifyContent: "center",
+              borderWidth: 1,
+              borderColor: "rgba(173, 216, 230, 0.3)",
+            }}
           >
-            <Text className="text-3xl">{getSelectedMoodEmoji()}</Text>
+            <Text style={{ fontSize: 32 }}>{getSelectedMoodEmoji()}</Text>
           </TouchableOpacity>
         </View>
 
         {/* Title Input */}
-        <View className="px-6 py-4 bg-white border-b border-gray-100">
-          <Text className="text-gray-700 font-medium mb-2">Title *</Text>
+        <View
+          style={{
+            paddingHorizontal: 24,
+            paddingVertical: 20,
+            backgroundColor: "rgba(255, 255, 255, 0.06)",
+            borderBottomWidth: 1,
+            borderBottomColor: "rgba(255, 255, 255, 0.1)",
+          }}
+        >
+          <Text
+            style={{ color: "#E0E0E0", fontWeight: "600", marginBottom: 8 }}
+          >
+            Title *
+          </Text>
           <TextInput
             value={title}
             onChangeText={(text) => {
@@ -399,38 +471,70 @@ const JournalEntryScreen = () => {
               if (titleError) setTitleError("");
             }}
             placeholder="Enter your journal title"
-            className={`text-xl font-medium ${
-              titleError ? "text-red-600" : "text-gray-800"
-            }`}
-            placeholderTextColor="#9CA3AF"
+            style={{
+              fontSize: 20,
+              fontWeight: "600",
+              color: titleError ? "#FF6B6B" : "#F0F0F0",
+            }}
+            placeholderTextColor="#A0A0A0"
             multiline={false}
             maxLength={100}
           />
           {titleError ? (
-            <Text className="text-red-500 text-sm mt-1">{titleError}</Text>
+            <Text style={{ color: "#FF6B6B", fontSize: 14, marginTop: 4 }}>
+              {titleError}
+            </Text>
           ) : null}
         </View>
 
-        {/* Space between title and content */}
-        <View className="h-4 bg-gray-50" />
-
         {/* Content Input */}
-        <View className="px-6 py-4 bg-white flex-1">
-          <Text className="text-gray-700 font-medium mb-3">Your thoughts</Text>
-          <View className="bg-gray-50 rounded-xl border border-gray-200 p-4 min-h-[250px]">
+        <View
+          style={{
+            paddingHorizontal: 24,
+            paddingVertical: 24,
+            backgroundColor: "#1a1a2e",
+            flex: 1,
+          }}
+        >
+          <Text
+            style={{ color: "#E0E0E0", fontWeight: "600", marginBottom: 12 }}
+          >
+            Your thoughts
+          </Text>
+          <View
+            style={{
+              backgroundColor: "rgba(255, 255, 255, 0.04)",
+              borderRadius: 16,
+              borderWidth: 1,
+              borderColor: "rgba(255, 255, 255, 0.08)",
+              padding: 20,
+              minHeight: 300,
+            }}
+          >
             <TextInput
               value={content}
               onChangeText={setContent}
               placeholder="Write your thoughts here..."
-              className="text-base text-gray-700 flex-1"
-              placeholderTextColor="#9CA3AF"
+              style={{
+                fontSize: 16,
+                color: "#E0E0E0",
+                flex: 1,
+                lineHeight: 24,
+              }}
+              placeholderTextColor="#A0A0A0"
               multiline={true}
               textAlignVertical="top"
-              style={{ minHeight: 200 }}
               maxLength={1000}
             />
           </View>
-          <Text className="text-gray-400 text-sm mt-2 text-right">
+          <Text
+            style={{
+              color: "#A0A0A0",
+              fontSize: 14,
+              marginTop: 8,
+              textAlign: "right",
+            }}
+          >
             {content.length}/1000
           </Text>
         </View>
@@ -438,35 +542,93 @@ const JournalEntryScreen = () => {
 
       {/* Mood Selection Modal */}
       {showMoodSelector && (
-        <View className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <View className="bg-white rounded-3xl p-6 mx-6 w-80">
-            <Text className="text-xl font-semibold text-gray-800 text-center mb-6">
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: "#2d1e40",
+              borderRadius: 24,
+              padding: 32,
+              marginHorizontal: 24,
+              width: 320,
+              borderWidth: 1,
+              borderColor: "rgba(255, 255, 255, 0.1)",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 22,
+                fontWeight: "700",
+                color: "#F5F5F5",
+                textAlign: "center",
+                marginBottom: 24,
+              }}
+            >
               How are you feeling?
             </Text>
 
-            <View className="flex-row justify-between items-center mb-6">
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 24,
+              }}
+            >
               {moodOptions.map((option) => (
                 <TouchableOpacity
                   key={option.mood}
                   onPress={() => handleMoodSelect(option.mood)}
-                  className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
-                    selectedMood === option.mood ? "ring-2 ring-blue-400" : ""
-                  }`}
                   style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: 16,
+                    alignItems: "center",
+                    justifyContent: "center",
                     backgroundColor:
-                      selectedMood === option.mood ? option.color : "#F3F4F6",
+                      selectedMood === option.mood
+                        ? `${option.color}30`
+                        : "rgba(255, 255, 255, 0.08)",
+                    borderWidth: selectedMood === option.mood ? 2 : 1,
+                    borderColor:
+                      selectedMood === option.mood
+                        ? option.color
+                        : "rgba(255, 255, 255, 0.15)",
                   }}
                 >
-                  <Text className="text-2xl">{option.emoji}</Text>
+                  <Text style={{ fontSize: 24 }}>{option.emoji}</Text>
                 </TouchableOpacity>
               ))}
             </View>
 
             <TouchableOpacity
               onPress={() => setShowMoodSelector(false)}
-              className="bg-gray-100 py-3 px-6 rounded-2xl"
+              style={{
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                paddingVertical: 12,
+                paddingHorizontal: 24,
+                borderRadius: 16,
+                borderWidth: 1,
+                borderColor: "rgba(255, 255, 255, 0.2)",
+              }}
             >
-              <Text className="text-center text-gray-700 font-medium">
+              <Text
+                style={{
+                  textAlign: "center",
+                  color: "#E0E0E0",
+                  fontWeight: "600",
+                }}
+              >
                 Cancel
               </Text>
             </TouchableOpacity>

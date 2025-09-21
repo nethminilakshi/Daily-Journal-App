@@ -113,16 +113,13 @@ const Calendar: React.FC<CalendarProps> = ({
   return (
     <View
       style={{
-        backgroundColor: "#ffffff",
+        backgroundColor: "#302939",
         borderRadius: 20,
         marginHorizontal: 20,
         marginBottom: 24,
         padding: 20,
-        shadowColor: "#e2e8f0",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        elevation: 2,
+        borderWidth: 1,
+        borderColor: "rgba(255, 255, 255, 0.1)",
       }}
     >
       {/* Month Header */}
@@ -135,14 +132,14 @@ const Calendar: React.FC<CalendarProps> = ({
         }}
       >
         <TouchableOpacity onPress={goToPreviousMonth} style={{ padding: 8 }}>
-          <Text style={{ fontSize: 18, color: "#9ca3af" }}>←</Text>
+          <Text style={{ fontSize: 18, color: "#B0B0B0" }}>←</Text>
         </TouchableOpacity>
 
         <Text
           style={{
             fontSize: 18,
             fontWeight: "700",
-            color: "#4a5568",
+            color: "#F5F5F5",
           }}
         >
           {currentMonth.toLocaleDateString("en-US", {
@@ -152,7 +149,7 @@ const Calendar: React.FC<CalendarProps> = ({
         </Text>
 
         <TouchableOpacity onPress={goToNextMonth} style={{ padding: 8 }}>
-          <Text style={{ fontSize: 18, color: "#9ca3af" }}>→</Text>
+          <Text style={{ fontSize: 18, color: "#B0B0B0" }}>→</Text>
         </TouchableOpacity>
       </View>
 
@@ -169,7 +166,7 @@ const Calendar: React.FC<CalendarProps> = ({
             key={day}
             style={{
               fontSize: 12,
-              color: "#9ca3af",
+              color: "#A0A0A0",
               fontWeight: "500",
               width: 40,
               textAlign: "center",
@@ -206,12 +203,12 @@ const Calendar: React.FC<CalendarProps> = ({
                 alignItems: "center",
                 position: "relative",
                 backgroundColor: isSelected
-                  ? "#f8bbd9"
+                  ? "rgba(176, 196, 222, 0.8)"
                   : isToday
-                    ? "#fef3ff"
+                    ? "rgba(173, 216, 230, 0.2)"
                     : "transparent",
                 borderWidth: isToday ? 2 : 0,
-                borderColor: "#d8b4fe",
+                borderColor: "rgba(173, 216, 230, 0.6)",
               }}
             >
               <Text
@@ -221,8 +218,8 @@ const Calendar: React.FC<CalendarProps> = ({
                   color: isSelected
                     ? "#ffffff"
                     : isToday
-                      ? "#6b46c1"
-                      : "#4a5568",
+                      ? "#B0C4DE"
+                      : "#E0E0E0",
                 }}
               >
                 {day}
@@ -237,7 +234,9 @@ const Calendar: React.FC<CalendarProps> = ({
                     width: 4,
                     height: 4,
                     borderRadius: 2,
-                    backgroundColor: isSelected ? "#ffffff" : "#f8bbd9",
+                    backgroundColor: isSelected
+                      ? "#ffffff"
+                      : "rgba(70, 130, 180, 0.8)",
                   }}
                 />
               )}
@@ -359,11 +358,9 @@ const HomeScreen: React.FC = () => {
   };
 
   return (
-    <View
-      style={{ flex: 1, backgroundColor: ["#0f0f1a", "#1a1a2e", "#2d1e40"][1] }}
-    >
+    <View style={{ flex: 1, backgroundColor: "#1c1c2b" }}>
       <StatusBar
-        barStyle="dark-content"
+        barStyle="light-content"
         backgroundColor="transparent"
         translucent
       />
@@ -390,22 +387,19 @@ const HomeScreen: React.FC = () => {
             style={{
               fontSize: 32,
               fontWeight: "700",
-              color: "#4a5568",
+              color: "#F5F5F5",
             }}
           >
-            Calendar
+            📅 Calendar
           </Text>
           <View
             style={{
-              backgroundColor: "#f8bbd9",
+              backgroundColor: "rgba(176, 196, 222, 0.8)",
               paddingHorizontal: 16,
               paddingVertical: 8,
               borderRadius: 20,
-              shadowColor: "#f8bbd9",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.15,
-              shadowRadius: 4,
-              elevation: 2,
+              borderWidth: 1,
+              borderColor: "rgba(176, 196, 222, 0.4)",
             }}
           >
             <Text
@@ -433,7 +427,7 @@ const HomeScreen: React.FC = () => {
             style={{
               fontSize: 20,
               fontWeight: "700",
-              color: "#4a5568",
+              color: "#E0E0E0",
             }}
           >
             {selectedDate.toLocaleDateString("en-US", {
@@ -456,7 +450,7 @@ const HomeScreen: React.FC = () => {
                 paddingVertical: 32,
               }}
             >
-              <ActivityIndicator size="large" color="#f8bbd9" />
+              <ActivityIndicator size="large" color="#B0C4DE" />
             </View>
           )}
 
@@ -464,9 +458,9 @@ const HomeScreen: React.FC = () => {
           {error && (
             <View
               style={{
-                backgroundColor: "#fef3c7",
+                backgroundColor: "rgba(255, 165, 0, 0.15)",
                 borderWidth: 1,
-                borderColor: "#fcd34d",
+                borderColor: "rgba(255, 140, 0, 0.3)",
                 borderRadius: 16,
                 padding: 16,
                 marginBottom: 24,
@@ -474,7 +468,7 @@ const HomeScreen: React.FC = () => {
             >
               <Text
                 style={{
-                  color: "#f59e0b",
+                  color: "#FFE4B5",
                   textAlign: "center",
                   marginBottom: 8,
                 }}
@@ -484,16 +478,14 @@ const HomeScreen: React.FC = () => {
               <TouchableOpacity
                 onPress={fetchJournalData}
                 style={{
-                  backgroundColor: "#fcd34d",
+                  backgroundColor: "rgba(255, 140, 0, 0.8)",
                   borderRadius: 8,
                   paddingVertical: 8,
                   paddingHorizontal: 16,
                   alignSelf: "center",
                 }}
               >
-                <Text style={{ color: "#f59e0b", fontWeight: "500" }}>
-                  Retry
-                </Text>
+                <Text style={{ color: "white", fontWeight: "500" }}>Retry</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -505,17 +497,12 @@ const HomeScreen: React.FC = () => {
                 <TouchableOpacity
                   key={entry.id}
                   style={{
-                    backgroundColor: "#ffffff",
-                    borderRadius: 20,
+                    backgroundColor: "rgba(255, 255, 255, 0.06)",
+                    borderRadius: 16,
                     padding: 20,
                     marginBottom: 16,
-                    shadowColor: "#e2e8f0",
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.08,
-                    shadowRadius: 8,
-                    elevation: 2,
                     borderWidth: 1,
-                    borderColor: "#f1f5f9",
+                    borderColor: "rgba(255, 255, 255, 0.1)",
                   }}
                   onPress={() => handleNavigateToEntry(entry)}
                 >
@@ -528,51 +515,42 @@ const HomeScreen: React.FC = () => {
                     }}
                   >
                     <View style={{ flex: 1, marginRight: 12 }}>
-                      <Text
-                        style={{
-                          fontSize: 18,
-                          fontWeight: "600",
-                          color: "#4a5568",
-                          marginBottom: 4,
-                        }}
-                      >
-                        {entry.title}
-                      </Text>
-                      <Text
-                        style={{
-                          color: "#718096",
-                          fontSize: 14,
-                          lineHeight: 20,
-                        }}
-                        numberOfLines={3}
-                      >
-                        {entry.content}
-                      </Text>
-                    </View>
-                    <View style={{ alignItems: "center" }}>
                       <View
                         style={{
-                          width: 40,
-                          height: 40,
-                          backgroundColor: "#fef3ff",
-                          borderRadius: 12,
+                          flexDirection: "row",
                           alignItems: "center",
-                          justifyContent: "center",
-                          marginBottom: 4,
+                          marginBottom: 6,
                         }}
                       >
-                        <Text style={{ fontSize: 20 }}>
+                        <Text
+                          style={{
+                            fontSize: 20,
+                            marginRight: 8,
+                          }}
+                        >
                           {getMoodEmoji(entry.mood)}
+                        </Text>
+                        <Text
+                          style={{
+                            fontSize: 17,
+                            fontWeight: "600",
+                            color: "#F0F0F0",
+                            flex: 1,
+                          }}
+                        >
+                          {entry.title}
                         </Text>
                       </View>
                       <Text
                         style={{
-                          fontSize: 10,
-                          color: "#9ca3af",
-                          textAlign: "center",
+                          color: "#D0D0D0",
+                          fontSize: 14,
+                          lineHeight: 20,
+                          opacity: 0.9,
                         }}
+                        numberOfLines={3}
                       >
-                        {formatDate(new Date(entry.createdAt))}
+                        {entry.content}
                       </Text>
                     </View>
                   </View>
@@ -584,29 +562,27 @@ const HomeScreen: React.FC = () => {
                       alignItems: "center",
                       paddingTop: 12,
                       borderTopWidth: 1,
-                      borderTopColor: "#f1f5f9",
+                      borderTopColor: "rgba(255, 255, 255, 0.1)",
                     }}
                   >
                     <View
                       style={{
-                        backgroundColor: "#f8f9fa",
+                        backgroundColor: "rgba(176, 196, 222, 0.15)",
                         paddingHorizontal: 8,
                         paddingVertical: 4,
                         borderRadius: 12,
                         marginRight: 8,
+                        borderWidth: 1,
+                        borderColor: "rgba(176, 196, 222, 0.3)",
+                      }}
+                    ></View>
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        color: "#A0A0A0",
+                        fontWeight: "500",
                       }}
                     >
-                      <Text
-                        style={{
-                          fontSize: 10,
-                          color: "#6b7280",
-                          textTransform: "capitalize",
-                        }}
-                      >
-                        {entry.mood}
-                      </Text>
-                    </View>
-                    <Text style={{ fontSize: 10, color: "#9ca3af" }}>
                       {new Date(entry.createdAt).toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
@@ -625,25 +601,22 @@ const HomeScreen: React.FC = () => {
                 style={{
                   width: 80,
                   height: 80,
-                  backgroundColor: "#f8f9fa",
+                  backgroundColor: "rgba(176, 196, 222, 0.15)",
                   borderRadius: 40,
                   alignItems: "center",
                   justifyContent: "center",
                   marginBottom: 16,
-                  shadowColor: "#e2e8f0",
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.05,
-                  shadowRadius: 8,
-                  elevation: 1,
+                  borderWidth: 2,
+                  borderColor: "rgba(176, 196, 222, 0.3)",
                 }}
               >
-                <BookOpen size={32} color="#9ca3af" />
+                <BookOpen size={32} color="#B0C4DE" />
               </View>
               <Text
                 style={{
                   fontSize: 20,
                   fontWeight: "600",
-                  color: "#6b7280",
+                  color: "#E0E0E0",
                   marginBottom: 8,
                 }}
               >
@@ -651,7 +624,7 @@ const HomeScreen: React.FC = () => {
               </Text>
               <Text
                 style={{
-                  color: "#9ca3af",
+                  color: "#B0B0B0",
                   textAlign: "center",
                   marginBottom: 24,
                   paddingHorizontal: 32,

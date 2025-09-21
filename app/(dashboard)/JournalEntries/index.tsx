@@ -1,6 +1,6 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
-import { BookOpen, Plus } from "lucide-react-native";
+import { BookOpen, MoreVertical, Plus, Trash2 } from "lucide-react-native";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -25,6 +25,7 @@ const HomeScreen = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [showMenuForEntry, setShowMenuForEntry] = useState<string | null>(null);
 
   // Load data from Firebase
   const fetchJournalData = async () => {
@@ -108,28 +109,6 @@ const HomeScreen = () => {
     return result;
   };
 
-  // Format date for display
-  const formatDateHeader = (dateString: string) => {
-    const date = new Date(dateString);
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    if (date.toDateString() === today.toDateString()) {
-      return "Today";
-    } else if (date.toDateString() === yesterday.toDateString()) {
-      return "Yesterday";
-    } else {
-      return date.toLocaleDateString("en-US", {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
-        year:
-          date.getFullYear() !== today.getFullYear() ? "numeric" : undefined,
-      });
-    }
-  };
-
   // Handle navigation to journal entry
   const handleNavigateToEntry = (entry: JournalEntry) => {
     try {
@@ -146,6 +125,43 @@ const HomeScreen = () => {
     } catch (err) {
       Alert.alert("Navigation Error", "Failed to open add journal screen");
     }
+  };
+
+  // Handle delete entry
+  const handleDeleteEntry = (entry: JournalEntry) => {
+    setShowMenuForEntry(null); // Close menu first
+    Alert.alert("Delete Entry", "Are you want to remove?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await journalService.delete(entry.id);
+            // Refresh the entries list
+            await fetchJournalData();
+            Alert.alert("Success", "Journal entry deleted successfully");
+          } catch (error) {
+            console.error("Error deleting entry:", error);
+            Alert.alert("Error", "Failed to delete journal entry");
+          }
+        },
+      },
+    ]);
+  };
+
+  // Handle show menu
+  const handleShowMenu = (entryId: string, event: any) => {
+    event.stopPropagation(); // Prevent entry navigation
+    setShowMenuForEntry(entryId);
+  };
+
+  // Handle close menu
+  const handleCloseMenu = () => {
+    setShowMenuForEntry(null);
   };
 
   // Test data for debugging
@@ -167,18 +183,6 @@ const HomeScreen = () => {
       userId: "test",
     },
   ];
-
-  // Get gradient colors for date circles (cycling through beautiful gradients)
-  const getDateCircleGradient = (index: number) => {
-    const gradients = [
-      { bg: "rgba(255, 105, 180, 0.8)", border: "rgba(255, 20, 147, 0.9)" }, // Hot Pink
-      { bg: "rgba(138, 43, 226, 0.8)", border: "rgba(75, 0, 130, 0.9)" }, // Purple
-      { bg: "rgba(70, 130, 180, 0.8)", border: "rgba(30, 144, 255, 0.9)" }, // Steel Blue
-      { bg: "rgba(255, 165, 0, 0.8)", border: "rgba(255, 140, 0, 0.9)" }, // Orange
-      { bg: "rgba(50, 205, 50, 0.8)", border: "rgba(34, 139, 34, 0.9)" }, // Lime Green
-    ];
-    return gradients[index % gradients.length];
-  };
 
   return (
     <View style={{ flex: 1, backgroundColor: "#1c1c2b" }}>
@@ -309,7 +313,7 @@ const HomeScreen = () => {
             style={{
               fontSize: 28,
               fontWeight: "700",
-              color: "#E6E6FA",
+              color: "#F5C9B0",
               textAlign: "center",
               marginBottom: 24,
             }}
@@ -395,26 +399,17 @@ const HomeScreen = () => {
             </View>
           )}
 
-          {/* Journal Entries List - Grouped by Date */}
-          {!loading && entries.length > 0 && (
+          {/* Journal Entries List - Timeline Format */}
+          {!loading && entries.length > 0 && !error && (
             <View style={{ marginBottom: 24 }}>
-              {/* Recent Entries Title - Calm & Simple */}
-              <View
-                style={{
-                  backgroundColor: "rgba(255, 255, 255, 0.08)",
-                  borderRadius: 16,
-                  padding: 16,
-                  marginBottom: 24,
-                  borderWidth: 1,
-                  borderColor: "rgba(255, 255, 255, 0.1)",
-                }}
-              >
+              {/* Recent Entries Title */}
+              <View style={{ padding: 16, marginBottom: 24 }}>
                 <Text
                   style={{
                     fontSize: 22,
                     fontWeight: "700",
-                    color: "#F5F5F5",
-                    textAlign: "center",
+                    color: "#B6B09F",
+                    textAlign: "left",
                   }}
                 >
                   Recent Entries
@@ -422,151 +417,243 @@ const HomeScreen = () => {
               </View>
 
               {groupEntriesByDate(entries).map((group, groupIndex) => {
+                const groupDate = new Date(group.date);
+                const isLastGroup =
+                  groupIndex === groupEntriesByDate(entries).length - 1;
+
                 return (
-                  <View key={group.date} style={{ marginBottom: 28 }}>
-                    {/* Date Header - Soft & Minimal */}
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        marginBottom: 16,
-                        paddingHorizontal: 4,
-                      }}
-                    >
-                      <View
-                        style={{
-                          width: 52,
-                          height: 52,
-                          backgroundColor: "rgba(176, 196, 222, 0.15)",
-                          borderRadius: 16,
-                          alignItems: "center",
-                          justifyContent: "center",
-                          marginRight: 16,
-                          borderWidth: 1,
-                          borderColor: "rgba(176, 196, 222, 0.3)",
-                        }}
-                      >
-                        <Text
+                  <View
+                    key={group.date}
+                    style={{ position: "relative", marginBottom: 32 }}
+                  >
+                    {/* Date Circle - One per date */}
+                    <View style={{ flexDirection: "row", marginBottom: 16 }}>
+                      <View style={{ alignItems: "center", marginRight: 20 }}>
+                        {/* Date circle with pink-purple gradient */}
+                        <View
                           style={{
-                            color: "#F5F5F5",
-                            fontWeight: "700",
-                            fontSize: 18,
+                            width: 56,
+                            height: 56,
+                            borderRadius: 25,
+                            alignItems: "center",
+                            justifyContent: "center",
+                            backgroundColor: "#E99B9B",
+                            borderWidth: 2,
+                            borderColor: "#FFD8D8",
+                            shadowColor: "rgba(255, 20, 147, 0.6)",
+                            shadowOffset: { width: 0, height: 3 },
+                            shadowOpacity: 0.4,
+                            shadowRadius: 6,
+                            elevation: 6,
                           }}
                         >
-                          {new Date(group.date).getDate()}
-                        </Text>
-                      </View>
-                      <View style={{ flex: 1 }}>
+                          <Text
+                            style={{
+                              fontSize: 18,
+                              fontWeight: "700",
+                              color: "white",
+                              zIndex: 1,
+                              textShadowColor: "rgba(0, 0, 0, 0.3)",
+                              textShadowOffset: { width: 0, height: 1 },
+                              textShadowRadius: 2,
+                            }}
+                          >
+                            {groupDate.getDate()}
+                          </Text>
+                        </View>
+
+                        {/* Month and Year below circle */}
                         <Text
                           style={{
-                            fontSize: 17,
+                            fontSize: 11,
+                            color: "#A0A0A0",
                             fontWeight: "600",
-                            color: "#E0E0E0",
+                            textAlign: "center",
+                            lineHeight: 13,
+                            marginTop: 4,
                           }}
                         >
-                          {formatDateHeader(group.date)}
-                        </Text>
-                        <Text style={{ fontSize: 14, color: "#B0B0B0" }}>
-                          {new Date(group.date).toLocaleDateString("en-US", {
+                          {groupDate.toLocaleDateString("en-US", {
                             month: "short",
-                            year: "numeric",
-                          })}{" "}
+                          })}
                         </Text>
+                        <Text
+                          style={{
+                            fontSize: 10,
+                            color: "#808080",
+                            fontWeight: "500",
+                            textAlign: "center",
+                          }}
+                        >
+                          {groupDate.getFullYear()}
+                        </Text>
+
+                        {/* Vertical line for the entire date group */}
+                        {!isLastGroup && (
+                          <View
+                            style={{
+                              width: 2,
+                              height: group.entries.length * 120 + 40,
+                              backgroundColor: "rgba(255, 255, 255, 0.2)",
+                              marginTop: 12,
+                              position: "absolute",
+                              top: 72,
+                              zIndex: -1,
+                            }}
+                          />
+                        )}
                       </View>
                     </View>
 
-                    {/* Entries - Clean & Peaceful */}
-                    {group.entries.map((entry, entryIndex) => {
-                      return (
-                        <TouchableOpacity
-                          key={entry.id}
-                          style={{
-                            backgroundColor: "rgba(255, 255, 255, 0.06)",
-                            borderRadius: 16,
-                            padding: 20,
-                            marginBottom: 12,
-                            marginLeft: 16,
-                            borderWidth: 1,
-                            borderColor: "rgba(255, 255, 255, 0.1)",
-                          }}
-                          onPress={() => handleNavigateToEntry(entry)}
-                        >
-                          <View
-                            style={{
-                              flexDirection: "row",
-                              alignItems: "flex-start",
-                            }}
-                          >
-                            {/* Mood emoji - Soft Blue Tint */}
-                            <View
+                    {/* All entries for this date */}
+                    <View style={{ marginLeft: 76 }}>
+                      {group.entries.map((entry, entryIndex) => {
+                        const entryDate = new Date(entry.createdAt);
+                        const isLastEntry =
+                          entryIndex === group.entries.length - 1;
+
+                        return (
+                          <View key={entry.id} style={{ marginBottom: 16 }}>
+                            {/* Full entry touchable area */}
+                            <TouchableOpacity
+                              onPress={() => handleNavigateToEntry(entry)}
                               style={{
-                                width: 40,
-                                height: 40,
-                                backgroundColor: "rgba(173, 216, 230, 0.2)",
-                                borderRadius: 12,
-                                alignItems: "center",
-                                justifyContent: "center",
-                                marginRight: 16,
-                                marginTop: 2,
-                                borderWidth: 1,
-                                borderColor: "rgba(173, 216, 230, 0.4)",
+                                position: "relative",
+                                paddingVertical: 8,
+                                paddingHorizontal: 4,
                               }}
                             >
-                              <Text
-                                style={{
-                                  fontSize: 20,
-                                }}
-                              >
-                                {getMoodEmoji(entry.mood)}
-                              </Text>
-                            </View>
-
-                            {/* Entry content - Soft Typography */}
-                            <View style={{ flex: 1 }}>
-                              <Text
-                                style={{
-                                  fontSize: 17,
-                                  fontWeight: "600",
-                                  color: "#F0F0F0",
-                                  marginBottom: 6,
-                                }}
-                              >
-                                {entry.title}
-                              </Text>
-                              <Text
-                                style={{
-                                  color: "#D0D0D0",
-                                  fontSize: 14,
-                                  marginBottom: 8,
-                                  lineHeight: 20,
-                                  opacity: 0.9,
-                                }}
-                                numberOfLines={2}
-                              >
-                                {entry.content}
-                              </Text>
-
-                              {/* Time - Subtle */}
+                              {/* Time */}
                               <Text
                                 style={{
                                   fontSize: 12,
                                   color: "#A0A0A0",
                                   fontWeight: "500",
+                                  marginBottom: 10,
                                 }}
                               >
-                                {new Date(entry.createdAt).toLocaleTimeString(
-                                  [],
-                                  {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }
-                                )}
+                                {entryDate.toLocaleTimeString([], {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
                               </Text>
-                            </View>
+
+                              {/* Three dots menu - positioned at top right */}
+                              <TouchableOpacity
+                                onPress={(e) => handleShowMenu(entry.id, e)}
+                                style={{
+                                  position: "absolute",
+                                  top: 5,
+                                  right: 8,
+                                  width: 32,
+                                  height: 32,
+                                  borderRadius: 16,
+                                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  zIndex: 10,
+                                }}
+                              >
+                                <MoreVertical size={16} color="#A0A0A0" />
+                              </TouchableOpacity>
+
+                              {/* Dropdown Menu - positioned relative to dots */}
+                              {showMenuForEntry === entry.id && (
+                                <View
+                                  style={{
+                                    position: "absolute",
+                                    top: 40,
+                                    right: 8,
+                                    width: 120,
+                                    backgroundColor: "white",
+                                    borderRadius: 8,
+                                    paddingVertical: 4,
+                                    paddingHorizontal: 4,
+                                    shadowColor: "#000",
+                                    shadowOffset: { width: 0, height: 2 },
+                                    shadowOpacity: 0.25,
+                                    shadowRadius: 4,
+                                    elevation: 6,
+                                    zIndex: 20,
+                                  }}
+                                >
+                                  <TouchableOpacity
+                                    onPress={() => handleDeleteEntry(entry)}
+                                    style={{
+                                      flexDirection: "row",
+                                      alignItems: "center",
+                                      paddingVertical: 8,
+                                      paddingHorizontal: 8,
+                                    }}
+                                  >
+                                    <Trash2 size={16} color="#EF4444" />
+                                    <Text
+                                      style={{
+                                        marginLeft: 8,
+                                        fontSize: 14,
+                                        color: "#EF4444",
+                                        fontWeight: "500",
+                                      }}
+                                    >
+                                      Delete
+                                    </Text>
+                                  </TouchableOpacity>
+                                </View>
+                              )}
+
+                              {/* Title */}
+                              <Text
+                                style={{
+                                  fontSize: 17,
+                                  fontWeight: "600",
+                                  color: "#F0F0F0",
+                                  marginBottom: 8,
+                                  paddingRight: 40,
+                                }}
+                              >
+                                {entry.title}
+                              </Text>
+
+                              {/* Mood emoji */}
+                              <Text
+                                style={{
+                                  fontSize: 22,
+                                  marginBottom: 8,
+                                }}
+                              >
+                                {getMoodEmoji(entry.mood)}
+                              </Text>
+
+                              {/* Content */}
+                              <Text
+                                style={{
+                                  color: "#D0D0D0",
+                                  fontSize: 14,
+                                  lineHeight: 20,
+                                  opacity: 0.9,
+                                  paddingRight: 20,
+                                }}
+                                numberOfLines={3}
+                              >
+                                {entry.content}
+                              </Text>
+                            </TouchableOpacity>
+
+                            {/* Horizontal separator line */}
+                            {!isLastEntry && (
+                              <View
+                                style={{
+                                  height: 1,
+                                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                                  marginTop: 16,
+                                  marginHorizontal: -20,
+                                }}
+                              />
+                            )}
                           </View>
-                        </TouchableOpacity>
-                      );
-                    })}
+                        );
+                      })}
+                    </View>
                   </View>
                 );
               })}
@@ -619,7 +706,6 @@ const HomeScreen = () => {
                 Start your journaling journey by writing your first entry
               </Text>
 
-              {/* Add Entry Button with Gradient */}
               <TouchableOpacity
                 onPress={handleAddEntry}
                 style={{
@@ -649,6 +735,22 @@ const HomeScreen = () => {
           )}
         </View>
       </ScrollView>
+
+      {/* Background overlay to close menu when clicking outside */}
+      {showMenuForEntry && (
+        <TouchableOpacity
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "transparent",
+          }}
+          onPress={handleCloseMenu}
+          activeOpacity={1}
+        />
+      )}
     </View>
   );
 };

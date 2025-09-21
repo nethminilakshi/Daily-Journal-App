@@ -27,26 +27,25 @@ const DashboardLayout = () => {
           flex: 1,
           justifyContent: "center",
           alignItems: "center",
+          backgroundColor: "#1c1c2b",
         }}
       >
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color="#B0C4DE" />
       </View>
     );
   }
 
   return (
-    <SafeAreaView
-      style={{ flex: 1, backgroundColor: ["#1c1c2b", "#1a1a2e", "#2d1e40"][1] }}
-    >
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#1c1c2b" }}>
       <Tabs
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: "#EC4899", // Pink-500
-          tabBarInactiveTintColor: "#6B7280", // Gray-500
+          tabBarActiveTintColor: "#B0C4DE", // Light steel blue
+          tabBarInactiveTintColor: "#6B7280", // Gray
           tabBarStyle: {
-            backgroundColor: "#FFFFFF",
+            backgroundColor: "#1a1a2e",
             borderTopWidth: 1,
-            borderTopColor: "#E5E7EB",
+            borderTopColor: "rgba(255, 255, 255, 0.1)",
             height: 80,
             paddingBottom: 20,
             paddingTop: 10,
@@ -70,7 +69,9 @@ const DashboardLayout = () => {
                     height: 32,
                     alignItems: "center",
                     justifyContent: "center",
-                    backgroundColor: focused ? "#fce7f3" : "transparent",
+                    backgroundColor: focused
+                      ? "rgba(176, 196, 222, 0.15)"
+                      : "transparent",
                     borderRadius: 8,
                   }}
                 >
@@ -93,7 +94,9 @@ const DashboardLayout = () => {
                     height: 32,
                     alignItems: "center",
                     justifyContent: "center",
-                    backgroundColor: focused ? "#fce7f3" : "transparent",
+                    backgroundColor: focused
+                      ? "rgba(176, 196, 222, 0.15)"
+                      : "transparent",
                     borderRadius: 8,
                   }}
                 >
@@ -121,15 +124,17 @@ const DashboardLayout = () => {
                   style={{
                     width: 56,
                     height: 56,
-                    backgroundColor: "#f472b6",
+                    backgroundColor: "rgba(176, 196, 222, 0.8)",
                     borderRadius: 28,
                     justifyContent: "center",
                     alignItems: "center",
-                    shadowColor: "#000",
+                    shadowColor: "#B0C4DE",
                     shadowOffset: { width: 0, height: 4 },
                     shadowOpacity: 0.3,
                     shadowRadius: 8,
                     elevation: 8,
+                    borderWidth: 1,
+                    borderColor: "rgba(176, 196, 222, 0.4)",
                   }}
                 >
                   <MaterialIcons name="add" size={28} color="white" />
@@ -151,7 +156,9 @@ const DashboardLayout = () => {
                     height: 32,
                     alignItems: "center",
                     justifyContent: "center",
-                    backgroundColor: focused ? "#fce7f3" : "transparent",
+                    backgroundColor: focused
+                      ? "rgba(176, 196, 222, 0.15)"
+                      : "transparent",
                     borderRadius: 8,
                   }}
                 >
@@ -174,7 +181,9 @@ const DashboardLayout = () => {
                     height: 32,
                     alignItems: "center",
                     justifyContent: "center",
-                    backgroundColor: focused ? "#fce7f3" : "transparent",
+                    backgroundColor: focused
+                      ? "rgba(176, 196, 222, 0.15)"
+                      : "transparent",
                     borderRadius: 8,
                   }}
                 >

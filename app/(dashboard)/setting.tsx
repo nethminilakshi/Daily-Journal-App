@@ -16,6 +16,7 @@ import {
   ActivityIndicator,
   Alert,
   ScrollView,
+  StatusBar,
   Text,
   TextInput,
   TouchableOpacity,
@@ -228,105 +229,234 @@ const UserSettingsScreen = () => {
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
-      {/* Header */}
-      <View className="flex-row items-center justify-between px-6 pt-12 pb-6 bg- border-b border-gray-100">
-        <TouchableOpacity onPress={() => router.back()} className="p-2 -ml-2">
-          <ArrowLeft size={24} color="#374151" />
-        </TouchableOpacity>
-        <Text className="text-xl font-bold text-gray-800">User Settings</Text>
-        <View className="w-8" />
-      </View>
+    <View style={{ flex: 1, backgroundColor: "#1c1c2b" }}>
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent
+      />
 
-      <View className="px-6 py-6">
-        {/* Current User Info */}
-        <View className="bg-white rounded-2xl p-6 mb-6 border border-gray-100">
-          <Text className="text-lg font-semibold text-gray-800 mb-4">
-            Current User
-          </Text>
-          <View className="flex-row items-center mb-2">
-            <User size={20} color="#6B7280" />
-            <Text className="text-gray-600 ml-3">
-              {userProfile?.displayName || "No username set"}
-            </Text>
-          </View>
-          <View className="flex-row items-center mb-2">
-            <Mail size={20} color="#6B7280" />
-            <Text className="text-gray-600 ml-3">{userProfile?.email}</Text>
-            {!userProfile?.emailVerified && (
-              <View className="bg-orange-100 px-2 py-1 rounded-full ml-2">
-                <Text className="text-orange-600 text-xs font-medium">
-                  Unverified
-                </Text>
-              </View>
-            )}
-          </View>
-          {userProfile?.createdAt && (
-            <Text className="text-gray-400 text-sm ml-7">
-              Member since{" "}
-              {new Date(userProfile.createdAt).toLocaleDateString()}
-            </Text>
-          )}
-        </View>
-
-        {/* Update Username Section */}
-        <View className="bg-white rounded-2xl p-6 mb-6 border border-gray-100">
-          <View className="flex-row items-center mb-4">
-            <User size={24} color="#F472B6" />
-            <Text className="text-lg font-semibold text-gray-800 ml-3">
-              Update Username
-            </Text>
-          </View>
-
-          <TextInput
-            value={newUsername}
-            onChangeText={setNewUsername}
-            placeholder="Enter new username"
-            className="border border-gray-200 rounded-xl px-4 py-3 mb-4 text-gray-800"
-            maxLength={30}
-          />
-
+      <ScrollView style={{ flex: 1 }}>
+        {/* Header */}
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingHorizontal: 24,
+            paddingTop: 48,
+            paddingBottom: 24,
+            backgroundColor: "#1a1a2e",
+            borderBottomWidth: 1,
+            borderBottomColor: "rgba(255, 255, 255, 0.1)",
+          }}
+        >
           <TouchableOpacity
-            onPress={handleUpdateUsername}
-            disabled={
-              updatingUsername ||
-              !newUsername.trim() ||
-              newUsername === userProfile?.displayName
-            }
-            className={`rounded-xl py-3 px-4 flex-row items-center justify-center ${
-              updatingUsername ||
-              !newUsername.trim() ||
-              newUsername === userProfile?.displayName
-                ? "bg-gray-200"
-                : "bg-pink-400"
-            }`}
+            onPress={() => router.back()}
+            style={{ padding: 8, marginLeft: -8 }}
           >
-            {updatingUsername ? (
-              <ActivityIndicator size="small" color="white" />
-            ) : (
-              <>
-                <Check size={20} color="white" />
-                <Text className="text-white font-semibold ml-2">
-                  Update Username
-                </Text>
-              </>
-            )}
+            <ArrowLeft size={24} color="#E0E0E0" />
           </TouchableOpacity>
+          <Text style={{ fontSize: 20, fontWeight: "700", color: "#F5F5F5" }}>
+            ⚙️ Settings
+          </Text>
+          <View style={{ width: 32 }} />
         </View>
 
-        {/* Update Email Section */}
-        <View className="bg-white rounded-2xl p-6 mb-6 border border-gray-100">
-          <View className="flex-row items-center mb-4">
-            <Mail size={24} color="#F472B6" />
-            <Text className="text-lg font-semibold text-gray-800 ml-3">
-              Change Email
+        <View style={{ paddingHorizontal: 24, paddingVertical: 24 }}>
+          {/* Current User Info */}
+          <View
+            style={{
+              backgroundColor: "rgba(255, 255, 255, 0.06)",
+              borderRadius: 16,
+              padding: 20,
+              marginBottom: 24,
+              borderWidth: 1,
+              borderColor: "rgba(255, 255, 255, 0.1)",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: "600",
+                color: "#F5F5F5",
+                marginBottom: 16,
+              }}
+            >
+              Current User
             </Text>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginBottom: 8,
+              }}
+            >
+              <User size={20} color="#B0C4DE" />
+              <Text style={{ color: "#E0E0E0", marginLeft: 12 }}>
+                {userProfile?.displayName || "No username set"}
+              </Text>
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginBottom: 8,
+              }}
+            >
+              <Mail size={20} color="#B0C4DE" />
+              <Text style={{ color: "#E0E0E0", marginLeft: 12 }}>
+                {userProfile?.email}
+              </Text>
+              {!userProfile?.emailVerified && (
+                <View
+                  style={{
+                    backgroundColor: "rgba(255, 165, 0, 0.2)",
+                    paddingHorizontal: 8,
+                    paddingVertical: 4,
+                    borderRadius: 12,
+                    marginLeft: 8,
+                    borderWidth: 1,
+                    borderColor: "rgba(255, 140, 0, 0.3)",
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "#FFD700",
+                      fontSize: 12,
+                      fontWeight: "500",
+                    }}
+                  >
+                    Unverified
+                  </Text>
+                </View>
+              )}
+            </View>
+            {userProfile?.createdAt && (
+              <Text style={{ color: "#A0A0A0", fontSize: 14, marginLeft: 32 }}>
+                Member since{" "}
+                {new Date(userProfile.createdAt).toLocaleDateString()}
+              </Text>
+            )}
           </View>
 
+          {/* Update Username Section */}
           <View
-            style={{ display: "flex", flexDirection: "column" }}
-            role="form"
+            style={{
+              backgroundColor: "rgba(176, 196, 222, 0.08)",
+              borderRadius: 16,
+              padding: 20,
+              marginBottom: 24,
+              borderWidth: 1,
+              borderColor: "rgba(176, 196, 222, 0.2)",
+            }}
           >
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginBottom: 16,
+              }}
+            >
+              <User size={24} color="#B0C4DE" />
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: "600",
+                  color: "#F5F5F5",
+                  marginLeft: 12,
+                }}
+              >
+                Update Username
+              </Text>
+            </View>
+
+            <TextInput
+              value={newUsername}
+              onChangeText={setNewUsername}
+              placeholder="Enter new username"
+              placeholderTextColor="#A0A0A0"
+              style={{
+                borderWidth: 1,
+                borderColor: "rgba(255, 255, 255, 0.2)",
+                borderRadius: 12,
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                marginBottom: 16,
+                color: "#F0F0F0",
+                backgroundColor: "rgba(255, 255, 255, 0.04)",
+              }}
+              maxLength={30}
+            />
+
+            <TouchableOpacity
+              onPress={handleUpdateUsername}
+              disabled={
+                updatingUsername ||
+                !newUsername.trim() ||
+                newUsername === userProfile?.displayName
+              }
+              style={{
+                borderRadius: 12,
+                paddingVertical: 12,
+                paddingHorizontal: 16,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor:
+                  updatingUsername ||
+                  !newUsername.trim() ||
+                  newUsername === userProfile?.displayName
+                    ? "rgba(255, 255, 255, 0.1)"
+                    : "rgba(176, 196, 222, 0.8)",
+              }}
+            >
+              {updatingUsername ? (
+                <ActivityIndicator size="small" color="white" />
+              ) : (
+                <>
+                  <Check size={20} color="white" />
+                  <Text
+                    style={{ color: "white", fontWeight: "600", marginLeft: 8 }}
+                  >
+                    Update Username
+                  </Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+
+          {/* Update Email Section */}
+          <View
+            style={{
+              backgroundColor: "rgba(173, 216, 230, 0.08)",
+              borderRadius: 16,
+              padding: 20,
+              marginBottom: 24,
+              borderWidth: 1,
+              borderColor: "rgba(173, 216, 230, 0.2)",
+            }}
+          >
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginBottom: 16,
+              }}
+            >
+              <Mail size={24} color="#87CEEB" />
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: "600",
+                  color: "#F5F5F5",
+                  marginLeft: 12,
+                }}
+              >
+                Change Email
+              </Text>
+            </View>
+
             <TextInput
               value={newEmail}
               onChangeText={setNewEmail}
@@ -334,228 +464,400 @@ const UserSettingsScreen = () => {
               keyboardType="email-address"
               autoCapitalize="none"
               autoComplete="email"
-              className="border border-gray-200 rounded-xl px-4 py-3 mb-3 text-gray-800"
+              placeholderTextColor="#A0A0A0"
+              style={{
+                borderWidth: 1,
+                borderColor: "rgba(255, 255, 255, 0.2)",
+                borderRadius: 12,
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                marginBottom: 12,
+                color: "#F0F0F0",
+                backgroundColor: "rgba(255, 255, 255, 0.04)",
+              }}
             />
 
-            <View className="relative mb-4">
+            <View style={{ position: "relative", marginBottom: 16 }}>
               <TextInput
                 value={currentPassword}
                 onChangeText={setCurrentPassword}
                 placeholder="Current password"
                 secureTextEntry={!showEmailCurrentPassword}
                 autoComplete="current-password"
-                className="border border-gray-200 rounded-xl px-4 py-3 pr-12 text-gray-800"
+                placeholderTextColor="#A0A0A0"
+                style={{
+                  borderWidth: 1,
+                  borderColor: "rgba(255, 255, 255, 0.2)",
+                  borderRadius: 12,
+                  paddingHorizontal: 16,
+                  paddingVertical: 12,
+                  paddingRight: 48,
+                  color: "#F0F0F0",
+                  backgroundColor: "rgba(255, 255, 255, 0.04)",
+                }}
               />
               <TouchableOpacity
                 onPress={() =>
                   setShowEmailCurrentPassword(!showEmailCurrentPassword)
                 }
-                className="absolute right-3 top-3 p-1"
+                style={{
+                  position: "absolute",
+                  right: 12,
+                  top: 12,
+                  padding: 4,
+                }}
               >
                 {showEmailCurrentPassword ? (
-                  <EyeOff size={20} color="#6B7280" />
+                  <EyeOff size={20} color="#B0B0B0" />
                 ) : (
-                  <Eye size={20} color="#6B7280" />
+                  <Eye size={20} color="#B0B0B0" />
                 )}
               </TouchableOpacity>
             </View>
+
+            <TouchableOpacity
+              onPress={handleUpdateEmail}
+              disabled={
+                updatingEmail ||
+                !newEmail.trim() ||
+                !currentPassword ||
+                newEmail === userProfile?.email
+              }
+              style={{
+                borderRadius: 12,
+                paddingVertical: 12,
+                paddingHorizontal: 16,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor:
+                  updatingEmail ||
+                  !newEmail.trim() ||
+                  !currentPassword ||
+                  newEmail === userProfile?.email
+                    ? "rgba(255, 255, 255, 0.1)"
+                    : "rgba(135, 206, 235, 0.8)",
+              }}
+            >
+              {updatingEmail ? (
+                <ActivityIndicator size="small" color="white" />
+              ) : (
+                <>
+                  <Mail size={20} color="white" />
+                  <Text
+                    style={{ color: "white", fontWeight: "600", marginLeft: 8 }}
+                  >
+                    Update Email
+                  </Text>
+                </>
+              )}
+            </TouchableOpacity>
           </View>
 
-          <TouchableOpacity
-            onPress={handleUpdateEmail}
-            disabled={
-              updatingEmail ||
-              !newEmail.trim() ||
-              !currentPassword ||
-              newEmail === userProfile?.email
-            }
-            className={`rounded-xl py-3 px-4 flex-row items-center justify-center ${
-              updatingEmail ||
-              !newEmail.trim() ||
-              !currentPassword ||
-              newEmail === userProfile?.email
-                ? "bg-gray-200"
-                : "bg-pink-400"
-            }`}
-          >
-            {updatingEmail ? (
-              <ActivityIndicator size="small" color="white" />
-            ) : (
-              <>
-                <Mail size={20} color="white" />
-                <Text className="text-white font-semibold ml-2">
-                  Update Email
-                </Text>
-              </>
-            )}
-          </TouchableOpacity>
-        </View>
-
-        {/* Update Password Section */}
-        <View className="bg-white rounded-2xl p-6 mb-6 border border-gray-100">
-          <View className="flex-row items-center mb-4">
-            <Lock size={24} color="#F472B6" />
-            <Text className="text-lg font-semibold text-gray-800 ml-3">
-              Change Password
-            </Text>
-          </View>
-
+          {/* Update Password Section */}
           <View
-            style={{ display: "flex", flexDirection: "column" }}
-            role="form"
+            style={{
+              backgroundColor: "rgba(255, 255, 255, 0.06)",
+              borderRadius: 16,
+              padding: 20,
+              marginBottom: 24,
+              borderWidth: 1,
+              borderColor: "rgba(255, 255, 255, 0.1)",
+            }}
           >
-            <View className="relative mb-3">
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginBottom: 16,
+              }}
+            >
+              <Lock size={24} color="#D3D3D3" />
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: "600",
+                  color: "#F5F5F5",
+                  marginLeft: 12,
+                }}
+              >
+                Change Password
+              </Text>
+            </View>
+
+            <View style={{ position: "relative", marginBottom: 12 }}>
               <TextInput
                 value={currentPassword}
                 onChangeText={setCurrentPassword}
                 placeholder="Current password"
                 secureTextEntry={!showCurrentPassword}
                 autoComplete="current-password"
-                className="border border-gray-200 rounded-xl px-4 py-3 pr-12 text-gray-800"
+                placeholderTextColor="#A0A0A0"
+                style={{
+                  borderWidth: 1,
+                  borderColor: "rgba(255, 255, 255, 0.2)",
+                  borderRadius: 12,
+                  paddingHorizontal: 16,
+                  paddingVertical: 12,
+                  paddingRight: 48,
+                  color: "#F0F0F0",
+                  backgroundColor: "rgba(255, 255, 255, 0.04)",
+                }}
               />
               <TouchableOpacity
                 onPress={() => setShowCurrentPassword(!showCurrentPassword)}
-                className="absolute right-3 top-3 p-1"
+                style={{
+                  position: "absolute",
+                  right: 12,
+                  top: 12,
+                  padding: 4,
+                }}
               >
                 {showCurrentPassword ? (
-                  <EyeOff size={20} color="#6B7280" />
+                  <EyeOff size={20} color="#B0B0B0" />
                 ) : (
-                  <Eye size={20} color="#6B7280" />
+                  <Eye size={20} color="#B0B0B0" />
                 )}
               </TouchableOpacity>
             </View>
 
-            <View className="relative mb-3">
+            <View style={{ position: "relative", marginBottom: 12 }}>
               <TextInput
                 value={newPassword}
                 onChangeText={setNewPassword}
                 placeholder="New password (min 6 characters)"
                 secureTextEntry={!showNewPassword}
                 autoComplete="new-password"
-                className="border border-gray-200 rounded-xl px-4 py-3 pr-12 text-gray-800"
+                placeholderTextColor="#A0A0A0"
+                style={{
+                  borderWidth: 1,
+                  borderColor: "rgba(255, 255, 255, 0.2)",
+                  borderRadius: 12,
+                  paddingHorizontal: 16,
+                  paddingVertical: 12,
+                  paddingRight: 48,
+                  color: "#F0F0F0",
+                  backgroundColor: "rgba(255, 255, 255, 0.04)",
+                }}
               />
               <TouchableOpacity
                 onPress={() => setShowNewPassword(!showNewPassword)}
-                className="absolute right-3 top-3 p-1"
+                style={{
+                  position: "absolute",
+                  right: 12,
+                  top: 12,
+                  padding: 4,
+                }}
               >
                 {showNewPassword ? (
-                  <EyeOff size={20} color="#6B7280" />
+                  <EyeOff size={20} color="#B0B0B0" />
                 ) : (
-                  <Eye size={20} color="#6B7280" />
+                  <Eye size={20} color="#B0B0B0" />
                 )}
               </TouchableOpacity>
             </View>
 
-            <View className="relative mb-4">
+            <View style={{ position: "relative", marginBottom: 16 }}>
               <TextInput
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 placeholder="Confirm new password"
                 secureTextEntry={!showConfirmPassword}
                 autoComplete="new-password"
-                className="border border-gray-200 rounded-xl px-4 py-3 pr-12 text-gray-800"
+                placeholderTextColor="#A0A0A0"
+                style={{
+                  borderWidth: 1,
+                  borderColor: "rgba(255, 255, 255, 0.2)",
+                  borderRadius: 12,
+                  paddingHorizontal: 16,
+                  paddingVertical: 12,
+                  paddingRight: 48,
+                  color: "#F0F0F0",
+                  backgroundColor: "rgba(255, 255, 255, 0.04)",
+                }}
               />
               <TouchableOpacity
                 onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-3 p-1"
+                style={{
+                  position: "absolute",
+                  right: 12,
+                  top: 12,
+                  padding: 4,
+                }}
               >
                 {showConfirmPassword ? (
-                  <EyeOff size={20} color="#6B7280" />
+                  <EyeOff size={20} color="#B0B0B0" />
                 ) : (
-                  <Eye size={20} color="#6B7280" />
+                  <Eye size={20} color="#B0B0B0" />
                 )}
               </TouchableOpacity>
             </View>
+
+            <TouchableOpacity
+              onPress={handleUpdatePassword}
+              disabled={
+                updatingPassword ||
+                !currentPassword ||
+                !newPassword ||
+                !confirmPassword
+              }
+              style={{
+                borderRadius: 12,
+                paddingVertical: 12,
+                paddingHorizontal: 16,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor:
+                  updatingPassword ||
+                  !currentPassword ||
+                  !newPassword ||
+                  !confirmPassword
+                    ? "rgba(255, 255, 255, 0.1)"
+                    : "rgba(211, 211, 211, 0.8)",
+              }}
+            >
+              {updatingPassword ? (
+                <ActivityIndicator size="small" color="white" />
+              ) : (
+                <>
+                  <Lock size={20} color="white" />
+                  <Text
+                    style={{ color: "white", fontWeight: "600", marginLeft: 8 }}
+                  >
+                    Update Password
+                  </Text>
+                </>
+              )}
+            </TouchableOpacity>
           </View>
 
-          <TouchableOpacity
-            onPress={handleUpdatePassword}
-            disabled={
-              updatingPassword ||
-              !currentPassword ||
-              !newPassword ||
-              !confirmPassword
-            }
-            className={`rounded-xl py-3 px-4 flex-row items-center justify-center ${
-              updatingPassword ||
-              !currentPassword ||
-              !newPassword ||
-              !confirmPassword
-                ? "bg-gray-200"
-                : "bg-pink-400"
-            }`}
+          {/* Account Actions */}
+          <View
+            style={{
+              backgroundColor: "rgba(255, 255, 255, 0.06)",
+              borderRadius: 16,
+              padding: 20,
+              marginBottom: 24,
+              borderWidth: 1,
+              borderColor: "rgba(255, 255, 255, 0.1)",
+            }}
           >
-            {updatingPassword ? (
-              <ActivityIndicator size="small" color="white" />
-            ) : (
-              <>
-                <Lock size={20} color="white" />
-                <Text className="text-white font-semibold ml-2">
-                  Update Password
-                </Text>
-              </>
-            )}
-          </TouchableOpacity>
-        </View>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginBottom: 16,
+              }}
+            >
+              <Shield size={24} color="#B0B0B0" />
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: "600",
+                  color: "#F5F5F5",
+                  marginLeft: 12,
+                }}
+              >
+                Account Actions
+              </Text>
+            </View>
 
-        {/* Account Actions */}
-        <View className="bg-white rounded-2xl p-6 mb-6 border border-gray-100">
-          <View className="flex-row items-center mb-4">
-            <Shield size={24} color="#6B7280" />
-            <Text className="text-lg font-semibold text-gray-800 ml-3">
-              Account Actions
+            {/* Sign Out Button */}
+            <TouchableOpacity
+              onPress={handleSignOut}
+              disabled={signingOut}
+              style={{
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                borderRadius: 12,
+                paddingVertical: 12,
+                paddingHorizontal: 16,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: 12,
+                borderWidth: 1,
+                borderColor: "rgba(255, 255, 255, 0.2)",
+              }}
+            >
+              {signingOut ? (
+                <ActivityIndicator size="small" color="#B0B0B0" />
+              ) : (
+                <>
+                  <LogOut size={20} color="#B0B0B0" />
+                  <Text
+                    style={{
+                      color: "#E0E0E0",
+                      fontWeight: "600",
+                      marginLeft: 8,
+                    }}
+                  >
+                    Sign Out
+                  </Text>
+                </>
+              )}
+            </TouchableOpacity>
+
+            {/* Delete Account Button */}
+            <TouchableOpacity
+              onPress={handleDeleteAccount}
+              disabled={deletingAccount}
+              style={{
+                backgroundColor: "rgba(220, 38, 38, 0.1)",
+                borderWidth: 1,
+                borderColor: "rgba(220, 38, 38, 0.3)",
+                borderRadius: 12,
+                paddingVertical: 12,
+                paddingHorizontal: 16,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {deletingAccount ? (
+                <ActivityIndicator size="small" color="#DC2626" />
+              ) : (
+                <>
+                  <Trash2 size={20} color="#DC2626" />
+                  <Text
+                    style={{
+                      color: "#FF6B6B",
+                      fontWeight: "600",
+                      marginLeft: 8,
+                    }}
+                  >
+                    Delete Account
+                  </Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+
+          {/* Security Note */}
+          <View
+            style={{
+              backgroundColor: "rgba(30, 144, 255, 0.1)",
+              borderRadius: 16,
+              padding: 16,
+              borderWidth: 1,
+              borderColor: "rgba(30, 144, 255, 0.2)",
+            }}
+          >
+            <Text
+              style={{ color: "#87CEEB", fontWeight: "600", marginBottom: 8 }}
+            >
+              Security Note
+            </Text>
+            <Text style={{ color: "#B0C4DE", fontSize: 14, lineHeight: 20 }}>
+              • Password changes require your current password for verification
+              {"\n"}• Email changes will require verification of the new email
+              address{"\n"}• Account deletion is permanent and cannot be undone
+              {"\n"}• All your journal entries will be deleted with your account
             </Text>
           </View>
-
-          {/* Sign Out Button */}
-          <TouchableOpacity
-            onPress={handleSignOut}
-            disabled={signingOut}
-            className="bg-gray-100 rounded-xl py-3 px-4 flex-row items-center justify-center mb-3"
-          >
-            {signingOut ? (
-              <ActivityIndicator size="small" color="#6B7280" />
-            ) : (
-              <>
-                <LogOut size={20} color="#6B7280" />
-                <Text className="text-gray-700 font-semibold ml-2">
-                  Sign Out
-                </Text>
-              </>
-            )}
-          </TouchableOpacity>
-
-          {/* Delete Account Button */}
-          <TouchableOpacity
-            onPress={handleDeleteAccount}
-            disabled={deletingAccount}
-            className="bg-red-50 border border-red-200 rounded-xl py-3 px-4 flex-row items-center justify-center"
-          >
-            {deletingAccount ? (
-              <ActivityIndicator size="small" color="#DC2626" />
-            ) : (
-              <>
-                <Trash2 size={20} color="#DC2626" />
-                <Text className="text-red-600 font-semibold ml-2">
-                  Delete Account
-                </Text>
-              </>
-            )}
-          </TouchableOpacity>
         </View>
-
-        {/* Security Note */}
-        <View className="bg-blue-50 rounded-2xl p-4 border border-blue-100">
-          <Text className="text-blue-800 font-medium mb-2">Security Note</Text>
-          <Text className="text-blue-600 text-sm">
-            • Password changes require your current password for verification
-            {"\n"}• Email changes will require verification of the new email
-            address{"\n"}• Account deletion is permanent and cannot be undone
-            {"\n"}• All your journal entries will be deleted with your account
-          </Text>
-        </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
