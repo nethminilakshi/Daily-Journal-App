@@ -1,240 +1,447 @@
-// services/settingsService.ts
+// settingsService.ts - Clean implementation with email verification focus
+
 import {
-  EmailAuthProvider,
-  User as FirebaseUser,
   deleteUser,
+  EmailAuthProvider,
   reauthenticateWithCredential,
+  reload,
   sendEmailVerification,
+  sendPasswordResetEmail,
   signOut,
-  updateEmail,
   updatePassword,
   updateProfile,
+  User,
+  verifyBeforeUpdateEmail,
 } from "firebase/auth";
 import { auth } from "../firebase";
-import journalService from "./journalService";
 
-export interface UserUpdateData {
-  displayName?: string;
-  email?: string;
+// Type definitions
+interface UserProfile {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  emailVerified: boolean;
+  createdAt: string | undefined;
+  lastSignInTime: string | undefined;
+  phoneNumber: string | null;
 }
 
-export interface PasswordUpdateData {
-  currentPassword: string;
-  newPassword: string;
+interface ServiceResponse {
+  success: boolean;
+  message: string;
 }
 
-export interface EmailUpdateData {
+interface UpdateEmailParams {
   currentPassword: string;
   newEmail: string;
 }
 
+interface UpdatePasswordParams {
+  currentPassword: string;
+  newPassword: string;
+}
+
+interface PasswordValidation {
+  isValid: boolean;
+  errors: string[];
+}
+
+interface EmailVerificationStatus {
+  currentEmail: string | null;
+  emailVerified: boolean;
+  uid: string;
+}
+
 class SettingsService {
-  // Get current user
-  getCurrentUser(): FirebaseUser | null {
-    return auth.currentUser;
-  }
-
-  // Update username/display name
-  async updateUsername(newUsername: string): Promise<void> {
-    const user = this.getCurrentUser();
-    if (!user) throw new Error("No user logged in");
-
-    if (!newUsername.trim()) {
-      throw new Error("Username cannot be empty");
-    }
-
-    if (newUsername.trim().length > 30) {
-      throw new Error("Username cannot exceed 30 characters");
-    }
-
-    await updateProfile(user, {
-      displayName: newUsername.trim(),
-    });
-  }
-
-  // Re-authenticate user (required for sensitive operations)
-  private async reauthenticateUser(currentPassword: string): Promise<void> {
-    const user = this.getCurrentUser();
-    if (!user || !user.email) throw new Error("No user logged in");
-
-    const credential = EmailAuthProvider.credential(
-      user.email,
-      currentPassword
-    );
-    await reauthenticateWithCredential(user, credential);
-  }
-
-  // Update password
-  async updatePassword(passwordData: PasswordUpdateData): Promise<void> {
-    const user = this.getCurrentUser();
-    if (!user) throw new Error("No user logged in");
-
-    const { currentPassword, newPassword } = passwordData;
-
-    // Validate new password
-    if (newPassword.length < 6) {
-      throw new Error("New password must be at least 6 characters long");
-    }
-
-    if (newPassword.length > 128) {
-      throw new Error("Password cannot exceed 128 characters");
-    }
-
-    // Re-authenticate before password change
-    await this.reauthenticateUser(currentPassword);
-
-    // Update password
-    await updatePassword(user, newPassword);
-  }
-
-  // Update email
-  async updateEmail(emailData: EmailUpdateData): Promise<void> {
-    const user = this.getCurrentUser();
-    if (!user) throw new Error("No user logged in");
-
-    const { currentPassword, newEmail } = emailData;
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(newEmail)) {
-      throw new Error("Please enter a valid email address");
-    }
-
-    // Re-authenticate before email change
-    await this.reauthenticateUser(currentPassword);
-
-    // Update email
-    await updateEmail(user, newEmail);
-
-    // Send verification email to new address
-    await sendEmailVerification(user);
-  }
-
-  // Sign out user
-  async signOutUser(): Promise<void> {
-    await signOut(auth);
-  }
-
-  // Delete user account and all data
-  async deleteAccount(currentPassword: string): Promise<void> {
-    const user = this.getCurrentUser();
-    if (!user) throw new Error("No user logged in");
-
-    try {
-      // Re-authenticate before account deletion
-      await this.reauthenticateUser(currentPassword);
-
-      // Delete user's journal entries first
-      await this.deleteAllUserData();
-
-      // Delete the user account
-      await deleteUser(user);
-    } catch (error: any) {
-      if (error.code === "auth/wrong-password") {
-        throw new Error("Current password is incorrect");
-      }
-      throw error;
-    }
-  }
-
-  // Delete all user data (journal entries, etc.)
-  private async deleteAllUserData(): Promise<void> {
-    try {
-      // Use the updated journal service method
-      await journalService.deleteAllUserJournalEntries();
-    } catch (error) {
-      console.warn("Error deleting user data:", error);
-      // Don't throw here - we still want to delete the account even if data deletion fails
-    }
-  }
-
-  // Check if email is verified
-  isEmailVerified(): boolean {
-    const user = this.getCurrentUser();
-    return user?.emailVerified || false;
-  }
-
-  // Send email verification
-  async sendEmailVerification(): Promise<void> {
-    const user = this.getCurrentUser();
-    if (!user) throw new Error("No user logged in");
-
-    await sendEmailVerification(user);
-  }
-
-  // Get user profile data
-  getUserProfile(): {
-    displayName: string | null;
-    email: string | null;
-    emailVerified: boolean;
-    createdAt: string | null;
-  } | null {
-    const user = this.getCurrentUser();
+  // Get current user profile
+  getUserProfile(): UserProfile | null {
+    const user: User | null = auth.currentUser;
     if (!user) return null;
 
     return {
-      displayName: user.displayName,
+      uid: user.uid,
       email: user.email,
+      displayName: user.displayName,
       emailVerified: user.emailVerified,
-      createdAt: user.metadata.creationTime || null,
+      createdAt: user.metadata.creationTime,
+      lastSignInTime: user.metadata.lastSignInTime,
+      phoneNumber: user.phoneNumber,
     };
   }
 
+  // Update username/display name
+  async updateUsername(newUsername: string): Promise<ServiceResponse> {
+    try {
+      const user: User | null = auth.currentUser;
+      if (!user) {
+        throw new Error("No user is currently signed in");
+      }
+
+      // Validate username
+      if (!newUsername || newUsername.trim().length < 2) {
+        throw new Error("Username must be at least 2 characters long");
+      }
+
+      if (newUsername.trim().length > 30) {
+        throw new Error("Username must be less than 30 characters");
+      }
+
+      // Update display name
+      await updateProfile(user, {
+        displayName: newUsername.trim(),
+      });
+
+      return {
+        success: true,
+        message: "Username updated successfully",
+      };
+    } catch (error: any) {
+      console.error("Error updating username:", error);
+      throw new Error(error.message || "Failed to update username");
+    }
+  }
+
+  // Send verification email for current email address
+  async sendCurrentEmailVerification(): Promise<ServiceResponse> {
+    try {
+      const user: User | null = auth.currentUser;
+      if (!user) {
+        throw new Error("No user is currently signed in");
+      }
+
+      // Check if email is already verified
+      if (user.emailVerified) {
+        return {
+          success: true,
+          message: "Email is already verified",
+        };
+      }
+
+      await sendEmailVerification(user);
+
+      return {
+        success: true,
+        message: "Verification email sent to your current email address",
+      };
+    } catch (error: any) {
+      console.error("Error sending verification email:", error);
+
+      if (error.code === "auth/too-many-requests") {
+        throw new Error("Too many requests. Please try again later.");
+      }
+
+      throw new Error("Failed to send verification email");
+    }
+  }
+
+  // Force refresh user data to check latest verification status
+  async refreshUserVerificationStatus(): Promise<boolean> {
+    try {
+      const user: User | null = auth.currentUser;
+      if (!user) return false;
+
+      // Reload user data from Firebase
+      await reload(user);
+
+      return user.emailVerified;
+    } catch (error: any) {
+      console.error("Error refreshing user verification status:", error);
+      return false;
+    }
+  }
+
+  // Updated email change method using verifyBeforeUpdateEmail
+  async updateEmail({
+    currentPassword,
+    newEmail,
+  }: UpdateEmailParams): Promise<ServiceResponse> {
+    try {
+      const user: User | null = auth.currentUser;
+      if (!user) {
+        throw new Error("No user is currently signed in");
+      }
+
+      // Check if current email is verified first
+      if (!user.emailVerified) {
+        throw new Error(
+          "Please verify your current email address before changing it"
+        );
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(newEmail)) {
+        throw new Error("Please enter a valid email address");
+      }
+
+      // Check if new email is same as current
+      if (newEmail === user.email) {
+        throw new Error("New email is the same as current email");
+      }
+
+      if (!user.email) {
+        throw new Error("Current user email is not available");
+      }
+
+      // Re-authenticate user first
+      const credential = EmailAuthProvider.credential(
+        user.email,
+        currentPassword
+      );
+      await reauthenticateWithCredential(user, credential);
+
+      // Use verifyBeforeUpdateEmail instead of updateEmail
+      await verifyBeforeUpdateEmail(user, newEmail);
+
+      return {
+        success: true,
+        message:
+          "Verification email sent to new email address. Please check your email and verify before the change takes effect.",
+      };
+    } catch (error: any) {
+      console.error("Error updating email:", error);
+
+      // Handle specific error cases
+      if (error.code === "auth/wrong-password") {
+        throw new Error("Current password is incorrect");
+      } else if (error.code === "auth/email-already-in-use") {
+        throw new Error("This email is already in use by another account");
+      } else if (error.code === "auth/invalid-email") {
+        throw new Error("Invalid email address");
+      } else if (error.code === "auth/requires-recent-login") {
+        throw new Error(
+          "Please sign out and sign in again before changing your email"
+        );
+      } else if (error.code === "auth/operation-not-allowed") {
+        throw new Error(
+          "Email change operation is not allowed. Please contact support."
+        );
+      }
+
+      throw new Error(error.message || "Failed to update email");
+    }
+  }
+
+  // Method to check if user has pending email verification
+  async checkPendingEmailVerification(): Promise<EmailVerificationStatus | null> {
+    try {
+      const user: User | null = auth.currentUser;
+      if (!user) return null;
+
+      // Reload user data to get latest info
+      await reload(user);
+
+      return {
+        currentEmail: user.email,
+        emailVerified: user.emailVerified,
+        uid: user.uid,
+      };
+    } catch (error: any) {
+      console.error("Error checking email verification status:", error);
+      return null;
+    }
+  }
+
+  // Method to resend verification email (if user lost it)
+  async resendEmailVerification(): Promise<ServiceResponse> {
+    try {
+      const user: User | null = auth.currentUser;
+      if (!user) {
+        throw new Error("No user is currently signed in");
+      }
+
+      await sendEmailVerification(user);
+      return { success: true, message: "Verification email sent!" };
+    } catch (error: any) {
+      console.error("Error sending verification email:", error);
+
+      if (error.code === "auth/too-many-requests") {
+        throw new Error("Too many requests. Please try again later.");
+      }
+
+      throw new Error("Failed to send verification email");
+    }
+  }
+
+  // Update password
+  async updatePassword({
+    currentPassword,
+    newPassword,
+  }: UpdatePasswordParams): Promise<ServiceResponse> {
+    try {
+      const user: User | null = auth.currentUser;
+      if (!user) {
+        throw new Error("No user is currently signed in");
+      }
+
+      if (!user.email) {
+        throw new Error("Current user email is not available");
+      }
+
+      // Re-authenticate user first
+      const credential = EmailAuthProvider.credential(
+        user.email,
+        currentPassword
+      );
+      await reauthenticateWithCredential(user, credential);
+
+      // Update password
+      await updatePassword(user, newPassword);
+
+      return {
+        success: true,
+        message: "Password updated successfully",
+      };
+    } catch (error: any) {
+      console.error("Error updating password:", error);
+
+      if (error.code === "auth/wrong-password") {
+        throw new Error("Current password is incorrect");
+      } else if (error.code === "auth/weak-password") {
+        throw new Error("New password is too weak");
+      } else if (error.code === "auth/requires-recent-login") {
+        throw new Error(
+          "Please sign out and sign in again before changing your password"
+        );
+      }
+
+      throw new Error(error.message || "Failed to update password");
+    }
+  }
+
   // Validate password strength
-  validatePasswordStrength(password: string): {
-    isValid: boolean;
-    errors: string[];
-    strength: "weak" | "medium" | "strong";
-  } {
+  validatePasswordStrength(password: string): PasswordValidation {
     const errors: string[] = [];
-    let strength: "weak" | "medium" | "strong" = "weak";
 
     if (password.length < 6) {
       errors.push("Password must be at least 6 characters long");
     }
 
-    if (password.length < 8) {
-      errors.push("Consider using at least 8 characters for better security");
-    }
-
-    if (!/(?=.*[a-z])/.test(password)) {
-      errors.push("Consider adding lowercase letters");
-    }
-
-    if (!/(?=.*[A-Z])/.test(password)) {
-      errors.push("Consider adding uppercase letters");
-    }
-
-    if (!/(?=.*\d)/.test(password)) {
-      errors.push("Consider adding numbers");
-    }
-
-    if (!/(?=.*[@$!%*?&])/.test(password)) {
-      errors.push("Consider adding special characters");
-    }
-
-    // Determine strength
-    if (
-      password.length >= 8 &&
-      /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)
-    ) {
-      strength = "medium";
-    }
-
-    if (
-      password.length >= 12 &&
-      /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/.test(password)
-    ) {
-      strength = "strong";
+    if (password.length > 128) {
+      errors.push("Password must be less than 128 characters");
     }
 
     return {
-      isValid: password.length >= 6,
-      errors: errors.filter((error) => !error.includes("Consider")), // Only return critical errors for isValid
-      strength,
+      isValid: errors.length === 0,
+      errors: errors,
     };
+  }
+
+  // Sign out user
+  async signOutUser(): Promise<ServiceResponse> {
+    try {
+      await signOut(auth);
+      return { success: true, message: "Signed out successfully" };
+    } catch (error: any) {
+      console.error("Error signing out:", error);
+      throw new Error(error.message || "Failed to sign out");
+    }
+  }
+
+  // Delete user account
+  async deleteAccount(currentPassword: string): Promise<ServiceResponse> {
+    try {
+      const user: User | null = auth.currentUser;
+      if (!user) {
+        throw new Error("No user is currently signed in");
+      }
+
+      if (!user.email) {
+        throw new Error("Current user email is not available");
+      }
+
+      // Re-authenticate user first
+      const credential = EmailAuthProvider.credential(
+        user.email,
+        currentPassword
+      );
+      await reauthenticateWithCredential(user, credential);
+
+      // Delete user account
+      await deleteUser(user);
+
+      return {
+        success: true,
+        message: "Account deleted successfully",
+      };
+    } catch (error: any) {
+      console.error("Error deleting account:", error);
+
+      if (error.code === "auth/wrong-password") {
+        throw new Error("Current password is incorrect");
+      } else if (error.code === "auth/requires-recent-login") {
+        throw new Error(
+          "Please sign out and sign in again before deleting your account"
+        );
+      }
+
+      throw new Error(error.message || "Failed to delete account");
+    }
+  }
+
+  // Get user authentication state
+  getCurrentUser(): User | null {
+    return auth.currentUser;
+  }
+
+  // Listen to authentication state changes
+  onAuthStateChanged(callback: (user: User | null) => void): () => void {
+    return auth.onAuthStateChanged(callback);
+  }
+
+  // Check if user is authenticated
+  isAuthenticated(): boolean {
+    return !!auth.currentUser;
+  }
+
+  // Get user token (for API calls if needed)
+  async getUserToken(): Promise<string | null> {
+    try {
+      const user: User | null = auth.currentUser;
+      if (!user) return null;
+
+      return await user.getIdToken();
+    } catch (error: any) {
+      console.error("Error getting user token:", error);
+      return null;
+    }
+  }
+
+  // Refresh user token
+  async refreshUserToken(): Promise<string | null> {
+    try {
+      const user: User | null = auth.currentUser;
+      if (!user) return null;
+
+      return await user.getIdToken(true); // Force refresh
+    } catch (error: any) {
+      console.error("Error refreshing user token:", error);
+      return null;
+    }
+  }
+
+  // Send password reset email
+  async sendPasswordResetEmail(email: string): Promise<ServiceResponse> {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      return {
+        success: true,
+        message: "Password reset email sent",
+      };
+    } catch (error: any) {
+      console.error("Error sending password reset email:", error);
+
+      if (error.code === "auth/user-not-found") {
+        throw new Error("No account found with this email address");
+      } else if (error.code === "auth/invalid-email") {
+        throw new Error("Invalid email address");
+      }
+
+      throw new Error(error.message || "Failed to send password reset email");
+    }
   }
 }
 
+// Export singleton instance
 const settingsService = new SettingsService();
 export default settingsService;
