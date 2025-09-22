@@ -390,7 +390,7 @@ const HomeScreen: React.FC = () => {
               color: "#F5F5F5",
             }}
           >
-            📅 Calendar
+            Calendar
           </Text>
           <View
             style={{

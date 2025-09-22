@@ -251,7 +251,7 @@ const HomeScreen = () => {
           }}
         >
           <Text style={{ fontSize: 32, fontWeight: "700", color: "#F5F5F5" }}>
-            📖 Diary
+            Diary
           </Text>
           <View
             style={{
