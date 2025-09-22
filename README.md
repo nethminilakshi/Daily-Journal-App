@@ -61,5 +61,17 @@ A **beautiful and intuitive mobile journaling application** built with **React N
 
 ---
 
-## 📂 **Project Structure**
+## 🚀 **Installation & Setup**
 
+```bash
+# 1. Clone the Repository
+git clone https://github.com/yourusername/daily-journal-app.git
+cd daily-journal-app
+
+# 2. Install Dependencies
+npm install
+# or
+yarn install
+
+# 3. Start development server
+npx expo start
