@@ -1,9 +1,5 @@
 import journalService, { JournalEntry, MoodType } from "./journalService";
 
-// ================================================================
-// TYPES
-// ================================================================
-
 export interface MoodStats {
   mood: MoodType;
   count: number;
@@ -167,23 +163,18 @@ export const calculateStreakData = (entries: JournalEntry[]): StreakData => {
     };
   }
 
-  // Sort entries by date (most recent first)
   const sortedEntries = [...entries].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 
-  // Create date set for quick lookup
   const entryDates = new Set(
     sortedEntries.map((entry) => new Date(entry.createdAt).toDateString())
   );
 
-  // Calculate current streak
   const currentStreak = calculateCurrentStreak(entryDates);
 
-  // Calculate longest streak
   const longestStreak = calculateLongestStreak(entryDates);
 
-  // Generate last 7 days data
   const last7DaysData = generateLast7Days(entryDates);
 
   return {
@@ -270,7 +261,6 @@ export const calculateMoodTrendData = (
     date.setDate(date.getDate() - i);
     const dateString = date.toDateString();
 
-    // Find entry for this date
     const dayEntry = entries.find(
       (entry) => new Date(entry.createdAt).toDateString() === dateString
     );
@@ -284,7 +274,6 @@ export const calculateMoodTrendData = (
     });
   }
 
-  // Only return data if there are some entries
   const hasData = last7Days.some((day) => day.mood > 0);
   if (!hasData) return null;
 
@@ -348,25 +337,19 @@ export const getDateRanges = () => {
 // ================================================================
 
 class InsightsService {
-  // Get complete insights data
   async getInsightsData(userId?: string): Promise<InsightsData> {
     try {
-      // Fetch journal entries
       const entries = userId
         ? await journalService.getByUserId(userId)
         : await journalService.getAll();
 
-      // Calculate basic stats
       const totalEntries = entries.length;
       const uniqueMoods = new Set(entries.map((entry) => entry.mood)).size;
 
-      // Calculate mood statistics
       const moodStats = calculateMoodStatistics(entries);
 
-      // Calculate streak data
       const streakData = calculateStreakData(entries);
 
-      // Calculate mood trend data
       const moodTrendData = calculateMoodTrendData(entries);
 
       return {
@@ -423,7 +406,6 @@ class InsightsService {
         ? await journalService.getByUserId(userId)
         : await journalService.getAll();
 
-      // Filter entries by date range
       const filteredEntries = entries.filter((entry) => {
         const entryDate = new Date(entry.createdAt);
         return (
@@ -431,7 +413,6 @@ class InsightsService {
         );
       });
 
-      // Calculate stats for filtered entries
       const totalEntries = filteredEntries.length;
       const uniqueMoods = new Set(filteredEntries.map((entry) => entry.mood))
         .size;
@@ -465,7 +446,6 @@ class InsightsService {
         ? await journalService.getByUserId(userId)
         : await journalService.getAll();
 
-      // Filter entries for the specified number of days
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
 
@@ -480,7 +460,6 @@ class InsightsService {
     }
   }
 
-  // Utility methods
   getMoodConfig(mood: MoodType) {
     return getMoodConfig(mood);
   }

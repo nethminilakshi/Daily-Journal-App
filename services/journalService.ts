@@ -1,4 +1,3 @@
-// services/journalService.ts
 import {
   addDoc,
   collection,
@@ -34,14 +33,13 @@ export interface JournalEntry {
   mood: MoodType;
   createdAt: Date;
   updatedAt?: Date;
-  userId: string; // Make userId required
+  userId: string;
 }
 
 export interface CreateJournalEntryData {
   title: string;
   content: string;
   mood: MoodType;
-  // userId will be automatically added from auth
 }
 
 export interface UpdateJournalEntryData {
@@ -50,13 +48,7 @@ export interface UpdateJournalEntryData {
   mood?: MoodType;
 }
 
-// COLLECTION REFERENCE
-// ================================================================
-
 export const journalColRef = collection(db, "journalEntry");
-
-// AUTHENTICATION HELPER
-// ================================================================
 
 const getCurrentUserId = (): string => {
   const user = auth.currentUser;
@@ -66,7 +58,6 @@ const getCurrentUserId = (): string => {
   return user.uid;
 };
 
-// Check if entry belongs to current user
 const verifyEntryOwnership = async (entryId: string): Promise<boolean> => {
   const userId = getCurrentUserId();
   const docRef = doc(db, "journalEntry", entryId);
@@ -86,7 +77,6 @@ const verifyEntryOwnership = async (entryId: string): Promise<boolean> => {
 export const createJournalEntry = async (entry: CreateJournalEntryData) => {
   const userId = getCurrentUserId();
 
-  // Validate input data
   if (!entry.title.trim()) {
     throw new Error("Please enter a title for your journal entry");
   }
@@ -104,7 +94,7 @@ export const createJournalEntry = async (entry: CreateJournalEntryData) => {
       title: entry.title.trim(),
       content: entry.content.trim(),
       mood: entry.mood,
-      userId, // Add current user's ID
+      userId,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
@@ -121,7 +111,6 @@ export const updateJournalEntry = async (
   entry: UpdateJournalEntryData
 ) => {
   try {
-    // Verify entry belongs to current user
     const isOwner = await verifyEntryOwnership(id);
     if (!isOwner) {
       throw new Error("You don't have permission to update this entry");
@@ -167,7 +156,6 @@ export const updateJournalEntry = async (
 
 export const deleteJournalEntry = async (id: string) => {
   try {
-    // Verify entry belongs to current user
     const isOwner = await verifyEntryOwnership(id);
     if (!isOwner) {
       throw new Error("You don't have permission to delete this entry");
@@ -188,8 +176,6 @@ export const deleteJournalEntry = async (id: string) => {
 export const getAllJournalEntries = async () => {
   try {
     const userId = getCurrentUserId();
-
-    // Use simpler query to avoid index requirement
     const q = query(journalColRef, where("userId", "==", userId));
 
     const snapshot = await getDocs(q);
@@ -213,7 +199,6 @@ export const getAllJournalEntries = async () => {
       };
     }) as JournalEntry[];
 
-    // Sort in memory instead of using orderBy in query
     return journalList.sort(
       (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
     );
@@ -265,7 +250,6 @@ export const getJournalEntryById = async (id: string) => {
 
 export const getAllJournalEntriesByUserId = async (userId: string) => {
   try {
-    // Only allow current user to access their own data
     const currentUserId = getCurrentUserId();
     if (userId !== currentUserId) {
       throw new Error("You don't have permission to access this user's data");
@@ -334,7 +318,6 @@ export const getJournalEntriesByMood = async (mood: MoodType) => {
       };
     }) as JournalEntry[];
 
-    // Sort in memory
     return journalList.sort(
       (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
     );
@@ -370,7 +353,6 @@ export const getRecentJournalEntries = async (limitCount: number = 10) => {
       };
     }) as JournalEntry[];
 
-    // Sort and limit in memory
     return journalList
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
       .slice(0, limitCount);
@@ -496,7 +478,6 @@ export const deleteAllUserJournalEntries = async () => {
 // ================================================================
 
 class JournalService {
-  // Basic CRUD operations
   async create(data: CreateJournalEntryData): Promise<string> {
     return await createJournalEntry(data);
   }
@@ -541,12 +522,10 @@ class JournalService {
     return await getJournalEntriesByDateRange(startDate, endDate);
   }
 
-  // Delete all user entries
   async deleteAllUserJournalEntries(): Promise<boolean> {
     return await deleteAllUserJournalEntries();
   }
 
-  // Legacy method names for backward compatibility
   async getAllJournalEntries(): Promise<JournalEntry[]> {
     return await this.getAll();
   }

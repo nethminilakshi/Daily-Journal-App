@@ -27,7 +27,6 @@ import {
 } from "react-native";
 import settingsService from "../../services/settingsService";
 
-// Type definitions
 interface UserProfile {
   uid: string;
   email: string | null;
@@ -51,7 +50,6 @@ const UserSettingsScreen: React.FC = () => {
   const router = useRouter();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
-  // Collapsible sections state
   const [expandedSections, setExpandedSections] = useState<ExpandedSections>({
     username: false,
     email: false,
@@ -59,14 +57,12 @@ const UserSettingsScreen: React.FC = () => {
     actions: false,
   });
 
-  // Form states
   const [newUsername, setNewUsername] = useState<string>("");
   const [newEmail, setNewEmail] = useState<string>("");
   const [currentPassword, setCurrentPassword] = useState<string>("");
   const [newPassword, setNewPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
 
-  // Loading states
   const [updatingUsername, setUpdatingUsername] = useState<boolean>(false);
   const [updatingEmail, setUpdatingEmail] = useState<boolean>(false);
   const [updatingPassword, setUpdatingPassword] = useState<boolean>(false);
@@ -76,7 +72,6 @@ const UserSettingsScreen: React.FC = () => {
     useState<boolean>(false);
   const [refreshingStatus, setRefreshingStatus] = useState<boolean>(false);
 
-  // Password visibility states
   const [showCurrentPassword, setShowCurrentPassword] =
     useState<boolean>(false);
   const [showNewPassword, setShowNewPassword] = useState<boolean>(false);
@@ -87,14 +82,11 @@ const UserSettingsScreen: React.FC = () => {
 
   useEffect(() => {
     loadUserProfile();
-
-    // Check email verification status when component mounts
     checkEmailVerificationStatus();
 
-    // Set up an interval to check email verification status
     const interval = setInterval(() => {
       checkEmailVerificationStatus();
-    }, 30000); // Check every 30 seconds
+    }, 30000);
 
     return () => clearInterval(interval);
   }, []);
@@ -128,7 +120,6 @@ const UserSettingsScreen: React.FC = () => {
     }));
   };
 
-  // Handle sending verification email to current email
   const handleSendVerificationEmail = async (): Promise<void> => {
     setSendingVerification(true);
     try {
@@ -148,7 +139,6 @@ const UserSettingsScreen: React.FC = () => {
     }
   };
 
-  // Handle refreshing verification status
   const handleRefreshVerificationStatus = async (): Promise<void> => {
     setRefreshingStatus(true);
     try {
@@ -177,7 +167,6 @@ const UserSettingsScreen: React.FC = () => {
     }
   };
 
-  // Enhanced email verification options
   const showEmailVerificationOptions = (): void => {
     Alert.alert(
       "Email Verification Required",
@@ -227,7 +216,6 @@ const UserSettingsScreen: React.FC = () => {
       return;
     }
 
-    // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(newEmail.trim())) {
       Alert.alert("Error", "Please enter a valid email address");
@@ -295,28 +283,6 @@ const UserSettingsScreen: React.FC = () => {
       setUpdatingPassword(false);
     }
   };
-
-  // Add a helper function to show email verification reminder
-  // const showEmailVerificationReminder = (): void => {
-  //   Alert.alert(
-  //     "Email Verification Pending",
-  //     "You have requested an email change or your email is not yet verified. Please check your email address and click the verification link.",
-  //     [
-  //       { text: "OK", style: "default" },
-  //       {
-  //         text: "Resend Email",
-  //         onPress: async () => {
-  //           try {
-  //             await settingsService.resendEmailVerification();
-  //             Alert.alert("Success", "Verification email sent!");
-  //           } catch (error: any) {
-  //             Alert.alert("Error", "Failed to resend verification email");
-  //           }
-  //         },
-  //       },
-  //     ]
-  //   );
-  // };
 
   // Sign out
   const handleSignOut = async (): Promise<void> => {

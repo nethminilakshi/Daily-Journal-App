@@ -35,7 +35,6 @@ const Calendar: React.FC<CalendarProps> = ({
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
   };
 
-  // Get first day of month (0 = Sunday, 1 = Monday, etc.)
   const getFirstDayOfMonth = (date: Date): number => {
     return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
   };
@@ -91,7 +90,6 @@ const Calendar: React.FC<CalendarProps> = ({
     const firstDay = getFirstDayOfMonth(currentMonth);
     const days: (number | null)[] = [];
 
-    // Add empty cells for days before the first day of the month
     for (let i = 0; i < firstDay; i++) {
       days.push(null);
     }
@@ -257,7 +255,6 @@ const HomeScreen: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
-  // Calendar state - Calendar is now shown by default
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [filteredEntries, setFilteredEntries] = useState<JournalEntry[]>([]);
 
@@ -283,7 +280,6 @@ const HomeScreen: React.FC = () => {
     fetchJournalData();
   }, []);
 
-  // Refresh when screen comes into focus
   useFocusEffect(
     useCallback(() => {
       if (!loading) {
@@ -292,7 +288,6 @@ const HomeScreen: React.FC = () => {
     }, [loading])
   );
 
-  // Pull to refresh
   const onRefresh = async (): Promise<void> => {
     setRefreshing(true);
     await fetchJournalData();
@@ -414,7 +409,6 @@ const HomeScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* Calendar Component - Always displayed */}
         <Calendar
           entries={entries}
           onDateSelect={handleDateSelect}

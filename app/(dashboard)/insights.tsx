@@ -79,16 +79,12 @@ const InsightsScreen = () => {
       const allEntries = await journalService.getAll();
       setEntries(allEntries);
 
-      // Calculate basic stats
       setTotalEntries(allEntries.length);
 
-      // Calculate mood statistics
       calculateMoodStats(allEntries);
 
-      // Calculate streaks
       calculateStreaks(allEntries);
 
-      // Prepare mood trend data for chart
       prepareMoodTrendData(allEntries);
     } catch (error) {
       console.error("Error loading insights data:", error);
@@ -115,7 +111,6 @@ const InsightsScreen = () => {
         let percentage = 0;
 
         if (entries.length > 0) {
-          // Calculate exact percentage with 1 decimal place
           const exactPercentage = (count / entries.length) * 100;
           percentage = Math.round(exactPercentage * 10) / 10;
         }
@@ -131,7 +126,6 @@ const InsightsScreen = () => {
       .filter((stat) => stat.count > 0)
       .sort((a, b) => b.count - a.count);
 
-    // Ensure percentages add up to 100% (fix rounding errors)
     const totalPercentage = stats.reduce(
       (sum, stat) => sum + stat.percentage,
       0
@@ -144,7 +138,6 @@ const InsightsScreen = () => {
 
       stats.forEach((stat, index) => {
         if (index === stats.length - 1) {
-          // Give any remaining difference to the last item
           stat.percentage =
             Math.round(
               (100 -
@@ -169,13 +162,11 @@ const InsightsScreen = () => {
       return;
     }
 
-    // Sort entries by date (most recent first)
     const sortedEntries = [...entries].sort(
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
 
-    // Create date set for quick lookup
     const entryDates = new Set(
       sortedEntries.map((entry) => new Date(entry.createdAt).toDateString())
     );
@@ -609,7 +600,6 @@ const InsightsScreen = () => {
             </View>
           )}
 
-        {/* Bottom spacing */}
         <View className="h-6" />
       </ScrollView>
     </View>

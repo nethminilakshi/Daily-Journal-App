@@ -1,5 +1,3 @@
-// settingsService.ts - Clean implementation with email verification focus
-
 import {
   deleteUser,
   EmailAuthProvider,
@@ -15,7 +13,6 @@ import {
 } from "firebase/auth";
 import { auth } from "../firebase";
 
-// Type definitions
 interface UserProfile {
   uid: string;
   email: string | null;
@@ -77,7 +74,6 @@ class SettingsService {
         throw new Error("No user is currently signed in");
       }
 
-      // Validate username
       if (!newUsername || newUsername.trim().length < 2) {
         throw new Error("Username must be at least 2 characters long");
       }
@@ -86,7 +82,6 @@ class SettingsService {
         throw new Error("Username must be less than 30 characters");
       }
 
-      // Update display name
       await updateProfile(user, {
         displayName: newUsername.trim(),
       });
@@ -109,7 +104,6 @@ class SettingsService {
         throw new Error("No user is currently signed in");
       }
 
-      // Check if email is already verified
       if (user.emailVerified) {
         return {
           success: true,
@@ -134,13 +128,11 @@ class SettingsService {
     }
   }
 
-  // Force refresh user data to check latest verification status
   async refreshUserVerificationStatus(): Promise<boolean> {
     try {
       const user: User | null = auth.currentUser;
       if (!user) return false;
 
-      // Reload user data from Firebase
       await reload(user);
 
       return user.emailVerified;
@@ -161,20 +153,17 @@ class SettingsService {
         throw new Error("No user is currently signed in");
       }
 
-      // Check if current email is verified first
       if (!user.emailVerified) {
         throw new Error(
           "Please verify your current email address before changing it"
         );
       }
 
-      // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(newEmail)) {
         throw new Error("Please enter a valid email address");
       }
 
-      // Check if new email is same as current
       if (newEmail === user.email) {
         throw new Error("New email is the same as current email");
       }
@@ -183,14 +172,12 @@ class SettingsService {
         throw new Error("Current user email is not available");
       }
 
-      // Re-authenticate user first
       const credential = EmailAuthProvider.credential(
         user.email,
         currentPassword
       );
       await reauthenticateWithCredential(user, credential);
 
-      // Use verifyBeforeUpdateEmail instead of updateEmail
       await verifyBeforeUpdateEmail(user, newEmail);
 
       return {
@@ -228,7 +215,6 @@ class SettingsService {
       const user: User | null = auth.currentUser;
       if (!user) return null;
 
-      // Reload user data to get latest info
       await reload(user);
 
       return {
@@ -278,14 +264,12 @@ class SettingsService {
         throw new Error("Current user email is not available");
       }
 
-      // Re-authenticate user first
       const credential = EmailAuthProvider.credential(
         user.email,
         currentPassword
       );
       await reauthenticateWithCredential(user, credential);
 
-      // Update password
       await updatePassword(user, newPassword);
 
       return {
@@ -350,7 +334,6 @@ class SettingsService {
         throw new Error("Current user email is not available");
       }
 
-      // Re-authenticate user first
       const credential = EmailAuthProvider.credential(
         user.email,
         currentPassword
@@ -379,22 +362,18 @@ class SettingsService {
     }
   }
 
-  // Get user authentication state
   getCurrentUser(): User | null {
     return auth.currentUser;
   }
 
-  // Listen to authentication state changes
   onAuthStateChanged(callback: (user: User | null) => void): () => void {
     return auth.onAuthStateChanged(callback);
   }
 
-  // Check if user is authenticated
   isAuthenticated(): boolean {
     return !!auth.currentUser;
   }
 
-  // Get user token (for API calls if needed)
   async getUserToken(): Promise<string | null> {
     try {
       const user: User | null = auth.currentUser;
@@ -407,7 +386,6 @@ class SettingsService {
     }
   }
 
-  // Refresh user token
   async refreshUserToken(): Promise<string | null> {
     try {
       const user: User | null = auth.currentUser;
@@ -420,7 +398,6 @@ class SettingsService {
     }
   }
 
-  // Send password reset email
   async sendPasswordResetEmail(email: string): Promise<ServiceResponse> {
     try {
       await sendPasswordResetEmail(auth, email);
@@ -442,6 +419,5 @@ class SettingsService {
   }
 }
 
-// Export singleton instance
 const settingsService = new SettingsService();
 export default settingsService;
