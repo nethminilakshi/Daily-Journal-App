@@ -49,24 +49,17 @@ A **beautiful and intuitive mobile journaling application** built with **React N
 
 ---
 
-## 🛠 **Mobile Development Setup**
+## 🛠️ **Tech Stack**
 
-- **iOS:** Xcode (for iOS Simulator) or physical iOS device with Expo Go app  
-- **Android:** Android Studio (for Android Emulator) or physical Android device with Expo Go app  
+- 🎨 **Frontend:** React Native with Expo  
+- 💻 **Language:** TypeScript  
+- 🔥 **Backend:** Firebase Firestore  
+- 🎨 **Styling:** NativeWind (Tailwind CSS for React Native)  
+- 🧭 **Navigation:** Expo Router  
+- 🎭 **Icons:** Lucide React Native  
+- 🌈 **Gradients:** Expo Linear Gradient  
 
 ---
 
-## 🚀 **Installation & Setup**
+## 📂 **Project Structure**
 
-```bash
-# 1. Clone the Repository
-git clone https://github.com/yourusername/daily-journal-app.git
-cd daily-journal-app
-
-# 2. Install Dependencies
-npm install
-# or
-yarn install
-
-# 3. Start development server
-npx expo start
