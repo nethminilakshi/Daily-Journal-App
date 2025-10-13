@@ -45,16 +45,14 @@ const JournalEntryScreen = () => {
   const [titleError, setTitleError] = useState("");
   const [initialData, setInitialData] = useState<JournalEntry | null>(null);
 
-  // Mood options with emojis and colors
   const moodOptions = [
-    { mood: "sad" as MoodType, emoji: "😢", color: "#EC4899" },
-    { mood: "stressed" as MoodType, emoji: "😤", color: "#F97316" },
-    { mood: "neutral" as MoodType, emoji: "😐", color: "#A855F7" },
-    { mood: "happy" as MoodType, emoji: "😊", color: "#3B82F6" },
-    { mood: "excited" as MoodType, emoji: "🤩", color: "#06B6D4" },
+    { mood: "sad" as MoodType, emoji: "😢", color: "#E91E63" },
+    { mood: "stressed" as MoodType, emoji: "😤", color: "#9C27B0" },
+    { mood: "neutral" as MoodType, emoji: "😐", color: "#673AB7" },
+    { mood: "happy" as MoodType, emoji: "😊", color: "#FF4081" },
+    { mood: "excited" as MoodType, emoji: "🤩", color: "#E040FB" },
   ];
 
-  // Load existing journal entry if editing
   useEffect(() => {
     const loadJournalEntry = async () => {
       if (!isNew && id) {
@@ -63,7 +61,7 @@ const JournalEntryScreen = () => {
 
           if (!id || typeof id !== "string" || id.trim() === "") {
             Alert.alert("Error", "Invalid journal entry ID", [
-              { text: "OK", onPress: () => router.back() },
+              { text: "OK", onPress: () => router.replace("/") },
             ]);
             return;
           }
@@ -89,12 +87,12 @@ const JournalEntryScreen = () => {
             setInitialData(journalEntry);
           } else {
             Alert.alert("Error", "Journal entry not found", [
-              { text: "OK", onPress: () => router.back() },
+              { text: "OK", onPress: () => router.replace("/") },
             ]);
           }
         } catch (error) {
           Alert.alert("Error", "Failed to load journal entry", [
-            { text: "OK", onPress: () => router.back() },
+            { text: "OK", onPress: () => router.replace("/") },
           ]);
         } finally {
           setLoading(false);
@@ -217,7 +215,7 @@ const JournalEntryScreen = () => {
         Alert.alert("Success", "Your journal entry has been updated!");
       }
 
-      router.back();
+      router.replace("/");
     } catch (error) {
       Alert.alert(
         "Error",
@@ -252,12 +250,12 @@ const JournalEntryScreen = () => {
           {
             text: "Discard",
             style: "destructive",
-            onPress: () => router.back(),
+            onPress: () => router.replace("/"),
           },
         ]
       );
     } else {
-      router.back();
+      router.replace("/");
     }
   };
 
@@ -265,13 +263,13 @@ const JournalEntryScreen = () => {
     <View
       style={{
         flex: 1,
-        backgroundColor: "#1c1c2b",
+        backgroundColor: "#F3E5F5",
         justifyContent: "center",
         alignItems: "center",
       }}
     >
-      <ActivityIndicator size="large" color="#B0C4DE" />
-      <Text style={{ color: "#B0C4DE", marginTop: 16 }}>
+      <ActivityIndicator size="large" color="#9C27B0" />
+      <Text style={{ color: "#7B1FA2", marginTop: 16 }}>
         Loading journal entry...
       </Text>
     </View>
@@ -286,14 +284,14 @@ const JournalEntryScreen = () => {
         paddingTop: 48,
         paddingHorizontal: 24,
         paddingBottom: 16,
-        backgroundColor: "#1a1a2e",
+        backgroundColor: "#F3E5F5",
       }}
     >
       <TouchableOpacity onPress={handleCancel}>
-        <Text style={{ fontSize: 28, color: "#E0E0E0" }}>‹</Text>
+        <Text style={{ fontSize: 28, color: "#AD1457" }}>‹</Text>
       </TouchableOpacity>
 
-      <Text style={{ fontSize: 18, fontWeight: "600", color: "#F5F5F5" }}>
+      <Text style={{ fontSize: 18, fontWeight: "600", color: "#AD1457" }}>
         {isNew ? "Add Journal Entry" : "Edit Journal Entry"}
       </Text>
 
@@ -301,12 +299,12 @@ const JournalEntryScreen = () => {
         onPress={handleSave}
         disabled={saving}
         style={{
-          backgroundColor: "rgba(176, 196, 222, 0.8)",
+          backgroundColor: "#CE93D8",
           paddingHorizontal: 20,
           paddingVertical: 10,
           borderRadius: 20,
           borderWidth: 1,
-          borderColor: "rgba(176, 196, 222, 0.4)",
+          borderColor: "#BA68C8",
         }}
       >
         {saving ? (
@@ -325,12 +323,12 @@ const JournalEntryScreen = () => {
       style={{
         paddingHorizontal: 24,
         paddingVertical: 20,
-        backgroundColor: "rgba(255, 255, 255, 0.06)",
-        borderBottomWidth: 1,
-        borderBottomColor: "rgba(255, 255, 255, 0.1)",
+        backgroundColor: "#E1BEE7",
       }}
     >
-      <Text style={{ color: "#B0B0B0", fontSize: 18 }}>{getDisplayDate()}</Text>
+      <Text style={{ color: "white", fontSize: 18, fontWeight: "500" }}>
+        {getDisplayDate()}
+      </Text>
     </View>
   );
 
@@ -339,14 +337,12 @@ const JournalEntryScreen = () => {
       style={{
         paddingHorizontal: 24,
         paddingVertical: 24,
-        backgroundColor: "rgba(176, 196, 222, 0.08)",
-        borderBottomWidth: 1,
-        borderBottomColor: "rgba(255, 255, 255, 0.1)",
+        backgroundColor: "#E7D3D3",
       }}
     >
       <Text
         style={{
-          color: "#E0E0E0",
+          color: "white",
           fontSize: 16,
           marginBottom: 12,
           fontWeight: "600",
@@ -359,12 +355,12 @@ const JournalEntryScreen = () => {
         style={{
           width: 64,
           height: 64,
-          backgroundColor: "rgba(173, 216, 230, 0.15)",
+          backgroundColor: "rgba(255, 255, 255, 0.5)",
           borderRadius: 20,
           alignItems: "center",
           justifyContent: "center",
-          borderWidth: 1,
-          borderColor: "rgba(173, 216, 230, 0.3)",
+          borderWidth: 2,
+          borderColor: "white",
         }}
       >
         <Text style={{ fontSize: 32 }}>{getSelectedMoodEmoji()}</Text>
@@ -377,12 +373,12 @@ const JournalEntryScreen = () => {
       style={{
         paddingHorizontal: 24,
         paddingVertical: 20,
-        backgroundColor: "rgba(255, 255, 255, 0.06)",
-        borderBottomWidth: 1,
-        borderBottomColor: "rgba(255, 255, 255, 0.1)",
+        backgroundColor: "rgba(255, 255, 255, 0.3)",
+        borderBottomWidth: 2,
+        borderBottomColor: "#D25D5D",
       }}
     >
-      <Text style={{ color: "#E0E0E0", fontWeight: "600", marginBottom: 8 }}>
+      <Text style={{ color: "#AD1457", fontWeight: "600", marginBottom: 8 }}>
         Title *
       </Text>
       <TextInput
@@ -395,14 +391,14 @@ const JournalEntryScreen = () => {
         style={{
           fontSize: 20,
           fontWeight: "600",
-          color: titleError ? "#FF6B6B" : "#F0F0F0",
+          color: titleError ? "#FF6B6B" : "#AD1457",
         }}
-        placeholderTextColor="#A0A0A0"
+        placeholderTextColor="#BA68C8"
         multiline={false}
         maxLength={100}
       />
       {titleError ? (
-        <Text style={{ color: "#FF6B6B", fontSize: 14, marginTop: 4 }}>
+        <Text style={{ color: "#EC407A", fontSize: 14, marginTop: 4 }}>
           {titleError}
         </Text>
       ) : null}
@@ -414,19 +410,19 @@ const JournalEntryScreen = () => {
       style={{
         paddingHorizontal: 24,
         paddingVertical: 24,
-        backgroundColor: "#1a1a2e",
+        backgroundColor: "#F3E5F5",
         flex: 1,
       }}
     >
-      <Text style={{ color: "#E0E0E0", fontWeight: "600", marginBottom: 12 }}>
+      <Text style={{ color: "#AD1457", fontWeight: "600", marginBottom: 12 }}>
         Your thoughts
       </Text>
       <View
         style={{
-          backgroundColor: "rgba(255, 255, 255, 0.04)",
+          backgroundColor: "rgba(255, 255, 255, 0.4)",
           borderRadius: 16,
-          borderWidth: 1,
-          borderColor: "rgba(255, 255, 255, 0.08)",
+          borderWidth: 2,
+          borderColor: "#AD1457",
           padding: 20,
           minHeight: 300,
         }}
@@ -437,11 +433,11 @@ const JournalEntryScreen = () => {
           placeholder="Write your thoughts here..."
           style={{
             fontSize: 16,
-            color: "#E0E0E0",
+            color: "#7B1FA2",
             flex: 1,
             lineHeight: 24,
           }}
-          placeholderTextColor="#A0A0A0"
+          placeholderTextColor="#BA68C8"
           multiline={true}
           textAlignVertical="top"
           maxLength={1000}
@@ -449,7 +445,7 @@ const JournalEntryScreen = () => {
       </View>
       <Text
         style={{
-          color: "#A0A0A0",
+          color: "#9C27B0",
           fontSize: 14,
           marginTop: 8,
           textAlign: "right",
@@ -468,27 +464,32 @@ const JournalEntryScreen = () => {
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.7)",
+        backgroundColor: "rgba(243, 229, 245, 0.95)",
         alignItems: "center",
         justifyContent: "center",
       }}
     >
       <View
         style={{
-          backgroundColor: "#2d1e40",
+          backgroundColor: "white",
           borderRadius: 24,
           padding: 32,
           marginHorizontal: 24,
           width: 320,
-          borderWidth: 1,
-          borderColor: "rgba(255, 255, 255, 0.1)",
+          borderWidth: 2,
+          borderColor: "#E1BEE7",
+          shadowColor: "#9C27B0",
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.3,
+          shadowRadius: 16,
+          elevation: 8,
         }}
       >
         <Text
           style={{
             fontSize: 22,
             fontWeight: "700",
-            color: "#F5F5F5",
+            color: "#AD1457",
             textAlign: "center",
             marginBottom: 24,
           }}
@@ -516,13 +517,11 @@ const JournalEntryScreen = () => {
                 justifyContent: "center",
                 backgroundColor:
                   selectedMood === option.mood
-                    ? `${option.color}30`
-                    : "rgba(255, 255, 255, 0.08)",
-                borderWidth: selectedMood === option.mood ? 2 : 1,
+                    ? `${option.color}40`
+                    : "#F8E1F8",
+                borderWidth: selectedMood === option.mood ? 3 : 2,
                 borderColor:
-                  selectedMood === option.mood
-                    ? option.color
-                    : "rgba(255, 255, 255, 0.15)",
+                  selectedMood === option.mood ? option.color : "#E1BEE7",
               }}
             >
               <Text style={{ fontSize: 24 }}>{option.emoji}</Text>
@@ -533,18 +532,18 @@ const JournalEntryScreen = () => {
         <TouchableOpacity
           onPress={() => setShowMoodSelector(false)}
           style={{
-            backgroundColor: "rgba(255, 255, 255, 0.1)",
+            backgroundColor: "#F3E5F5",
             paddingVertical: 12,
             paddingHorizontal: 24,
             borderRadius: 16,
-            borderWidth: 1,
-            borderColor: "rgba(255, 255, 255, 0.2)",
+            borderWidth: 2,
+            borderColor: "#CE93D8",
           }}
         >
           <Text
             style={{
               textAlign: "center",
-              color: "#E0E0E0",
+              color: "#AD1457",
               fontWeight: "600",
             }}
           >
@@ -560,10 +559,10 @@ const JournalEntryScreen = () => {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#0f0f1a" }}>
+    <View style={{ flex: 1, backgroundColor: "#F3E5F5" }}>
       <StatusBar
         barStyle="light-content"
-        backgroundColor="transparent"
+        backgroundColor="#F3E5F5"
         translucent
       />
 

@@ -29,11 +29,11 @@ const AddJournalEntry = () => {
 
   // Mood options with emojis and colors
   const moodOptions = [
-    { mood: "sad" as MoodType, emoji: "😢", color: "#EC4899" },
-    { mood: "stressed" as MoodType, emoji: "😤", color: "#F97316" },
-    { mood: "neutral" as MoodType, emoji: "😐", color: "#A855F7" },
-    { mood: "happy" as MoodType, emoji: "😊", color: "#3B82F6" },
-    { mood: "excited" as MoodType, emoji: "🤩", color: "#06B6D4" },
+    { mood: "sad" as MoodType, emoji: "😢", color: "#FF9AA2" },
+    { mood: "stressed" as MoodType, emoji: "😤", color: "#FFB88C" },
+    { mood: "neutral" as MoodType, emoji: "😐", color: "#C5B3E6" },
+    { mood: "happy" as MoodType, emoji: "😊", color: "#FFDAC1" },
+    { mood: "excited" as MoodType, emoji: "🤩", color: "#B5EAD7" },
   ];
 
   const resetForm = () => {
@@ -140,23 +140,23 @@ const AddJournalEntry = () => {
         paddingTop: 48,
         paddingHorizontal: 24,
         paddingBottom: 16,
-        backgroundColor: "#1a1a2e",
+        backgroundColor: "#E8D5F2",
       }}
     >
       <TouchableOpacity onPress={handleCancel}>
-        <Text style={{ fontSize: 28, color: "#E0E0E0" }}>‹</Text>
+        <Text style={{ fontSize: 28, color: "#9E1C60" }}>‹</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         onPress={handleSave}
         disabled={saving}
         style={{
-          backgroundColor: "rgba(176, 196, 222, 0.8)",
+          backgroundColor: "#D4A5FF",
           paddingHorizontal: 24,
           paddingVertical: 12,
           borderRadius: 24,
           borderWidth: 1,
-          borderColor: "rgba(176, 196, 222, 0.4)",
+          borderColor: "#C78EFF",
         }}
       >
         {saving ? (
@@ -175,12 +175,14 @@ const AddJournalEntry = () => {
       style={{
         paddingHorizontal: 24,
         paddingVertical: 20,
-        backgroundColor: "rgba(255, 255, 255, 0.06)",
+        backgroundColor: "#DDA0DD",
         borderBottomWidth: 1,
-        borderBottomColor: "rgba(255, 255, 255, 0.1)",
+        borderBottomColor: "rgba(255, 255, 255, 0.5)",
       }}
     >
-      <Text style={{ color: "#B0B0B0", fontSize: 18 }}>{getCurrentDate()}</Text>
+      <Text style={{ color: "white", fontSize: 18, fontWeight: "500" }}>
+        {getCurrentDate()}
+      </Text>
     </View>
   );
 
@@ -189,14 +191,14 @@ const AddJournalEntry = () => {
       style={{
         paddingHorizontal: 24,
         paddingVertical: 24,
-        backgroundColor: "rgba(176, 196, 222, 0.08)",
+        backgroundColor: "#E7D3D3",
         borderBottomWidth: 1,
-        borderBottomColor: "rgba(255, 255, 255, 0.1)",
+        borderBottomColor: "rgba(255, 255, 255, 0.5)",
       }}
     >
       <Text
         style={{
-          color: "#E0E0E0",
+          color: "white",
           fontSize: 16,
           marginBottom: 12,
           fontWeight: "600",
@@ -209,12 +211,12 @@ const AddJournalEntry = () => {
         style={{
           width: 64,
           height: 64,
-          backgroundColor: "rgba(173, 216, 230, 0.15)",
+          backgroundColor: "rgba(255, 255, 255, 0.5)",
           borderRadius: 20,
           alignItems: "center",
           justifyContent: "center",
-          borderWidth: 1,
-          borderColor: "rgba(173, 216, 230, 0.3)",
+          borderWidth: 2,
+          borderColor: "white",
         }}
       >
         <Text style={{ fontSize: 32 }}>{getSelectedMoodEmoji()}</Text>
@@ -227,9 +229,9 @@ const AddJournalEntry = () => {
       style={{
         paddingHorizontal: 24,
         paddingVertical: 20,
-        backgroundColor: "rgba(255, 255, 255, 0.06)",
-        borderBottomWidth: 1,
-        borderBottomColor: "rgba(255, 255, 255, 0.1)",
+        backgroundColor: "rgba(255, 255, 255, 0.3)",
+        borderBottomWidth: 2,
+        borderBottomColor: "#D25D5D",
       }}
     >
       <TextInput
@@ -238,10 +240,10 @@ const AddJournalEntry = () => {
         placeholder="Entry Title"
         style={{
           fontSize: 20,
-          color: "#F0F0F0",
+          color: "#9E1C60",
           fontWeight: "600",
         }}
-        placeholderTextColor="#A0A0A0"
+        placeholderTextColor="#B5A6C9"
         multiline={false}
       />
     </View>
@@ -252,16 +254,16 @@ const AddJournalEntry = () => {
       style={{
         paddingHorizontal: 24,
         paddingVertical: 24,
-        backgroundColor: "#1a1a2e",
+        backgroundColor: "#E8D5F2",
         flex: 1,
       }}
     >
       <View
         style={{
-          backgroundColor: "rgba(255, 255, 255, 0.04)",
+          backgroundColor: "rgba(255, 255, 255, 0.4)",
           borderRadius: 16,
-          borderWidth: 1,
-          borderColor: "rgba(255, 255, 255, 0.08)",
+          borderWidth: 2,
+          borderColor: "#D25D5D",
           padding: 20,
           minHeight: 300,
         }}
@@ -272,11 +274,11 @@ const AddJournalEntry = () => {
           placeholder="Write your thoughts here..."
           style={{
             fontSize: 16,
-            color: "#E0E0E0",
+            color: "#8B5A8A",
             flex: 1,
             lineHeight: 24,
           }}
-          placeholderTextColor="#A0A0A0"
+          placeholderTextColor="#B5A6C9"
           multiline={true}
           textAlignVertical="top"
         />
@@ -292,27 +294,32 @@ const AddJournalEntry = () => {
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.7)",
+        backgroundColor: "rgba(232, 213, 242, 0.95)",
         alignItems: "center",
         justifyContent: "center",
       }}
     >
       <View
         style={{
-          backgroundColor: "#2d1e40",
+          backgroundColor: "white",
           borderRadius: 24,
           padding: 32,
           marginHorizontal: 24,
           width: 320,
-          borderWidth: 1,
-          borderColor: "rgba(255, 255, 255, 0.1)",
+          borderWidth: 2,
+          borderColor: "#E6D9FF",
+          shadowColor: "#C5B3E6",
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.3,
+          shadowRadius: 16,
+          elevation: 8,
         }}
       >
         <Text
           style={{
             fontSize: 22,
             fontWeight: "700",
-            color: "#F5F5F5",
+            color: "#9E1C60",
             textAlign: "center",
             marginBottom: 24,
           }}
@@ -340,13 +347,11 @@ const AddJournalEntry = () => {
                 justifyContent: "center",
                 backgroundColor:
                   selectedMood === option.mood
-                    ? `${option.color}30`
-                    : "rgba(255, 255, 255, 0.08)",
-                borderWidth: selectedMood === option.mood ? 2 : 1,
+                    ? `${option.color}40`
+                    : "#F5F0FF",
+                borderWidth: selectedMood === option.mood ? 3 : 2,
                 borderColor:
-                  selectedMood === option.mood
-                    ? option.color
-                    : "rgba(255, 255, 255, 0.15)",
+                  selectedMood === option.mood ? option.color : "#E6D9FF",
               }}
             >
               <Text style={{ fontSize: 24 }}>{option.emoji}</Text>
@@ -357,18 +362,18 @@ const AddJournalEntry = () => {
         <TouchableOpacity
           onPress={() => setShowMoodSelector(false)}
           style={{
-            backgroundColor: "rgba(255, 255, 255, 0.1)",
+            backgroundColor: "#F0E6FF",
             paddingVertical: 12,
             paddingHorizontal: 24,
             borderRadius: 16,
-            borderWidth: 1,
-            borderColor: "rgba(255, 255, 255, 0.2)",
+            borderWidth: 2,
+            borderColor: "#D4A5FF",
           }}
         >
           <Text
             style={{
               textAlign: "center",
-              color: "#E0E0E0",
+              color: "#9E1C60",
               fontWeight: "600",
             }}
           >
@@ -380,10 +385,10 @@ const AddJournalEntry = () => {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#0f0f1a" }}>
+    <View style={{ flex: 1, backgroundColor: "#E8D5F2" }}>
       <StatusBar
         barStyle="light-content"
-        backgroundColor="#0f0f1a"
+        backgroundColor="#E8D5F2"
         translucent
       />
 

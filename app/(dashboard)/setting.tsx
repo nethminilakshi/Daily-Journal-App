@@ -100,7 +100,6 @@ const UserSettingsScreen: React.FC = () => {
     }
   };
 
-  // Check email verification status
   const checkEmailVerificationStatus = async (): Promise<void> => {
     try {
       const status = await settingsService.checkPendingEmailVerification();
@@ -144,7 +143,6 @@ const UserSettingsScreen: React.FC = () => {
     try {
       const isVerified = await settingsService.refreshUserVerificationStatus();
 
-      // Always reload profile to get latest data
       loadUserProfile();
 
       if (isVerified) {
@@ -185,7 +183,6 @@ const UserSettingsScreen: React.FC = () => {
     );
   };
 
-  // Update username
   const handleUpdateUsername = async (): Promise<void> => {
     if (!newUsername.trim()) {
       Alert.alert("Error", "Please enter a valid username");
@@ -204,7 +201,6 @@ const UserSettingsScreen: React.FC = () => {
     }
   };
 
-  // Update email
   const handleUpdateEmail = async (): Promise<void> => {
     if (!newEmail.trim() || !currentPassword) {
       Alert.alert("Error", "Please fill in all fields");
@@ -248,7 +244,7 @@ const UserSettingsScreen: React.FC = () => {
       setUpdatingEmail(false);
     }
   };
-  // Update password
+
   const handleUpdatePassword = async (): Promise<void> => {
     if (!currentPassword || !newPassword || !confirmPassword) {
       Alert.alert("Error", "Please fill in all password fields");
@@ -284,7 +280,6 @@ const UserSettingsScreen: React.FC = () => {
     }
   };
 
-  // Sign out
   const handleSignOut = async (): Promise<void> => {
     Alert.alert("Sign Out", "Are you sure you want to sign out?", [
       { text: "Cancel", style: "cancel" },
@@ -305,7 +300,6 @@ const UserSettingsScreen: React.FC = () => {
     ]);
   };
 
-  // Delete account
   const handleDeleteAccount = async (): Promise<void> => {
     Alert.alert(
       "Delete Account",
@@ -361,15 +355,15 @@ const UserSettingsScreen: React.FC = () => {
     title: string,
     icon: React.ReactNode,
     content: React.ReactNode,
-    color: string = "#B0C4DE"
+    color: string = "#D4A5FF"
   ): React.ReactElement => (
     <View
       style={{
-        backgroundColor: "rgba(255, 255, 255, 0.06)",
+        backgroundColor: "rgba(255, 255, 255, 0.3)",
         borderRadius: 16,
         marginBottom: 16,
-        borderWidth: 1,
-        borderColor: "rgba(255, 255, 255, 0.1)",
+        borderWidth: 2,
+        borderColor: color,
         overflow: "hidden",
       }}
     >
@@ -388,7 +382,7 @@ const UserSettingsScreen: React.FC = () => {
             style={{
               fontSize: 16,
               fontWeight: "600",
-              color: "#F5F5F5",
+              color: "#9E1C60",
               marginLeft: 12,
             }}
           >
@@ -411,14 +405,17 @@ const UserSettingsScreen: React.FC = () => {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#1c1c2b" }}>
+    <View style={{ flex: 1, backgroundColor: "#E8D5F2" }}>
       <StatusBar
         barStyle="light-content"
-        backgroundColor="transparent"
+        backgroundColor="#E8D5F2"
         translucent
       />
 
-      <ScrollView style={{ flex: 1 }}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: 24 }}
+      >
         {/* Header */}
         <View
           style={{
@@ -428,40 +425,45 @@ const UserSettingsScreen: React.FC = () => {
             paddingHorizontal: 20,
             paddingTop: 48,
             paddingBottom: 20,
-            backgroundColor: "#1a1a2e",
-            borderBottomWidth: 1,
-            borderBottomColor: "rgba(255, 255, 255, 0.1)",
+            backgroundColor: "#E8D5F2",
+            borderBottomWidth: 2,
+            borderBottomColor: "#9E1C60",
           }}
         >
           <TouchableOpacity
             onPress={() => router.back()}
             style={{ padding: 8, marginLeft: -8 }}
           >
-            <ArrowLeft size={24} color="#E0E0E0" />
+            <ArrowLeft size={24} color="#9E1C60" />
           </TouchableOpacity>
-          <Text style={{ fontSize: 18, fontWeight: "700", color: "#F5F5F5" }}>
+          <Text style={{ fontSize: 20, fontWeight: "700", color: "#9E1C60" }}>
             Settings
           </Text>
           <View style={{ width: 32 }} />
         </View>
 
         <View style={{ paddingHorizontal: 20, paddingVertical: 20 }}>
-          {/* Updated Current User Info */}
+          {/* Current User Info */}
           <View
             style={{
-              backgroundColor: "rgba(255, 255, 255, 0.06)",
+              backgroundColor: "rgba(255, 255, 255, 0.3)",
               borderRadius: 16,
               padding: 18,
               marginBottom: 20,
-              borderWidth: 1,
-              borderColor: "rgba(255, 255, 255, 0.1)",
+              borderWidth: 2,
+              borderColor: "#D4A5FF",
+              shadowColor: "#DDA0DD",
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.3,
+              shadowRadius: 8,
+              elevation: 4,
             }}
           >
             <Text
               style={{
                 fontSize: 16,
                 fontWeight: "600",
-                color: "#F5F5F5",
+                color: "#9E1C60",
                 marginBottom: 12,
               }}
             >
@@ -475,8 +477,8 @@ const UserSettingsScreen: React.FC = () => {
                 marginBottom: 6,
               }}
             >
-              <User size={18} color="#B0C4DE" />
-              <Text style={{ color: "#E0E0E0", marginLeft: 10, fontSize: 14 }}>
+              <User size={18} color="#9E1C60" />
+              <Text style={{ color: "#6B5B95", marginLeft: 10, fontSize: 14 }}>
                 {userProfile?.displayName || "No username set"}
               </Text>
             </View>
@@ -489,10 +491,10 @@ const UserSettingsScreen: React.FC = () => {
                 flexWrap: "wrap",
               }}
             >
-              <Mail size={18} color="#B0C4DE" />
+              <Mail size={18} color="#9E1C60" />
               <Text
                 style={{
-                  color: "#E0E0E0",
+                  color: "#6B5B95",
                   marginLeft: 10,
                   fontSize: 14,
                   flex: 1,
@@ -501,25 +503,24 @@ const UserSettingsScreen: React.FC = () => {
                 {userProfile?.email}
               </Text>
 
-              {/* Email verification status badges */}
               {!userProfile?.emailVerified && (
                 <TouchableOpacity
                   onPress={showEmailVerificationOptions}
                   style={{
-                    backgroundColor: "rgba(255, 165, 0, 0.2)",
+                    backgroundColor: "#FFE5B4",
                     paddingHorizontal: 6,
                     paddingVertical: 2,
                     borderRadius: 8,
                     marginLeft: 8,
                     borderWidth: 1,
-                    borderColor: "rgba(255, 140, 0, 0.3)",
+                    borderColor: "#FFD700",
                   }}
                 >
                   <Text
                     style={{
-                      color: "#FFD700",
+                      color: "#D4A017",
                       fontSize: 10,
-                      fontWeight: "500",
+                      fontWeight: "600",
                     }}
                   >
                     Unverified
@@ -530,20 +531,20 @@ const UserSettingsScreen: React.FC = () => {
               {userProfile?.emailVerified && (
                 <View
                   style={{
-                    backgroundColor: "rgba(34, 197, 94, 0.2)",
+                    backgroundColor: "#B5EAD7",
                     paddingHorizontal: 6,
                     paddingVertical: 2,
                     borderRadius: 8,
                     marginLeft: 8,
                     borderWidth: 1,
-                    borderColor: "rgba(34, 197, 94, 0.3)",
+                    borderColor: "#48BB78",
                   }}
                 >
                   <Text
                     style={{
-                      color: "#4ADE80",
+                      color: "#2F855A",
                       fontSize: 10,
-                      fontWeight: "500",
+                      fontWeight: "600",
                     }}
                   >
                     Verified
@@ -553,25 +554,24 @@ const UserSettingsScreen: React.FC = () => {
             </View>
 
             {userProfile?.createdAt && (
-              <Text style={{ color: "#A0A0A0", fontSize: 12, marginLeft: 28 }}>
+              <Text style={{ color: "#9B89BD", fontSize: 12, marginLeft: 28 }}>
                 Member since{" "}
                 {new Date(userProfile.createdAt).toLocaleDateString()}
               </Text>
             )}
 
-            {/* Email verification action buttons */}
             {!userProfile?.emailVerified && (
               <View
                 style={{
                   marginTop: 12,
                   paddingTop: 12,
                   borderTopWidth: 1,
-                  borderTopColor: "rgba(255, 255, 255, 0.1)",
+                  borderTopColor: "#E6D9FF",
                 }}
               >
                 <Text
                   style={{
-                    color: "#FFD700",
+                    color: "#FFE5B4",
                     fontSize: 11,
                     fontStyle: "italic",
                     textAlign: "center",
@@ -587,9 +587,9 @@ const UserSettingsScreen: React.FC = () => {
                     disabled={sendingVerification}
                     style={{
                       flex: 1,
-                      backgroundColor: "rgba(255, 165, 0, 0.2)",
+                      backgroundColor: "#FFE5B4",
                       borderWidth: 1,
-                      borderColor: "rgba(255, 140, 0, 0.3)",
+                      borderColor: "#FFD700",
                       borderRadius: 8,
                       paddingVertical: 8,
                       paddingHorizontal: 12,
@@ -599,15 +599,15 @@ const UserSettingsScreen: React.FC = () => {
                     }}
                   >
                     {sendingVerification ? (
-                      <ActivityIndicator size="small" color="#FFD700" />
+                      <ActivityIndicator size="small" color="#D4A017" />
                     ) : (
                       <>
-                        <Mail size={14} color="#FFD700" />
+                        <Mail size={14} color="#D4A017" />
                         <Text
                           style={{
-                            color: "#FFD700",
+                            color: "#D4A017",
                             fontSize: 12,
-                            fontWeight: "500",
+                            fontWeight: "600",
                             marginLeft: 4,
                           }}
                         >
@@ -622,9 +622,9 @@ const UserSettingsScreen: React.FC = () => {
                     disabled={refreshingStatus}
                     style={{
                       flex: 1,
-                      backgroundColor: "rgba(135, 206, 235, 0.2)",
+                      backgroundColor: "rgba(255, 255, 255, 0.5)",
                       borderWidth: 1,
-                      borderColor: "rgba(135, 206, 235, 0.3)",
+                      borderColor: "rgba(255, 255, 255, 0.8)",
                       borderRadius: 8,
                       paddingVertical: 8,
                       paddingHorizontal: 12,
@@ -634,15 +634,15 @@ const UserSettingsScreen: React.FC = () => {
                     }}
                   >
                     {refreshingStatus ? (
-                      <ActivityIndicator size="small" color="#87CEEB" />
+                      <ActivityIndicator size="small" color="#BA55D3" />
                     ) : (
                       <>
-                        <RefreshCw size={14} color="#87CEEB" />
+                        <RefreshCw size={14} color="#BA55D3" />
                         <Text
                           style={{
-                            color: "#87CEEB",
+                            color: "#BA55D3",
                             fontSize: 12,
-                            fontWeight: "500",
+                            fontWeight: "600",
                             marginLeft: 4,
                           }}
                         >
@@ -660,22 +660,22 @@ const UserSettingsScreen: React.FC = () => {
           {renderCollapsibleSection(
             "username",
             "Update Username",
-            <User size={20} color="#B0C4DE" />,
+            <User size={20} color="#D4A5FF" />,
             <View>
               <TextInput
                 value={newUsername}
                 onChangeText={setNewUsername}
                 placeholder="Enter new username"
-                placeholderTextColor="#A0A0A0"
+                placeholderTextColor="#B5A6C9"
                 style={{
                   borderWidth: 1,
-                  borderColor: "rgba(255, 255, 255, 0.2)",
+                  borderColor: "#DCDCDC",
                   borderRadius: 12,
                   paddingHorizontal: 14,
                   paddingVertical: 10,
                   marginBottom: 12,
-                  color: "#F0F0F0",
-                  backgroundColor: "rgba(255, 255, 255, 0.04)",
+                  color: "black",
+                  backgroundColor: "rgba(255, 255, 255, 0.5)",
                   fontSize: 14,
                 }}
                 maxLength={30}
@@ -698,8 +698,8 @@ const UserSettingsScreen: React.FC = () => {
                     updatingUsername ||
                     !newUsername.trim() ||
                     newUsername === userProfile?.displayName
-                      ? "rgba(255, 255, 255, 0.1)"
-                      : "rgba(176, 196, 222, 0.8)",
+                      ? "rgba(212, 165, 255, 0.3)"
+                      : "#D4A5FF",
                 }}
               >
                 {updatingUsername ? (
@@ -727,24 +727,25 @@ const UserSettingsScreen: React.FC = () => {
           {renderCollapsibleSection(
             "email",
             "Change Email",
-            <Mail size={20} color="#87CEEB" />,
+            <Mail size={20} color="#FFB6C1" />,
             <View>
               {!userProfile?.emailVerified && (
                 <View
                   style={{
-                    backgroundColor: "rgba(255, 165, 0, 0.1)",
+                    backgroundColor: "#FFE5B4",
                     borderRadius: 8,
                     padding: 10,
                     marginBottom: 12,
                     borderWidth: 1,
-                    borderColor: "rgba(255, 140, 0, 0.2)",
+                    borderColor: "#FFD700",
                   }}
                 >
                   <Text
                     style={{
-                      color: "#FFD700",
+                      color: "#D4A017",
                       fontSize: 12,
                       textAlign: "center",
+                      fontWeight: "500",
                     }}
                   >
                     Please verify your current email address before changing it
@@ -759,21 +760,21 @@ const UserSettingsScreen: React.FC = () => {
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoComplete="email"
-                placeholderTextColor="#A0A0A0"
+                placeholderTextColor="#B5A6C9"
                 editable={userProfile?.emailVerified}
                 style={{
                   borderWidth: 1,
                   borderColor: userProfile?.emailVerified
-                    ? "rgba(255, 255, 255, 0.2)"
-                    : "rgba(255, 255, 255, 0.1)",
+                    ? "#DCDCDC"
+                    : "rgba(220, 220, 220, 0.5)",
                   borderRadius: 12,
                   paddingHorizontal: 14,
                   paddingVertical: 10,
                   marginBottom: 10,
-                  color: userProfile?.emailVerified ? "#F0F0F0" : "#A0A0A0",
+                  color: userProfile?.emailVerified ? "black" : "white",
                   backgroundColor: userProfile?.emailVerified
-                    ? "rgba(255, 255, 255, 0.04)"
-                    : "rgba(255, 255, 255, 0.02)",
+                    ? "rgba(255, 255, 255, 0.5)"
+                    : "rgba(255, 255, 255, 0.3)",
                   fontSize: 14,
                 }}
               />
@@ -784,21 +785,21 @@ const UserSettingsScreen: React.FC = () => {
                   placeholder="Current password"
                   secureTextEntry={!showEmailCurrentPassword}
                   autoComplete="current-password"
-                  placeholderTextColor="#A0A0A0"
+                  placeholderTextColor="#B5A6C9"
                   editable={userProfile?.emailVerified}
                   style={{
                     borderWidth: 1,
                     borderColor: userProfile?.emailVerified
-                      ? "rgba(255, 255, 255, 0.2)"
-                      : "rgba(255, 255, 255, 0.1)",
+                      ? "#DCDCDC"
+                      : "rgba(220, 220, 220, 0.5)",
                     borderRadius: 12,
                     paddingHorizontal: 14,
                     paddingVertical: 10,
                     paddingRight: 44,
-                    color: userProfile?.emailVerified ? "#F0F0F0" : "#A0A0A0",
+                    color: userProfile?.emailVerified ? "#9E1C60" : "#B5A6C9",
                     backgroundColor: userProfile?.emailVerified
-                      ? "rgba(255, 255, 255, 0.04)"
-                      : "rgba(255, 255, 255, 0.02)",
+                      ? "rgba(255, 255, 255, 0.5)"
+                      : "rgba(255, 255, 255, 0.3)",
                     fontSize: 14,
                   }}
                 />
@@ -815,9 +816,9 @@ const UserSettingsScreen: React.FC = () => {
                     }}
                   >
                     {showEmailCurrentPassword ? (
-                      <EyeOff size={16} color="#B0B0B0" />
+                      <EyeOff size={16} color="#9E1C60" />
                     ) : (
-                      <Eye size={16} color="#B0B0B0" />
+                      <Eye size={16} color="#9E1C60" />
                     )}
                   </TouchableOpacity>
                 )}
@@ -844,8 +845,8 @@ const UserSettingsScreen: React.FC = () => {
                     !newEmail.trim() ||
                     !currentPassword ||
                     newEmail === userProfile?.email
-                      ? "rgba(255, 255, 255, 0.1)"
-                      : "rgba(135, 206, 235, 0.8)",
+                      ? "rgba(255, 182, 193, 0.3)"
+                      : "#FFB6C1",
                 }}
               >
                 {updatingEmail ? (
@@ -867,14 +868,14 @@ const UserSettingsScreen: React.FC = () => {
                 )}
               </TouchableOpacity>
             </View>,
-            "#87CEEB"
+            "#FFB6C1"
           )}
 
           {/* Update Password Section */}
           {renderCollapsibleSection(
             "password",
             "Change Password",
-            <Lock size={20} color="#D3D3D3" />,
+            <Lock size={20} color="#B5EAD7" />,
             <View>
               <View style={{ position: "relative", marginBottom: 10 }}>
                 <TextInput
@@ -883,16 +884,16 @@ const UserSettingsScreen: React.FC = () => {
                   placeholder="Current password"
                   secureTextEntry={!showCurrentPassword}
                   autoComplete="current-password"
-                  placeholderTextColor="#A0A0A0"
+                  placeholderTextColor="#B5A6C9"
                   style={{
                     borderWidth: 1,
-                    borderColor: "rgba(255, 255, 255, 0.2)",
+                    borderColor: "#DCDCDC",
                     borderRadius: 12,
                     paddingHorizontal: 14,
                     paddingVertical: 10,
                     paddingRight: 44,
-                    color: "#F0F0F0",
-                    backgroundColor: "rgba(255, 255, 255, 0.04)",
+                    color: "black",
+                    backgroundColor: "rgba(255, 255, 255, 0.5)",
                     fontSize: 14,
                   }}
                 />
@@ -906,9 +907,9 @@ const UserSettingsScreen: React.FC = () => {
                   }}
                 >
                   {showCurrentPassword ? (
-                    <EyeOff size={16} color="#B0B0B0" />
+                    <EyeOff size={16} color="#9E1C60" />
                   ) : (
-                    <Eye size={16} color="#B0B0B0" />
+                    <Eye size={16} color="#9E1C60" />
                   )}
                 </TouchableOpacity>
               </View>
@@ -919,16 +920,16 @@ const UserSettingsScreen: React.FC = () => {
                   placeholder="New password (min 6 characters)"
                   secureTextEntry={!showNewPassword}
                   autoComplete="new-password"
-                  placeholderTextColor="#A0A0A0"
+                  placeholderTextColor="#B5A6C9"
                   style={{
                     borderWidth: 1,
-                    borderColor: "rgba(255, 255, 255, 0.2)",
+                    borderColor: "#DCDCDC",
                     borderRadius: 12,
                     paddingHorizontal: 14,
                     paddingVertical: 10,
                     paddingRight: 44,
-                    color: "#F0F0F0",
-                    backgroundColor: "rgba(255, 255, 255, 0.04)",
+                    color: "black",
+                    backgroundColor: "rgba(255, 255, 255, 0.5)",
                     fontSize: 14,
                   }}
                 />
@@ -942,9 +943,9 @@ const UserSettingsScreen: React.FC = () => {
                   }}
                 >
                   {showNewPassword ? (
-                    <EyeOff size={16} color="#B0B0B0" />
+                    <EyeOff size={16} color="#9E1C60" />
                   ) : (
-                    <Eye size={16} color="#B0B0B0" />
+                    <Eye size={16} color="#9E1C60" />
                   )}
                 </TouchableOpacity>
               </View>
@@ -955,16 +956,16 @@ const UserSettingsScreen: React.FC = () => {
                   placeholder="Confirm new password"
                   secureTextEntry={!showConfirmPassword}
                   autoComplete="new-password"
-                  placeholderTextColor="#A0A0A0"
+                  placeholderTextColor="#B5A6C9"
                   style={{
                     borderWidth: 1,
-                    borderColor: "rgba(255, 255, 255, 0.2)",
+                    borderColor: "#DCDCDC",
                     borderRadius: 12,
                     paddingHorizontal: 14,
                     paddingVertical: 10,
                     paddingRight: 44,
-                    color: "#F0F0F0",
-                    backgroundColor: "rgba(255, 255, 255, 0.04)",
+                    color: "black",
+                    backgroundColor: "rgba(255, 255, 255, 0.5)",
                     fontSize: 14,
                   }}
                 />
@@ -978,9 +979,9 @@ const UserSettingsScreen: React.FC = () => {
                   }}
                 >
                   {showConfirmPassword ? (
-                    <EyeOff size={16} color="#B0B0B0" />
+                    <EyeOff size={16} color="#9E1C60" />
                   ) : (
-                    <Eye size={16} color="#B0B0B0" />
+                    <Eye size={16} color="#9E1C60" />
                   )}
                 </TouchableOpacity>
               </View>
@@ -1004,8 +1005,8 @@ const UserSettingsScreen: React.FC = () => {
                     !currentPassword ||
                     !newPassword ||
                     !confirmPassword
-                      ? "rgba(255, 255, 255, 0.1)"
-                      : "rgba(211, 211, 211, 0.8)",
+                      ? "rgba(181, 234, 215, 0.3)"
+                      : "#B5EAD7",
                 }}
               >
                 {updatingPassword ? (
@@ -1027,20 +1028,20 @@ const UserSettingsScreen: React.FC = () => {
                 )}
               </TouchableOpacity>
             </View>,
-            "#D3D3D3"
+            "#B5EAD7"
           )}
 
           {/* Account Actions */}
           {renderCollapsibleSection(
             "actions",
             "Account Actions",
-            <Shield size={20} color="#B0B0B0" />,
+            <Shield size={20} color="gray" />,
             <View>
               <TouchableOpacity
                 onPress={handleSignOut}
                 disabled={signingOut}
                 style={{
-                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  backgroundColor: "#C5B3E6",
                   borderRadius: 10,
                   paddingVertical: 10,
                   paddingHorizontal: 14,
@@ -1049,17 +1050,17 @@ const UserSettingsScreen: React.FC = () => {
                   justifyContent: "center",
                   marginBottom: 10,
                   borderWidth: 1,
-                  borderColor: "rgba(255, 255, 255, 0.2)",
+                  borderColor: "#BA55D3",
                 }}
               >
                 {signingOut ? (
-                  <ActivityIndicator size="small" color="#B0B0B0" />
+                  <ActivityIndicator size="small" color="white" />
                 ) : (
                   <>
-                    <LogOut size={16} color="#B0B0B0" />
+                    <LogOut size={16} color="white" />
                     <Text
                       style={{
-                        color: "#E0E0E0",
+                        color: "white",
                         fontWeight: "600",
                         marginLeft: 6,
                         fontSize: 14,
@@ -1074,9 +1075,9 @@ const UserSettingsScreen: React.FC = () => {
                 onPress={handleDeleteAccount}
                 disabled={deletingAccount}
                 style={{
-                  backgroundColor: "rgba(220, 38, 38, 0.1)",
-                  borderWidth: 1,
-                  borderColor: "rgba(220, 38, 38, 0.3)",
+                  backgroundColor: "#FFB6C1",
+                  borderWidth: 2,
+                  borderColor: "#FF69B4",
                   borderRadius: 10,
                   paddingVertical: 10,
                   paddingHorizontal: 14,
@@ -1086,13 +1087,13 @@ const UserSettingsScreen: React.FC = () => {
                 }}
               >
                 {deletingAccount ? (
-                  <ActivityIndicator size="small" color="#DC2626" />
+                  <ActivityIndicator size="small" color="#C71585" />
                 ) : (
                   <>
-                    <Trash2 size={16} color="#DC2626" />
+                    <Trash2 size={16} color="#C71585" />
                     <Text
                       style={{
-                        color: "#FF6B6B",
+                        color: "#C71585",
                         fontWeight: "600",
                         marginLeft: 6,
                         fontSize: 14,
@@ -1104,23 +1105,23 @@ const UserSettingsScreen: React.FC = () => {
                 )}
               </TouchableOpacity>
             </View>,
-            "#B0B0B0"
+            "#C5B3E6"
           )}
 
           {/* Security Note */}
           <View
             style={{
-              backgroundColor: "rgba(30, 144, 255, 0.1)",
+              backgroundColor: "#D4A5FF",
               borderRadius: 12,
               padding: 14,
-              borderWidth: 1,
-              borderColor: "rgba(30, 144, 255, 0.2)",
+              borderWidth: 2,
+              borderColor: "#BA55D3",
               marginTop: 8,
             }}
           >
             <Text
               style={{
-                color: "#87CEEB",
+                color: "white",
                 fontWeight: "600",
                 marginBottom: 6,
                 fontSize: 13,
@@ -1128,7 +1129,13 @@ const UserSettingsScreen: React.FC = () => {
             >
               Security Note
             </Text>
-            <Text style={{ color: "#B0C4DE", fontSize: 12, lineHeight: 16 }}>
+            <Text
+              style={{
+                color: "rgba(255, 255, 255, 0.9)",
+                fontSize: 12,
+                lineHeight: 16,
+              }}
+            >
               • Password changes require your current password for verification
               {"\n"}• Email changes will require verification of the new email
               address

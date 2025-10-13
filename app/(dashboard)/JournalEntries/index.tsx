@@ -201,17 +201,17 @@ const HomeScreen = () => {
         paddingBottom: 16,
       }}
     >
-      <Text style={{ fontSize: 32, fontWeight: "700", color: "#F5F5F5" }}>
+      <Text style={{ fontSize: 32, fontWeight: "700", color: "#9E1C60" }}>
         Diary
       </Text>
       <View
         style={{
-          backgroundColor: "rgba(176, 196, 222, 0.8)",
+          backgroundColor: "#9E1C60",
           paddingHorizontal: 16,
           paddingVertical: 8,
           borderRadius: 20,
           borderWidth: 1,
-          borderColor: "rgba(176, 196, 222, 0.4)",
+          borderColor: "#E6D9FF",
         }}
       >
         <Text style={{ color: "white", fontWeight: "600", fontSize: 14 }}>
@@ -228,7 +228,7 @@ const HomeScreen = () => {
         marginBottom: 32,
         borderRadius: 24,
         overflow: "hidden",
-        shadowColor: "#FF69B4",
+        shadowColor: "#D4A5FF",
         shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.25,
         shadowRadius: 16,
@@ -249,7 +249,7 @@ const HomeScreen = () => {
         <View
           style={{
             ...StyleSheet.absoluteFillObject,
-            backgroundColor: "rgba(255, 105, 180, 0.2)",
+            backgroundColor: "rgba(255, 182, 193, 0.3)",
             borderRadius: 24,
           }}
         />
@@ -267,7 +267,7 @@ const HomeScreen = () => {
               color: "white",
               textAlign: "center",
               marginBottom: 8,
-              textShadowColor: "rgba(255, 20, 147, 0.4)",
+              textShadowColor: "rgba(107, 91, 149, 0.4)",
               textShadowOffset: { width: 0, height: 2 },
               textShadowRadius: 4,
             }}
@@ -280,7 +280,7 @@ const HomeScreen = () => {
               color: "white",
               textAlign: "center",
               opacity: 0.95,
-              textShadowColor: "rgba(138, 43, 226, 0.3)",
+              textShadowColor: "rgba(107, 91, 149, 0.3)",
               textShadowOffset: { width: 0, height: 1 },
               textShadowRadius: 3,
             }}
@@ -300,8 +300,8 @@ const HomeScreen = () => {
         paddingVertical: 32,
       }}
     >
-      <ActivityIndicator size="large" color="#B0C4DE" />
-      <Text style={{ marginLeft: 12, color: "#B0C4DE" }}>
+      <ActivityIndicator size="large" color="#C5B3E6" />
+      <Text style={{ marginLeft: 12, color: "#9B89BD" }}>
         Loading entries...
       </Text>
     </View>
@@ -310,13 +310,13 @@ const HomeScreen = () => {
   const renderErrorState = () => (
     <View
       style={{
-        backgroundColor: "rgba(255, 165, 0, 0.15)",
+        backgroundColor: "#FFF4ED",
         borderWidth: 1,
-        borderColor: "rgba(255, 140, 0, 0.3)",
+        borderColor: "#FFD4BA",
         borderRadius: 16,
         padding: 18,
         marginBottom: 24,
-        shadowColor: "#FFA500",
+        shadowColor: "#FFB88C",
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.15,
         shadowRadius: 4,
@@ -325,7 +325,7 @@ const HomeScreen = () => {
     >
       <Text
         style={{
-          color: "#FFE4B5",
+          color: "#8B5A3C",
           textAlign: "center",
           marginBottom: 12,
           fontWeight: "600",
@@ -336,7 +336,7 @@ const HomeScreen = () => {
       <TouchableOpacity
         onPress={fetchJournalData}
         style={{
-          backgroundColor: "rgba(255, 140, 0, 0.8)",
+          backgroundColor: "#FFB88C",
           borderRadius: 12,
           paddingVertical: 10,
           paddingHorizontal: 18,
@@ -352,7 +352,7 @@ const HomeScreen = () => {
           setError(null);
         }}
         style={{
-          backgroundColor: "rgba(138, 43, 226, 0.8)",
+          backgroundColor: "#C5B3E6",
           borderRadius: 12,
           paddingVertical: 10,
           paddingHorizontal: 18,
@@ -373,27 +373,27 @@ const HomeScreen = () => {
         style={{
           width: 100,
           height: 100,
-          backgroundColor: "rgba(176, 196, 222, 0.2)",
+          backgroundColor: "#F5F0FF",
           borderRadius: 50,
           alignItems: "center",
           justifyContent: "center",
           marginBottom: 20,
-          shadowColor: "#87CEEB",
+          shadowColor: "#D4A5FF",
           shadowOffset: { width: 0, height: 4 },
           shadowOpacity: 0.15,
           shadowRadius: 8,
           elevation: 3,
           borderWidth: 2,
-          borderColor: "rgba(135, 206, 235, 0.4)",
+          borderColor: "#E6D9FF",
         }}
       >
-        <BookOpen size={40} color="#B0C4DE" />
+        <BookOpen size={40} color="#9B89BD" />
       </View>
       <Text
         style={{
           fontSize: 24,
           fontWeight: "700",
-          color: "#E6E6FA",
+          color: "#6B5B95",
           marginBottom: 12,
         }}
       >
@@ -401,7 +401,7 @@ const HomeScreen = () => {
       </Text>
       <Text
         style={{
-          color: "#B0C4DE",
+          color: "#9B89BD",
           textAlign: "center",
           marginBottom: 28,
           paddingHorizontal: 32,
@@ -415,14 +415,14 @@ const HomeScreen = () => {
       <TouchableOpacity
         onPress={handleAddEntry}
         style={{
-          backgroundColor: "rgba(176, 196, 222, 0.8)",
+          backgroundColor: "#D4A5FF",
           paddingHorizontal: 28,
           paddingVertical: 16,
           borderRadius: 28,
           flexDirection: "row",
           alignItems: "center",
           borderWidth: 1,
-          borderColor: "rgba(176, 196, 222, 0.4)",
+          borderColor: "#C78EFF",
         }}
       >
         <Plus size={22} color="white" style={{ marginRight: 8 }} />
@@ -440,18 +440,18 @@ const HomeScreen = () => {
         top: 40,
         right: 8,
         width: 140,
-        backgroundColor: "#2d1e40",
+        backgroundColor: "white",
         borderRadius: 12,
         paddingVertical: 8,
         paddingHorizontal: 4,
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
+        shadowOpacity: 0.15,
         shadowRadius: 8,
         elevation: 8,
         zIndex: 20,
         borderWidth: 1,
-        borderColor: "rgba(255, 255, 255, 0.1)",
+        borderColor: "#F0E6FF",
       }}
     >
       <TouchableOpacity
@@ -472,12 +472,12 @@ const HomeScreen = () => {
           borderRadius: 8,
         }}
       >
-        <Trash2 size={18} color="#FF6B6B" />
+        <Trash2 size={18} color="#FF9AA2" />
         <Text
           style={{
             marginLeft: 10,
             fontSize: 15,
-            color: "#FF6B6B",
+            color: "#FF9AA2",
             fontWeight: "600",
           }}
         >
@@ -516,7 +516,7 @@ const HomeScreen = () => {
           <Text
             style={{
               fontSize: 12,
-              color: "#A0A0A0",
+              color: "#B5A6C9",
               fontWeight: "500",
               marginBottom: 10,
             }}
@@ -536,7 +536,7 @@ const HomeScreen = () => {
               width: 32,
               height: 32,
               borderRadius: 16,
-              backgroundColor: "rgba(255, 255, 255, 0.1)",
+              backgroundColor: "#F5F0FF",
               alignItems: "center",
               justifyContent: "center",
               zIndex: 10,
@@ -544,9 +544,9 @@ const HomeScreen = () => {
             disabled={isDeleting}
           >
             {isDeleting ? (
-              <ActivityIndicator size="small" color="#A0A0A0" />
+              <ActivityIndicator size="small" color="#9B89BD" />
             ) : (
-              <MoreVertical size={16} color="#A0A0A0" />
+              <MoreVertical size={16} color="#9B89BD" />
             )}
           </TouchableOpacity>
 
@@ -565,23 +565,23 @@ const HomeScreen = () => {
               style={{
                 fontSize: 17,
                 fontWeight: "600",
-                color: "#F0F0F0",
+                color: "#6B5B95",
                 flex: 1,
                 paddingRight: 40,
               }}
             >
-              <Text style={{ color: "#DDDAD0" }}>feeling</Text>{" "}
+              <Text style={{ color: "#9B89BD" }}>feeling</Text>{" "}
               <Text style={{ fontSize: 20 }}>{getMoodEmoji(entry.mood)}</Text>{" "}
-              <Text style={{ color: "#DDDAD0" }}>with</Text> {entry.title}
+              <Text style={{ color: "#9B89BD" }}>with</Text> {entry.title}
             </Text>
           </View>
 
           <Text
             style={{
-              color: "#E6E6FA",
+              color: "#6B5B95",
               fontSize: 14,
               lineHeight: 20,
-              opacity: 0.9,
+              opacity: 0.8,
               paddingRight: 20,
             }}
             numberOfLines={3}
@@ -594,7 +594,7 @@ const HomeScreen = () => {
           <View
             style={{
               height: 1,
-              backgroundColor: "rgba(255, 255, 255, 0.1)",
+              backgroundColor: "#F0E6FF",
               marginTop: 16,
               marginHorizontal: -20,
             }}
@@ -623,12 +623,12 @@ const HomeScreen = () => {
                 borderRadius: 25,
                 alignItems: "center",
                 justifyContent: "center",
-                backgroundColor: "rgba(70, 130, 180, 0.8)",
+                backgroundColor: "#D4A5FF",
                 borderWidth: 2,
-                borderColor: "rgba(176, 196, 222, 0.4)",
-                shadowColor: "rgba(176, 196, 222, 0.6)",
+                borderColor: "#E6D9FF",
+                shadowColor: "#C5B3E6",
                 shadowOffset: { width: 0, height: 3 },
-                shadowOpacity: 0.4,
+                shadowOpacity: 0.3,
                 shadowRadius: 6,
                 elevation: 6,
               }}
@@ -639,7 +639,7 @@ const HomeScreen = () => {
                   fontWeight: "700",
                   color: "white",
                   zIndex: 1,
-                  textShadowColor: "rgba(0, 0, 0, 0.3)",
+                  textShadowColor: "rgba(107, 91, 149, 0.3)",
                   textShadowOffset: { width: 0, height: 1 },
                   textShadowRadius: 2,
                 }}
@@ -651,7 +651,7 @@ const HomeScreen = () => {
             <Text
               style={{
                 fontSize: 11,
-                color: "#A0A0A0",
+                color: "#B5A6C9",
                 fontWeight: "600",
                 textAlign: "center",
                 lineHeight: 13,
@@ -665,7 +665,7 @@ const HomeScreen = () => {
             <Text
               style={{
                 fontSize: 10,
-                color: "#808080",
+                color: "#C5B3E6",
                 fontWeight: "500",
                 textAlign: "center",
               }}
@@ -678,7 +678,7 @@ const HomeScreen = () => {
                 style={{
                   width: 2,
                   height: group.entries.length * 120 + 40,
-                  backgroundColor: "rgba(255, 255, 255, 0.2)",
+                  backgroundColor: "#F0E6FF",
                   marginTop: 12,
                   position: "absolute",
                   top: 72,
@@ -700,13 +700,230 @@ const HomeScreen = () => {
 
   const groupedEntries = groupEntriesByDate(entries);
 
+  const renderBackgroundDecorations = () => (
+    <View
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: -1,
+      }}
+    >
+      {/* Top Left Pen */}
+      <View
+        style={{
+          position: "absolute",
+          top: 100,
+          left: 20,
+          opacity: 0.15,
+          transform: [{ rotate: "25deg" }],
+        }}
+      >
+        <View
+          style={{
+            width: 80,
+            height: 8,
+            backgroundColor: "#FFB6C1",
+            borderRadius: 4,
+          }}
+        />
+        <View
+          style={{
+            width: 20,
+            height: 8,
+            backgroundColor: "#FF69B4",
+            borderRadius: 4,
+            marginTop: -8,
+          }}
+        />
+      </View>
+
+      {/* Top Right Book */}
+      <View
+        style={{
+          position: "absolute",
+          top: 150,
+          right: 30,
+          opacity: 0.12,
+          transform: [{ rotate: "-15deg" }],
+        }}
+      >
+        <View
+          style={{
+            width: 60,
+            height: 75,
+            backgroundColor: "#DDA0DD",
+            borderRadius: 6,
+            borderLeftWidth: 4,
+            borderLeftColor: "#DA70D6",
+          }}
+        />
+      </View>
+
+      {/* Middle Left Wings */}
+      <View
+        style={{
+          position: "absolute",
+          top: "40%",
+          left: -10,
+          opacity: 0.1,
+        }}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+          }}
+        >
+          <View
+            style={{
+              width: 40,
+              height: 60,
+              backgroundColor: "#FFB6C1",
+              borderTopLeftRadius: 30,
+              borderBottomLeftRadius: 30,
+              transform: [{ scaleX: 0.7 }],
+            }}
+          />
+          <View
+            style={{
+              width: 40,
+              height: 60,
+              backgroundColor: "#FFB6C1",
+              borderTopRightRadius: 30,
+              borderBottomRightRadius: 30,
+              marginLeft: -5,
+              transform: [{ scaleX: 0.7 }],
+            }}
+          />
+        </View>
+      </View>
+
+      {/* Bottom Right Pen */}
+      <View
+        style={{
+          position: "absolute",
+          bottom: 200,
+          right: 15,
+          opacity: 0.13,
+          transform: [{ rotate: "-45deg" }],
+        }}
+      >
+        <View
+          style={{
+            width: 70,
+            height: 7,
+            backgroundColor: "#DDA0DD",
+            borderRadius: 4,
+          }}
+        />
+        <View
+          style={{
+            width: 18,
+            height: 7,
+            backgroundColor: "#BA55D3",
+            borderRadius: 4,
+            marginTop: -7,
+          }}
+        />
+      </View>
+
+      {/* Bottom Left Book */}
+      <View
+        style={{
+          position: "absolute",
+          bottom: 150,
+          left: 25,
+          opacity: 0.11,
+          transform: [{ rotate: "20deg" }],
+        }}
+      >
+        <View
+          style={{
+            width: 55,
+            height: 70,
+            backgroundColor: "#FFB6C1",
+            borderRadius: 6,
+            borderLeftWidth: 4,
+            borderLeftColor: "#FF69B4",
+          }}
+        />
+      </View>
+
+      {/* Top Center Wings */}
+      <View
+        style={{
+          position: "absolute",
+          top: 80,
+          right: "35%",
+          opacity: 0.08,
+          transform: [{ rotate: "15deg" }],
+        }}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+          }}
+        >
+          <View
+            style={{
+              width: 35,
+              height: 50,
+              backgroundColor: "#DDA0DD",
+              borderTopLeftRadius: 25,
+              borderBottomLeftRadius: 25,
+              transform: [{ scaleX: 0.7 }],
+            }}
+          />
+          <View
+            style={{
+              width: 35,
+              height: 50,
+              backgroundColor: "#DDA0DD",
+              borderTopRightRadius: 25,
+              borderBottomRightRadius: 25,
+              marginLeft: -5,
+              transform: [{ scaleX: 0.7 }],
+            }}
+          />
+        </View>
+      </View>
+
+      {/* Middle Right Small Book */}
+      <View
+        style={{
+          position: "absolute",
+          top: "55%",
+          right: 40,
+          opacity: 0.1,
+          transform: [{ rotate: "-25deg" }],
+        }}
+      >
+        <View
+          style={{
+            width: 45,
+            height: 60,
+            backgroundColor: "#F0A8D0",
+            borderRadius: 5,
+            borderLeftWidth: 3,
+            borderLeftColor: "#E76F9A",
+          }}
+        />
+      </View>
+    </View>
+  );
+
   return (
-    <View style={{ flex: 1, backgroundColor: "#1c1c2b" }}>
+    <View style={{ flex: 1, backgroundColor: "#E8D5F2" }}>
       <StatusBar
         barStyle="light-content"
         backgroundColor="transparent"
         translucent
       />
+      {renderBackgroundDecorations()}
 
       <ScrollView
         style={{ flex: 1 }}
@@ -723,7 +940,7 @@ const HomeScreen = () => {
             style={{
               fontSize: 28,
               fontWeight: "700",
-              color: "#E6E6FA",
+              color: "#B95E82",
               textAlign: "center",
               marginBottom: 24,
             }}
@@ -741,7 +958,7 @@ const HomeScreen = () => {
                   style={{
                     fontSize: 22,
                     fontWeight: "700",
-                    color: "#B6B09F",
+                    color: "#9B89BD",
                     textAlign: "left",
                   }}
                 >

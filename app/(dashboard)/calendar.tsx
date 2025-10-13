@@ -20,7 +20,7 @@ interface CalendarProps {
   selectedDate: Date;
 }
 
-const Calendar: React.FC<CalendarProps> = ({
+const CalendarComponent: React.FC<CalendarProps> = ({
   entries,
   onDateSelect,
   selectedDate,
@@ -30,7 +30,6 @@ const Calendar: React.FC<CalendarProps> = ({
     selectedDate ? selectedDate.getDate() : new Date().getDate()
   );
 
-  // Get days in month
   const getDaysInMonth = (date: Date): number => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
   };
@@ -39,7 +38,6 @@ const Calendar: React.FC<CalendarProps> = ({
     return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
   };
 
-  // Get entries for a specific date
   const getEntriesForDate = (date: Date): JournalEntry[] => {
     if (!entries || !Array.isArray(entries)) return [];
     const dateString = date.toDateString();
@@ -49,7 +47,6 @@ const Calendar: React.FC<CalendarProps> = ({
     });
   };
 
-  // Check if date has entries
   const hasEntries = (day: number): boolean => {
     const date = new Date(
       currentMonth.getFullYear(),
@@ -59,7 +56,6 @@ const Calendar: React.FC<CalendarProps> = ({
     return getEntriesForDate(date).length > 0;
   };
 
-  // Handle date selection
   const handleDateSelect = (day: number): void => {
     setSelectedDay(day);
     const selectedDate = new Date(
@@ -71,7 +67,6 @@ const Calendar: React.FC<CalendarProps> = ({
     onDateSelect(selectedDate, entriesForDate);
   };
 
-  // Navigate months
   const goToPreviousMonth = (): void => {
     setCurrentMonth(
       new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1)
@@ -84,7 +79,6 @@ const Calendar: React.FC<CalendarProps> = ({
     );
   };
 
-  // Generate calendar days
   const generateCalendarDays = (): (number | null)[] => {
     const daysInMonth = getDaysInMonth(currentMonth);
     const firstDay = getFirstDayOfMonth(currentMonth);
@@ -94,7 +88,6 @@ const Calendar: React.FC<CalendarProps> = ({
       days.push(null);
     }
 
-    // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       days.push(day);
     }
@@ -111,13 +104,18 @@ const Calendar: React.FC<CalendarProps> = ({
   return (
     <View
       style={{
-        backgroundColor: "#302939",
+        backgroundColor: "#FFFFFF",
         borderRadius: 20,
         marginHorizontal: 20,
         marginBottom: 24,
         padding: 20,
-        borderWidth: 1,
-        borderColor: "rgba(255, 255, 255, 0.1)",
+        borderWidth: 2,
+        borderColor: "#6B5B95",
+        shadowColor: "#D4A5FF",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 4,
       }}
     >
       {/* Month Header */}
@@ -129,15 +127,22 @@ const Calendar: React.FC<CalendarProps> = ({
           marginBottom: 20,
         }}
       >
-        <TouchableOpacity onPress={goToPreviousMonth} style={{ padding: 8 }}>
-          <Text style={{ fontSize: 18, color: "#B0B0B0" }}>←</Text>
+        <TouchableOpacity
+          onPress={goToPreviousMonth}
+          style={{
+            padding: 8,
+            backgroundColor: "#F5F0FF",
+            borderRadius: 8,
+          }}
+        >
+          <Text style={{ fontSize: 18, color: "#6B5B95" }}>←</Text>
         </TouchableOpacity>
 
         <Text
           style={{
             fontSize: 18,
             fontWeight: "700",
-            color: "#F5F5F5",
+            color: "#CC66DA",
           }}
         >
           {currentMonth.toLocaleDateString("en-US", {
@@ -146,8 +151,15 @@ const Calendar: React.FC<CalendarProps> = ({
           })}
         </Text>
 
-        <TouchableOpacity onPress={goToNextMonth} style={{ padding: 8 }}>
-          <Text style={{ fontSize: 18, color: "#B0B0B0" }}>→</Text>
+        <TouchableOpacity
+          onPress={goToNextMonth}
+          style={{
+            padding: 8,
+            backgroundColor: "#F5F0FF",
+            borderRadius: 8,
+          }}
+        >
+          <Text style={{ fontSize: 18, color: "#6B5B95" }}>→</Text>
         </TouchableOpacity>
       </View>
 
@@ -164,8 +176,8 @@ const Calendar: React.FC<CalendarProps> = ({
             key={day}
             style={{
               fontSize: 12,
-              color: "#A0A0A0",
-              fontWeight: "500",
+              color: "#9B89BD",
+              fontWeight: "600",
               width: 40,
               textAlign: "center",
             }}
@@ -180,7 +192,10 @@ const Calendar: React.FC<CalendarProps> = ({
         {calendarDays.map((day, index) => {
           if (day === null) {
             return (
-              <View key={index} style={{ width: 40, height: 40, margin: 4 }} />
+              <View
+                key={`empty-${index}`}
+                style={{ width: 40, height: 40, margin: 4 }}
+              />
             );
           }
 
@@ -190,7 +205,7 @@ const Calendar: React.FC<CalendarProps> = ({
 
           return (
             <TouchableOpacity
-              key={day}
+              key={`day-${index}-${day}`}
               onPress={() => handleDateSelect(day)}
               style={{
                 width: 40,
@@ -201,12 +216,12 @@ const Calendar: React.FC<CalendarProps> = ({
                 alignItems: "center",
                 position: "relative",
                 backgroundColor: isSelected
-                  ? "rgba(176, 196, 222, 0.8)"
+                  ? "#D4A5FF"
                   : isToday
-                    ? "rgba(173, 216, 230, 0.2)"
+                    ? "#F0E6FF"
                     : "transparent",
                 borderWidth: isToday ? 2 : 0,
-                borderColor: "rgba(173, 216, 230, 0.6)",
+                borderColor: "#9B89BD",
               }}
             >
               <Text
@@ -214,10 +229,10 @@ const Calendar: React.FC<CalendarProps> = ({
                   fontSize: 14,
                   fontWeight: "600",
                   color: isSelected
-                    ? "#ffffff"
+                    ? "#FFFFFF"
                     : isToday
-                      ? "#B0C4DE"
-                      : "#E0E0E0",
+                      ? "#6B5B95"
+                      : "#6B5B95",
                 }}
               >
                 {day}
@@ -229,12 +244,10 @@ const Calendar: React.FC<CalendarProps> = ({
                   style={{
                     position: "absolute",
                     bottom: 4,
-                    width: 4,
-                    height: 4,
-                    borderRadius: 2,
-                    backgroundColor: isSelected
-                      ? "#ffffff"
-                      : "rgba(70, 130, 180, 0.8)",
+                    width: 5,
+                    height: 5,
+                    borderRadius: 2.5,
+                    backgroundColor: isSelected ? "#FFFFFF" : "#D4A5FF",
                   }}
                 />
               )}
@@ -246,10 +259,9 @@ const Calendar: React.FC<CalendarProps> = ({
   );
 };
 
-const HomeScreen: React.FC = () => {
+const DashboardScreen: React.FC = () => {
   const router = useRouter();
 
-  // State for journal data
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -258,14 +270,12 @@ const HomeScreen: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [filteredEntries, setFilteredEntries] = useState<JournalEntry[]>([]);
 
-  // Load data from Firebase
   const fetchJournalData = async (): Promise<void> => {
     try {
       setError(null);
       const journalEntries = await journalService.getAllJournalEntries();
       setEntries(journalEntries);
 
-      // Update filtered entries for selected date
       const entriesForDate = getEntriesForDate(selectedDate, journalEntries);
       setFilteredEntries(entriesForDate);
     } catch (err) {
@@ -294,7 +304,6 @@ const HomeScreen: React.FC = () => {
     setRefreshing(false);
   };
 
-  // Get entries for a specific date
   const getEntriesForDate = (
     date: Date,
     allEntries: JournalEntry[] = entries
@@ -307,7 +316,6 @@ const HomeScreen: React.FC = () => {
     });
   };
 
-  // Handle calendar date selection
   const handleDateSelect = (
     date: Date,
     entriesForDate: JournalEntry[]
@@ -316,7 +324,6 @@ const HomeScreen: React.FC = () => {
     setFilteredEntries(entriesForDate);
   };
 
-  // Get mood emoji
   const getMoodEmoji = (mood: string): string => {
     const moodEmojis: Record<string, string> = {
       happy: "😊",
@@ -330,30 +337,12 @@ const HomeScreen: React.FC = () => {
     return moodEmojis[mood] || "😐";
   };
 
-  // Format date
-  const formatDate = (date: Date): string => {
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) {
-      return "Today";
-    } else if (diffDays === 1) {
-      return "Yesterday";
-    } else if (diffDays < 7) {
-      return `${diffDays} days ago`;
-    } else {
-      return date.toLocaleDateString();
-    }
-  };
-
-  // Handle navigation to journal entry
   const handleNavigateToEntry = (entry: JournalEntry): void => {
     router.push(`/JournalEntries/${entry.id}`);
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#1c1c2b" }}>
+    <View style={{ flex: 1, backgroundColor: "#E8D5F2" }}>
       <StatusBar
         barStyle="light-content"
         backgroundColor="transparent"
@@ -382,19 +371,19 @@ const HomeScreen: React.FC = () => {
             style={{
               fontSize: 32,
               fontWeight: "700",
-              color: "#F5F5F5",
+              color: "#9E1C60",
             }}
           >
             Calendar
           </Text>
           <View
             style={{
-              backgroundColor: "rgba(176, 196, 222, 0.8)",
+              backgroundColor: "#9E1C60",
               paddingHorizontal: 16,
               paddingVertical: 8,
               borderRadius: 20,
               borderWidth: 1,
-              borderColor: "rgba(176, 196, 222, 0.4)",
+              borderColor: "#E6D9FF",
             }}
           >
             <Text
@@ -409,7 +398,7 @@ const HomeScreen: React.FC = () => {
           </View>
         </View>
 
-        <Calendar
+        <CalendarComponent
           entries={entries}
           onDateSelect={handleDateSelect}
           selectedDate={selectedDate}
@@ -421,7 +410,7 @@ const HomeScreen: React.FC = () => {
             style={{
               fontSize: 20,
               fontWeight: "700",
-              color: "#E0E0E0",
+              color: "#B95E82",
             }}
           >
             {selectedDate.toLocaleDateString("en-US", {
@@ -444,7 +433,10 @@ const HomeScreen: React.FC = () => {
                 paddingVertical: 32,
               }}
             >
-              <ActivityIndicator size="large" color="#B0C4DE" />
+              <ActivityIndicator size="large" color="#C5B3E6" />
+              <Text style={{ marginLeft: 12, color: "#9B89BD" }}>
+                Loading entries...
+              </Text>
             </View>
           )}
 
@@ -452,19 +444,25 @@ const HomeScreen: React.FC = () => {
           {error && (
             <View
               style={{
-                backgroundColor: "rgba(255, 165, 0, 0.15)",
+                backgroundColor: "#FFF4ED",
                 borderWidth: 1,
-                borderColor: "rgba(255, 140, 0, 0.3)",
+                borderColor: "#FFD4BA",
                 borderRadius: 16,
-                padding: 16,
+                padding: 18,
                 marginBottom: 24,
+                shadowColor: "#FFB88C",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.15,
+                shadowRadius: 4,
+                elevation: 2,
               }}
             >
               <Text
                 style={{
-                  color: "#FFE4B5",
+                  color: "#8B5A3C",
                   textAlign: "center",
-                  marginBottom: 8,
+                  marginBottom: 12,
+                  fontWeight: "600",
                 }}
               >
                 {error}
@@ -472,14 +470,14 @@ const HomeScreen: React.FC = () => {
               <TouchableOpacity
                 onPress={fetchJournalData}
                 style={{
-                  backgroundColor: "rgba(255, 140, 0, 0.8)",
-                  borderRadius: 8,
-                  paddingVertical: 8,
-                  paddingHorizontal: 16,
+                  backgroundColor: "#FFB88C",
+                  borderRadius: 12,
+                  paddingVertical: 10,
+                  paddingHorizontal: 18,
                   alignSelf: "center",
                 }}
               >
-                <Text style={{ color: "white", fontWeight: "500" }}>Retry</Text>
+                <Text style={{ color: "white", fontWeight: "600" }}>Retry</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -491,12 +489,17 @@ const HomeScreen: React.FC = () => {
                 <TouchableOpacity
                   key={entry.id}
                   style={{
-                    backgroundColor: "rgba(30, 144, 255, 0.1)",
+                    backgroundColor: "#FFFFFF",
                     borderRadius: 16,
                     padding: 20,
                     marginBottom: 16,
                     borderWidth: 1,
-                    borderColor: "rgba(30, 144, 255, 0.2)",
+                    borderColor: "#E6D9FF",
+                    shadowColor: "#6B5B95",
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.08,
+                    shadowRadius: 8,
+                    elevation: 2,
                   }}
                   onPress={() => handleNavigateToEntry(entry)}
                 >
@@ -528,7 +531,7 @@ const HomeScreen: React.FC = () => {
                           style={{
                             fontSize: 17,
                             fontWeight: "600",
-                            color: "#F0F0F0",
+                            color: "#6B5B95",
                             flex: 1,
                           }}
                         >
@@ -537,10 +540,10 @@ const HomeScreen: React.FC = () => {
                       </View>
                       <Text
                         style={{
-                          color: "#D0D0D0",
+                          color: "#6B5B95",
                           fontSize: 14,
                           lineHeight: 20,
-                          opacity: 0.9,
+                          opacity: 0.8,
                         }}
                         numberOfLines={3}
                       >
@@ -556,24 +559,13 @@ const HomeScreen: React.FC = () => {
                       alignItems: "center",
                       paddingTop: 12,
                       borderTopWidth: 1,
-                      borderTopColor: "rgba(255, 255, 255, 0.1)",
+                      borderTopColor: "#F0E6FF",
                     }}
                   >
-                    <View
-                      style={{
-                        backgroundColor: "rgba(176, 196, 222, 0.15)",
-                        paddingHorizontal: 8,
-                        paddingVertical: 4,
-                        borderRadius: 12,
-                        marginRight: 8,
-                        borderWidth: 1,
-                        borderColor: "rgba(176, 196, 222, 0.3)",
-                      }}
-                    ></View>
                     <Text
                       style={{
                         fontSize: 12,
-                        color: "#A0A0A0",
+                        color: "#B5A6C9",
                         fontWeight: "500",
                       }}
                     >
@@ -593,36 +585,42 @@ const HomeScreen: React.FC = () => {
             <View style={{ alignItems: "center", paddingVertical: 48 }}>
               <View
                 style={{
-                  width: 80,
-                  height: 80,
-                  backgroundColor: "rgba(176, 196, 222, 0.15)",
-                  borderRadius: 40,
+                  width: 100,
+                  height: 100,
+                  backgroundColor: "#F5F0FF",
+                  borderRadius: 50,
                   alignItems: "center",
                   justifyContent: "center",
-                  marginBottom: 16,
+                  marginBottom: 20,
+                  shadowColor: "#D4A5FF",
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.15,
+                  shadowRadius: 8,
+                  elevation: 3,
                   borderWidth: 2,
-                  borderColor: "rgba(176, 196, 222, 0.3)",
+                  borderColor: "#E6D9FF",
                 }}
               >
-                <BookOpen size={32} color="#B0C4DE" />
+                <BookOpen size={40} color="#9B89BD" />
               </View>
               <Text
                 style={{
-                  fontSize: 20,
-                  fontWeight: "600",
-                  color: "#E0E0E0",
-                  marginBottom: 8,
+                  fontSize: 24,
+                  fontWeight: "700",
+                  color: "#B95E82",
+                  marginBottom: 12,
                 }}
               >
                 No entries for this date
               </Text>
               <Text
                 style={{
-                  color: "#B0B0B0",
+                  color: "#9B89BD",
                   textAlign: "center",
-                  marginBottom: 24,
+                  marginBottom: 28,
                   paddingHorizontal: 32,
-                  lineHeight: 22,
+                  lineHeight: 24,
+                  fontSize: 16,
                 }}
               >
                 Select another date to see entries or write a new one for this
@@ -636,4 +634,4 @@ const HomeScreen: React.FC = () => {
   );
 };
 
-export default HomeScreen;
+export default DashboardScreen;
