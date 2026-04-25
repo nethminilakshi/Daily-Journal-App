@@ -8,7 +8,7 @@ A **beautiful and intuitive mobile journaling application** built with **React N
 
 <p align="center">
   <img width="250" src="https://github.com/user-attachments/assets/c0767e4d-0a98-477b-8f01-bce73603b47e" />
-  <img width="250" src="https://github.com/user-attachments/assets/95080f97-a86a-4406-aa46-8d4c336a1339" />
+  <img width="250" src="https://github.com/user-attachments/assets/b48c047e-ed9a-4302-bff9-699d8a71a36f" />
   <img width="250" src="https://github.com/user-attachments/assets/42ea0f65-8719-4673-9230-a2e6f06af1b7" />
 </p>
 
