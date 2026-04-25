@@ -6,6 +6,8 @@ import {
   ActivityIndicator,
   Alert,
   ImageBackground,
+  Modal,
+  Pressable,
   RefreshControl,
   ScrollView,
   StatusBar,
@@ -14,6 +16,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+
 import { auth } from "../../../firebase";
 import journalService, { JournalEntry } from "../../../services/journalService";
 
@@ -433,59 +436,73 @@ const HomeScreen = () => {
     </View>
   );
 
-  const renderDropdownMenu = (entryId: string) => (
-    <View
-      style={{
-        position: "absolute",
-        top: 40,
-        right: 8,
-        width: 140,
-        backgroundColor: "white",
-        borderRadius: 12,
-        paddingVertical: 8,
-        paddingHorizontal: 4,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.15,
-        shadowRadius: 8,
-        elevation: 8,
-        zIndex: 20,
-        borderWidth: 1,
-        borderColor: "#F0E6FF",
-      }}
+  const renderDropdownMenu = () => {
+  const entry = entries.find((e) => e.id === showMenuForEntry);
+  if (!entry) return null;
+
+  return (
+    <Modal
+      transparent
+      visible={!!showMenuForEntry}
+      animationType="fade"
+      onRequestClose={handleCloseMenu}
     >
-      <TouchableOpacity
-        onPress={() => {
-          const entry = entries.find((e) => e.id === entryId);
-          if (entry) {
-            setShowMenuForEntry(null);
-            setTimeout(() => {
-              handleDeleteEntry(entry);
-            }, 100);
-          }
-        }}
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          paddingVertical: 12,
-          paddingHorizontal: 12,
-          borderRadius: 8,
-        }}
+      {/* Background press to close */}
+      <Pressable
+        style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.1)" }}
+        onPress={handleCloseMenu}
       >
-        <Trash2 size={18} color="#FF9AA2" />
-        <Text
+        {/* Dropdown box */}
+        <Pressable
           style={{
-            marginLeft: 10,
-            fontSize: 15,
-            color: "#FF9AA2",
-            fontWeight: "600",
+            position: "absolute",
+            top: "40%",
+            right: 24,
+            width: 150,
+            backgroundColor: "white",
+            borderRadius: 12,
+            paddingVertical: 8,
+            paddingHorizontal: 4,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.2,
+            shadowRadius: 8,
+            elevation: 10,
+            borderWidth: 1,
+            borderColor: "#F0E6FF",
           }}
+          onPress={(e) => e.stopPropagation()}
         >
-          Delete
-        </Text>
-      </TouchableOpacity>
-    </View>
+          <TouchableOpacity
+            onPress={() => {
+              handleCloseMenu();
+              setTimeout(() => handleDeleteEntry(entry), 100);
+            }}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              paddingVertical: 12,
+              paddingHorizontal: 12,
+              borderRadius: 8,
+            }}
+          >
+            <Trash2 size={18} color="#FF9AA2" />
+            <Text
+              style={{
+                marginLeft: 10,
+                fontSize: 15,
+                color: "#FF9AA2",
+                fontWeight: "600",
+              }}
+            >
+              Delete
+            </Text>
+          </TouchableOpacity>
+        </Pressable>
+      </Pressable>
+    </Modal>
   );
+};      
 
   const renderJournalEntry = (
     entry: JournalEntry,
@@ -549,10 +566,6 @@ const HomeScreen = () => {
               <MoreVertical size={16} color="#9B89BD" />
             )}
           </TouchableOpacity>
-
-          {showMenuForEntry === entry.id &&
-            !isDeleting &&
-            renderDropdownMenu(entry.id)}
 
           <View
             style={{
@@ -976,20 +989,7 @@ const HomeScreen = () => {
         </View>
       </ScrollView>
 
-      {showMenuForEntry && (
-        <TouchableOpacity
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "transparent",
-          }}
-          onPress={handleCloseMenu}
-          activeOpacity={1}
-        />
-      )}
+     {renderDropdownMenu()}
     </View>
   );
 };

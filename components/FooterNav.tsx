@@ -40,7 +40,7 @@ const FooterNav = () => {
       </View>
       <View className="bg-[#000]">
         <Link
-          href={"/home/test"}
+          href="/"
           style={{
             color: "#fff",
             padding: 10

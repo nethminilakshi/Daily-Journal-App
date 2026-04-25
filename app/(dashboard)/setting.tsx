@@ -727,7 +727,7 @@ const UserSettingsScreen: React.FC = () => {
           {renderCollapsibleSection(
             "email",
             "Change Email",
-            <Mail size={20} color="#FFB6C1" />,
+            <Mail size={20} color="#D4A5FF" />,
             <View>
               {!userProfile?.emailVerified && (
                 <View
@@ -846,7 +846,7 @@ const UserSettingsScreen: React.FC = () => {
                     !currentPassword ||
                     newEmail === userProfile?.email
                       ? "rgba(255, 182, 193, 0.3)"
-                      : "#FFB6C1",
+                      : "#D4A5FF",
                 }}
               >
                 {updatingEmail ? (
@@ -868,14 +868,14 @@ const UserSettingsScreen: React.FC = () => {
                 )}
               </TouchableOpacity>
             </View>,
-            "#FFB6C1"
+            "#D4A5FF"
           )}
 
           {/* Update Password Section */}
           {renderCollapsibleSection(
             "password",
             "Change Password",
-            <Lock size={20} color="#B5EAD7" />,
+            <Lock size={20} color="#D4A5FF" />,
             <View>
               <View style={{ position: "relative", marginBottom: 10 }}>
                 <TextInput
@@ -1028,7 +1028,7 @@ const UserSettingsScreen: React.FC = () => {
                 )}
               </TouchableOpacity>
             </View>,
-            "#B5EAD7"
+            "#D4A5FF"
           )}
 
           {/* Account Actions */}
