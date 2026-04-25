@@ -10,10 +10,10 @@ A **beautiful and intuitive mobile journaling application** built with **React N
   <img width="250" src="https://github.com/user-attachments/assets/c0767e4d-0a98-477b-8f01-bce73603b47e" />
   <img width="250" src="https://github.com/user-attachments/assets/95080f97-a86a-4406-aa46-8d4c336a1339" />
   <img width="250" src="https://github.com/user-attachments/assets/42ea0f65-8719-4673-9230-a2e6f06af1b7" />
-  <img width="250" src="https://github.com/user-attachments/assets/d1ef72e0-c4e6-4874-af10-a02b4479c83b" />
 </p>
 
 <p align="center">
+  <img width="250" src="https://github.com/user-attachments/assets/d1ef72e0-c4e6-4874-af10-a02b4479c83b" />
  <img width="250" src="https://github.com/user-attachments/assets/bf94c176-a8c4-4b2c-971d-efb9a791c719" />
  <img width="250" src="https://github.com/user-attachments/assets/ebede303-472a-484c-9476-fc1f914ce3ca" />
 
