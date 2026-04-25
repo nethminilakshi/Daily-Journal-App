@@ -7,14 +7,16 @@ A **beautiful and intuitive mobile journaling application** built with **React N
 ## 📸 Screenshots  
 
 <p align="center">
-  <img width="250" src="https://github.com/user-attachments/assets/1a6a8fbe-ae11-41f4-b542-1068fa2046e6" />
-  <img width="250" src="https://github.com/user-attachments/assets/f9432745-30db-4e3f-acf4-7e4032b50a05" />
-  <img width="250" src="https://github.com/user-attachments/assets/a156025f-0ac7-42e4-ac21-a1ad15f10a17" />
+  <img width="250" src="https://github.com/user-attachments/assets/c0767e4d-0a98-477b-8f01-bce73603b47e" />
+  <img width="250" src="https://github.com/user-attachments/assets/95080f97-a86a-4406-aa46-8d4c336a1339" />
+  <img width="250" src="https://github.com/user-attachments/assets/42ea0f65-8719-4673-9230-a2e6f06af1b7" />
+  <img width="250" src="https://github.com/user-attachments/assets/d1ef72e0-c4e6-4874-af10-a02b4479c83b" />
 </p>
 
 <p align="center">
-  <img width="250" src="https://github.com/user-attachments/assets/b5d17ebe-ca2e-421c-9095-12db3d7afffd" />
-  <img width="250" src="https://github.com/user-attachments/assets/51397cdf-0540-4690-87ff-dfd2ca925a76" />
+ <img width="250" src="https://github.com/user-attachments/assets/bf94c176-a8c4-4b2c-971d-efb9a791c719" />
+ <img width="250" src="https://github.com/user-attachments/assets/ebede303-472a-484c-9476-fc1f914ce3ca" />
+
 </p>
 
 ---
