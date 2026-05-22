@@ -4,7 +4,6 @@ import { BookOpen, MoreVertical, Plus, Trash2 } from "lucide-react-native";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   ImageBackground,
   Modal,
   Pressable,
@@ -17,11 +16,13 @@ import {
   View,
 } from "react-native";
 
+import { useCustomAlert } from "../../../components/CustomAlert";
 import { auth } from "../../../firebase";
 import journalService, { JournalEntry } from "../../../services/journalService";
 
 const HomeScreen = () => {
   const router = useRouter();
+  const { showAlert, AlertComponent } = useCustomAlert();
 
   // State for journal data
   const [entries, setEntries] = useState<JournalEntry[]>([]);
@@ -114,7 +115,7 @@ const HomeScreen = () => {
       setShowMenuForEntry(null);
       router.push(`/JournalEntries/${entry.id}`);
     } catch (err) {
-      Alert.alert("Navigation Error", "Failed to open journal entry");
+      showAlert({ type: "error", title: "Navigation Error", message: "Failed to open journal entry." });
     }
   };
 
@@ -123,7 +124,7 @@ const HomeScreen = () => {
     try {
       router.push("/add");
     } catch (err) {
-      Alert.alert("Navigation Error", "Failed to open add journal screen");
+      showAlert({ type: "error", title: "Navigation Error", message: "Failed to open add journal screen." });
     }
   };
 
@@ -131,37 +132,28 @@ const HomeScreen = () => {
   const handleDeleteEntry = async (entry: JournalEntry) => {
     setShowMenuForEntry(null);
 
-    Alert.alert(
-      "Delete Entry",
-      `Are you sure you want to delete "${entry.title}"?`,
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              setDeletingEntry(entry.id);
-              await journalService.delete(entry.id);
-              await fetchJournalData();
-              Alert.alert("Success", "Journal entry deleted successfully");
-            } catch (error) {
-              Alert.alert(
-                "Error",
-                error instanceof Error
-                  ? error.message
-                  : "Failed to delete journal entry"
-              );
-            } finally {
-              setDeletingEntry(null);
-            }
-          },
-        },
-      ]
-    );
+    showAlert({
+      type: "warning",
+      title: "Delete Entry",
+      message: `Are you sure you want to delete "${entry.title}"? This cannot be undone.`,
+      confirmText: "Delete",
+      cancelText: "Cancel",
+      onConfirm: async () => {
+        try {
+          setDeletingEntry(entry.id);
+          await journalService.delete(entry.id);
+          await fetchJournalData();
+        } catch (error) {
+          showAlert({
+            type: "error",
+            title: "Delete Failed",
+            message: error instanceof Error ? error.message : "Failed to delete journal entry.",
+          });
+        } finally {
+          setDeletingEntry(null);
+        }
+      },
+    });
   };
 
   const handleShowMenu = (entryId: string, event: any) => {
@@ -931,6 +923,7 @@ const HomeScreen = () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#E8D5F2" }}>
+      <AlertComponent />
       <StatusBar
         barStyle="light-content"
         backgroundColor="transparent"

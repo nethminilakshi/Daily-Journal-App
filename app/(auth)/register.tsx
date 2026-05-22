@@ -3,7 +3,6 @@ import { Eye, EyeOff, Lock, Mail, UserPlus } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Animated,
   Dimensions,
   Easing,
@@ -15,6 +14,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useCustomAlert } from "../../components/CustomAlert";
 import { register } from "../../services/authService";
 
 const { width: SW, height: SH } = Dimensions.get("window");
@@ -144,6 +144,7 @@ const Sparkle = ({ x, y, delay }: { x: number; y: number; delay: number }) => {
 
 const Register = () => {
   const router = useRouter();
+  const { showAlert, AlertComponent } = useCustomAlert();
   const [email, setEmail]                             = useState("");
   const [password, setPassword]                       = useState("");
   const [cPassword, setCPassword]                     = useState("");
@@ -153,21 +154,28 @@ const Register = () => {
 
   const handleRegister = async () => {
     if (isLoading) return;
-    if (!email.trim())          { Alert.alert("Validation Error", "Email is required"); return; }
-    if (!password.trim())       { Alert.alert("Validation Error", "Password is required"); return; }
-    if (!cPassword.trim())      { Alert.alert("Validation Error", "Please confirm your password"); return; }
-    if (password !== cPassword) { Alert.alert("Password Mismatch", "Passwords do not match"); return; }
-    if (password.length < 6)    { Alert.alert("Weak Password", "Password must be at least 6 characters long"); return; }
+    if (!email.trim())          { showAlert({ type: "error",   title: "Validation Error",  message: "Email is required." }); return; }
+    if (!password.trim())       { showAlert({ type: "error",   title: "Validation Error",  message: "Password is required." }); return; }
+    if (!cPassword.trim())      { showAlert({ type: "error",   title: "Validation Error",  message: "Please confirm your password." }); return; }
+    if (password !== cPassword) { showAlert({ type: "warning", title: "Password Mismatch", message: "Passwords do not match.", confirmText: "OK" }); return; }
+    if (password.length < 6)    { showAlert({ type: "warning", title: "Weak Password",     message: "Password must be at least 6 characters long.", confirmText: "OK" }); return; }
 
     setIsLoading(true);
     await register(email, password)
-      .then(() => Alert.alert("Success", "Account created successfully!", [{ text: "OK", onPress: () => router.back() }]))
-      .catch((err) => { Alert.alert("Registration failed", "Something went wrong."); console.error(err); })
+      .then(() => showAlert({
+        type: "success",
+        title: "Account Created! 🎉",
+        message: "Your journal is ready. Let's start writing!",
+        confirmText: "Let's Go",
+        onConfirm: () => router.back(),
+      }))
+      .catch((err) => { showAlert({ type: "error", title: "Registration Failed", message: "Something went wrong. Please try again." }); console.error(err); })
       .finally(() => setIsLoading(false));
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: "#E8D5F2" }}>
+      <AlertComponent />
       <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
 
       {/* Top section decorations */}
@@ -213,7 +221,7 @@ const Register = () => {
           }}>
             <UserPlus size={32} color="white" />
           </View>
-          <Text style={{ fontSize: 28, fontWeight: "800", color: "#9E1C60", marginBottom: 5 }}>
+          <Text style={{ fontSize: 28, fontWeight: "800", color: "#9E1C60", marginBottom: 4 }}>
             Join the Journey
           </Text>
           <Text style={{ fontSize: 14, color: "#9B89BD" }}>
@@ -298,16 +306,10 @@ const Register = () => {
             }
           </TouchableOpacity>
 
-          {/* Hint */}
-          <View style={{ backgroundColor: "#F5F0FF", borderRadius: 12, padding: 10, borderWidth: 1.5, borderColor: "#E6D9FF" }}>
-            <Text style={{ fontSize: 11, color: "#9B89BD", textAlign: "center" }}>
-              Password must be at least 6 characters long
-            </Text>
-          </View>
         </View>
 
         {/* Divider */}
-        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 18 }}>
+        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 10 }}>
           <View style={{ height: 1, backgroundColor: "#E6D9FF", flex: 1 }} />
           <Text style={{ marginHorizontal: 12, fontSize: 13, color: "#9B89BD" }}>or</Text>
           <View style={{ height: 1, backgroundColor: "#E6D9FF", flex: 1 }} />

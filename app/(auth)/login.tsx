@@ -1,12 +1,12 @@
 import { useRouter } from "expo-router";
-import { BookOpen, Eye, EyeOff, Lock, Mail } from "lucide-react-native";
+import { BookOpen, Eye, EyeOff, Lock, Mail, Send, X } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Animated,
   Dimensions,
   Easing,
+  Modal,
   Pressable,
   ScrollView,
   StatusBar,
@@ -15,7 +15,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { login } from "../../services/authService";
+import { useCustomAlert } from "../../components/CustomAlert";
+import { forgotPassword, login } from "../../services/authService";
 
 const { width: SW, height: SH } = Dimensions.get("window");
 
@@ -149,26 +150,76 @@ const Sparkle = ({ x, y, delay }: { x: number; y: number; delay: number }) => {
 // ── Main Login Screen ─────────────────────────────────────────────
 const Login = () => {
   const router = useRouter();
+  const { showAlert, AlertComponent } = useCustomAlert();
   const [email, setEmail]           = useState<string>("");
   const [password, setPassword]     = useState<string>("");
   const [isLoading, setIsLoading]   = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
+  // ── Forgot Password state ────────────────────────────────────────
+  const [fpModalVisible, setFpModalVisible] = useState<boolean>(false);
+  const [fpEmail, setFpEmail]               = useState<string>("");
+  const [fpLoading, setFpLoading]           = useState<boolean>(false);
+  const [fpSent, setFpSent]                 = useState<boolean>(false);
+  const fpModalAnim                         = useRef(new Animated.Value(0)).current;
+
+  const openFpModal = () => {
+    setFpEmail("");
+    setFpSent(false);
+    setFpModalVisible(true);
+    Animated.spring(fpModalAnim, { toValue: 1, useNativeDriver: true, tension: 65, friction: 9 }).start();
+  };
+
+  const closeFpModal = () => {
+    Animated.timing(fpModalAnim, { toValue: 0, duration: 200, useNativeDriver: true }).start(() =>
+      setFpModalVisible(false)
+    );
+  };
+
+  const handleForgotPassword = async () => {
+    if (fpLoading) return;
+    if (!fpEmail.trim()) {
+      showAlert({ type: "error", title: "Email Required", message: "Please enter your email address." });
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(fpEmail.trim())) {
+      showAlert({ type: "error", title: "Invalid Email", message: "Please enter a valid email address." });
+      return;
+    }
+    setFpLoading(true);
+    try {
+      await forgotPassword(fpEmail.trim());
+      setFpSent(true);
+    } catch (err: any) {
+      const code = err?.code ?? "";
+      if (code === "auth/user-not-found") {
+        showAlert({ type: "error", title: "Not Found", message: "No account found with that email address." });
+      } else {
+        showAlert({ type: "error", title: "Something Went Wrong", message: "Please try again later." });
+      }
+    } finally {
+      setFpLoading(false);
+    }
+  };
+
   const handleLogin = async () => {
     if (isLoading) return;
-    if (!email.trim())    { Alert.alert("Validation Error", "Email is required"); return; }
-    if (!password.trim()) { Alert.alert("Validation Error", "Password is required"); return; }
+    if (!email.trim())    { showAlert({ type: "error", title: "Validation Error", message: "Email is required." }); return; }
+    if (!password.trim()) { showAlert({ type: "error", title: "Validation Error", message: "Password is required." }); return; }
 
     setIsLoading(true);
     await login(email, password)
       .then(() => { router.push("/JournalEntries"); })
-      .catch((err) => { Alert.alert("Login failed", "Invalid email or password"); console.error(err); })
+      .catch((err) => { showAlert({ type: "error", title: "Login Failed", message: "Invalid email or password. Please try again." }); console.error(err); })
       .finally(() => { setIsLoading(false); });
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: "#E8D5F2" }}>
+      <AlertComponent />
       <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+
 
       {/* ── Top section decorations ── */}
       <FloatingStar  x={18}           y={60}        size={13} delay={0}   color="#FF69B4"  duration={2200} />
@@ -295,7 +346,7 @@ const Login = () => {
           </TouchableOpacity>
 
           {/* Forgot Password */}
-          <TouchableOpacity style={{ alignSelf: "center", padding: 6 }}>
+          <TouchableOpacity onPress={openFpModal} style={{ alignSelf: "center", padding: 6 }}>
             <Text style={{ fontSize: 13, color: "#B95E82", fontWeight: "600" }}>
               Forgot your password?
             </Text>
@@ -332,6 +383,202 @@ const Login = () => {
           </Text>
         </View>
       </ScrollView>
+
+      {/* ── Forgot Password Modal ─────────────────────────────────── */}
+      <Modal
+        transparent
+        visible={fpModalVisible}
+        animationType="none"
+        onRequestClose={closeFpModal}
+        statusBarTranslucent
+      >
+        {/* Backdrop */}
+        <Pressable
+          onPress={closeFpModal}
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(80,40,110,0.45)",
+            justifyContent: "center",
+            alignItems: "center",
+            paddingHorizontal: 24,
+          }}
+        >
+          {/* Card – stop propagation so taps inside don't close modal */}
+          <Animated.View
+            style={{
+              width: "100%",
+              backgroundColor: "white",
+              borderRadius: 28,
+              padding: 28,
+              borderWidth: 2,
+              borderColor: "#E6D9FF",
+              shadowColor: "#9B39BD",
+              shadowOffset: { width: 0, height: 8 },
+              shadowOpacity: 0.25,
+              shadowRadius: 20,
+              elevation: 16,
+              transform: [
+                {
+                  scale: fpModalAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.85, 1],
+                  }),
+                },
+                {
+                  translateY: fpModalAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [40, 0],
+                  }),
+                },
+              ],
+              opacity: fpModalAnim,
+            }}
+          >
+            <Pressable onPress={() => {}}>
+              {/* Close button */}
+              <TouchableOpacity
+                onPress={closeFpModal}
+                style={{
+                  position: "absolute",
+                  top: -6,
+                  right: -6,
+                  backgroundColor: "#F5F0FF",
+                  borderRadius: 20,
+                  padding: 6,
+                  borderWidth: 1.5,
+                  borderColor: "#D4A5FF",
+                }}
+              >
+                <X size={16} color="#9B89BD" />
+              </TouchableOpacity>
+
+              {/* Icon */}
+              <View style={{ alignItems: "center", marginBottom: 20 }}>
+                <View
+                  style={{
+                    width: 64,
+                    height: 64,
+                    backgroundColor: "#F0E6FF",
+                    borderRadius: 32,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderWidth: 2,
+                    borderColor: "#D4A5FF",
+                    marginBottom: 14,
+                  }}
+                >
+                  <Mail size={28} color="#9E1C60" />
+                </View>
+                <Text style={{ fontSize: 20, fontWeight: "800", color: "#9E1C60", marginBottom: 6 }}>
+                  Reset Password
+                </Text>
+                <Text style={{ fontSize: 13, color: "#9B89BD", textAlign: "center", lineHeight: 19 }}>
+                  {fpSent
+                    ? "Check your inbox! A reset link has been sent to your email."
+                    : "Enter your email and we'll send you a link to reset your password."}
+                </Text>
+              </View>
+
+              {fpSent ? (
+                /* ── Success state ── */
+                <View style={{ alignItems: "center" }}>
+                  <View
+                    style={{
+                      backgroundColor: "#F0FFF4",
+                      borderWidth: 1.5,
+                      borderColor: "#86EFAC",
+                      borderRadius: 14,
+                      paddingVertical: 14,
+                      paddingHorizontal: 20,
+                      marginBottom: 18,
+                      width: "100%",
+                    }}
+                  >
+                    <Text style={{ fontSize: 13, color: "#16A34A", textAlign: "center", lineHeight: 18 }}>
+                      ✅  Email sent to{"\n"}
+                      <Text style={{ fontWeight: "700" }}>{fpEmail.trim()}</Text>
+                    </Text>
+                  </View>
+                  <TouchableOpacity
+                    onPress={closeFpModal}
+                    style={{
+                      backgroundColor: "#D4A5FF",
+                      paddingVertical: 13,
+                      paddingHorizontal: 36,
+                      borderRadius: 16,
+                      borderWidth: 1.5,
+                      borderColor: "#C78EFF",
+                    }}
+                  >
+                    <Text style={{ color: "white", fontWeight: "700", fontSize: 15 }}>Done</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                /* ── Input state ── */
+                <View>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      backgroundColor: "#F5F0FF",
+                      borderWidth: 1.5,
+                      borderColor: "#D4A5FF",
+                      borderRadius: 14,
+                      paddingHorizontal: 14,
+                      paddingVertical: 12,
+                      marginBottom: 18,
+                    }}
+                  >
+                    <Mail size={18} color="#9B89BD" style={{ marginRight: 10 }} />
+                    <TextInput
+                      placeholder="Enter your email address"
+                      placeholderTextColor="#C5B3E6"
+                      value={fpEmail}
+                      onChangeText={setFpEmail}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      autoFocus
+                      style={{ flex: 1, fontSize: 15, color: "#6B5B95" }}
+                    />
+                  </View>
+
+                  <TouchableOpacity
+                    onPress={handleForgotPassword}
+                    disabled={fpLoading}
+                    style={{
+                      backgroundColor: fpLoading ? "rgba(212,165,255,0.5)" : "#D4A5FF",
+                      paddingVertical: 14,
+                      borderRadius: 16,
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 8,
+                      borderWidth: 1.5,
+                      borderColor: "#C78EFF",
+                      shadowColor: "#9B89BD",
+                      shadowOffset: { width: 0, height: 4 },
+                      shadowOpacity: 0.25,
+                      shadowRadius: 8,
+                      elevation: 4,
+                    }}
+                  >
+                    {fpLoading ? (
+                      <ActivityIndicator color="white" size="small" />
+                    ) : (
+                      <>
+                        <Send size={16} color="white" />
+                        <Text style={{ color: "white", fontWeight: "700", fontSize: 15 }}>
+                          Send Reset Link
+                        </Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              )}
+            </Pressable>
+          </Animated.View>
+        </Pressable>
+      </Modal>
     </View>
   );
 };

@@ -11,7 +11,6 @@ import {
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   ScrollView,
   StatusBar,
   Text,
@@ -19,6 +18,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useCustomAlert } from "../../../components/CustomAlert";
 import { db } from "../../../firebase";
 import { MoodType } from "../../../services/journalService";
 
@@ -35,6 +35,7 @@ const JournalEntryScreen = () => {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const isNew = !id || id === "new";
   const router = useRouter();
+  const { showAlert, AlertComponent } = useCustomAlert();
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -60,9 +61,12 @@ const JournalEntryScreen = () => {
           setLoading(true);
 
           if (!id || typeof id !== "string" || id.trim() === "") {
-            Alert.alert("Error", "Invalid journal entry ID", [
-              { text: "OK", onPress: () => router.replace("/") },
-            ]);
+            showAlert({
+              type: "error",
+              title: "Invalid Entry",
+              message: "Invalid journal entry ID.",
+              onConfirm: () => router.replace("/"),
+            });
             return;
           }
 
@@ -86,14 +90,20 @@ const JournalEntryScreen = () => {
             setSelectedMood(journalEntry.mood);
             setInitialData(journalEntry);
           } else {
-            Alert.alert("Error", "Journal entry not found", [
-              { text: "OK", onPress: () => router.replace("/") },
-            ]);
+            showAlert({
+              type: "error",
+              title: "Entry Not Found",
+              message: "This journal entry could not be found.",
+              onConfirm: () => router.replace("/"),
+            });
           }
         } catch (error) {
-          Alert.alert("Error", "Failed to load journal entry", [
-            { text: "OK", onPress: () => router.replace("/") },
-          ]);
+          showAlert({
+            type: "error",
+            title: "Load Failed",
+            message: "Failed to load journal entry. Please try again.",
+            onConfirm: () => router.replace("/"),
+          });
         } finally {
           setLoading(false);
         }
@@ -171,12 +181,12 @@ const JournalEntryScreen = () => {
     }
 
     if (!content.trim()) {
-      Alert.alert("Error", "Please write something in your journal entry");
+      showAlert({ type: "error", title: "Missing Content", message: "Please write something in your journal entry." });
       isValid = false;
     }
 
     if (!selectedMood) {
-      Alert.alert("Error", "Please select your mood");
+      showAlert({ type: "error", title: "Select a Mood", message: "Please select your mood before saving." });
       isValid = false;
     }
 
@@ -201,7 +211,6 @@ const JournalEntryScreen = () => {
         };
 
         await addDoc(collection(db, "journalEntry"), journalData);
-        Alert.alert("Success", "Your journal entry has been saved!");
       } else {
         const journalData = {
           title: title.trim(),
@@ -212,15 +221,15 @@ const JournalEntryScreen = () => {
 
         const docRef = doc(db, "journalEntry", id);
         await updateDoc(docRef, journalData);
-        Alert.alert("Success", "Your journal entry has been updated!");
       }
 
       router.replace("/");
     } catch (error) {
-      Alert.alert(
-        "Error",
-        `Failed to ${isNew ? "save" : "update"} your journal entry. Please try again.`
-      );
+      showAlert({
+        type: "error",
+        title: "Save Failed",
+        message: `Failed to ${isNew ? "save" : "update"} your journal entry. Please try again.`,
+      });
     } finally {
       setSaving(false);
     }
@@ -242,18 +251,14 @@ const JournalEntryScreen = () => {
 
   const handleCancel = () => {
     if (hasChanges()) {
-      Alert.alert(
-        "Discard Changes",
-        `Are you sure you want to discard your ${isNew ? "journal entry" : "changes"}?`,
-        [
-          { text: "Keep Writing", style: "cancel" },
-          {
-            text: "Discard",
-            style: "destructive",
-            onPress: () => router.replace("/"),
-          },
-        ]
-      );
+      showAlert({
+        type: "warning",
+        title: "Discard Changes?",
+        message: `Are you sure you want to discard your ${isNew ? "journal entry" : "changes"}?`,
+        confirmText: "Discard",
+        cancelText: "Keep Writing",
+        onConfirm: () => router.replace("/"),
+      });
     } else {
       router.replace("/");
     }
@@ -560,6 +565,7 @@ const JournalEntryScreen = () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#F3E5F5" }}>
+      <AlertComponent />
       <StatusBar
         barStyle="light-content"
         backgroundColor="#F3E5F5"
